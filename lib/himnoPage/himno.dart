@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
+import 'package:screen/screen.dart';
 
 import './components/boton_voz.dart';
 import './components/estructura_himno.dart';
@@ -44,6 +44,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    Screen.keepOn(true);
     cargando = true;
     stringVoces = ['Soprano', 'Tenor', 'ContraAlto', 'Bajo'];
     audioVoces = [AudioPlayer(),AudioPlayer(),AudioPlayer(),AudioPlayer()];
@@ -133,6 +134,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     for (int i = 0; i < audioVoces.length; ++i) {
       audioVoces[i].release();
     }
+    Screen.keepOn(false);
   }
 
   void pauseVoces() {
@@ -211,6 +213,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
         onHorizontalDragUpdate: (DragUpdateDetails details) {
           setState(() => fontSize = initfontSize + (details.globalPosition.dx - initposition)*0.1);
+        },
+
+        onHorizontalDragEnd: (DragEndDetails details) {
+          initfontSize = fontSize;
         },
         child: Stack(
           children: <Widget>[

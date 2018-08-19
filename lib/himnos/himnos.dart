@@ -31,15 +31,10 @@ class _HimnosPageState extends State<HimnosPage> {
     String databasesPath = await getDatabasesPath();
     String path = databasesPath + "/himnos.db";
     
-    try {
-      db = await openReadOnlyDatabase(path);
-    } catch (e) {
-      ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
-      List<int> bytes =
-      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-      await new File(path).writeAsBytes(bytes);
-      db = await openReadOnlyDatabase(path);
-    }
+    ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
+    List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    await new File(path).writeAsBytes(bytes);
+    db = await openReadOnlyDatabase(path);
     await fetchCategorias();
     return null;
   }

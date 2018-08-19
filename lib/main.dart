@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {  
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Himnos y Cánticos del Evangelio',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
