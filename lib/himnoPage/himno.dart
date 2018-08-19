@@ -36,7 +36,9 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   int totalDuration;
   bool vozDisponible;
   bool cargando;
+  double initfontSize;
   double fontSize;
+  double initposition;
   Database db;
 
   @override
@@ -49,7 +51,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     start = false;
     vozDisponible = false;
     dragging = false;
-    fontSize = 16.0;
+    initfontSize = 16.0;
+    fontSize = initfontSize;
     currentDuration = Duration();
     switchModeController = AnimationController(duration: Duration(milliseconds: 200), vsync: this);
     switchMode = CurvedAnimation(parent: switchModeController, curve: Curves.easeInOut);
@@ -201,153 +204,174 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       appBar: AppBar(
         title: Text('${widget.numero} - ${widget.titulo}'),
       ),
-      body: Stack(
-        children: <Widget>[
-          (estrofas.isNotEmpty ? ListView.builder(
-            padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
-            itemCount: estrofas.length,
-            itemBuilder: (BuildContext context, int index) =>
-              (estrofas[index].coro ? 
-              Coro(coro: estrofas[index].parrafo, fontSize: fontSize,) :
-              Estrofa(numero: estrofas[index].orden, estrofa: estrofas[index].parrafo,fontSize: fontSize,))
-          ) :
-          Center(child: CircularProgressIndicator(),)),
-          Align(
-            alignment: FractionalOffset.bottomCenter,
-            child: FractionalTranslation(
-              translation: Offset(0.0, 1.0 - switchMode.value),
-              child: Card(
-                margin: EdgeInsets.all(0.0),
-                elevation: 10.0,
-                child: !cargando ? Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          BotonVoz(
-                            voz: 'Soprano',
-                            activo: voces[0],
-                            onPressed: () {
-                              if(voces[0])
-                                pauseSingleVoice(0);
-                              else
-                                resumeSingleVoice(0);
-                            },
-                          ),
-                          BotonVoz(
-                            voz: 'Tenor',
-                            activo: voces[1],
-                            onPressed: () {
-                              if(voces[1])
-                                pauseSingleVoice(1);
-                              else
-                                resumeSingleVoice(1);
-                            },
-                          ),
-                          BotonVoz(
-                            voz: 'Contra Alto',
-                            activo: voces[2],
-                            onPressed: () {
-                              if(voces[2])
-                                pauseSingleVoice(2);
-                              else
-                                resumeSingleVoice(2);
-                            },
-                          ),
-                          BotonVoz(
-                            voz: 'Bajo',
-                            activo: voces[3],
-                            onPressed: () {
-                              if(voces[3])
-                                pauseSingleVoice(3);
-                              else
-                                resumeSingleVoice(3);
-                            },
-                          ),
-                        ],
-                      ),
-                      Slider(
-                        onChangeStart: (double nextProgress) {
-                          setState(() {
-                            draggingProgress = nextProgress;
-                            dragging = true;
-                          });
-                        },
-                        onChanged: (double nextProgress) {
-                          setState(() => draggingProgress = nextProgress);
-                        },
-                        onChangeEnd: (double nextProgress) {
-                          setState(() {
-                            currentProgress = nextProgress;
-                            dragging = false;
-                          });
-                          vocesSeek(currentProgress);
-                        },
-                        value: dragging ? draggingProgress : currentProgress,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          RawMaterialButton(
-                            shape: CircleBorder(),
-                            child: IconButton(
+      body: GestureDetector(
+        onHorizontalDragDown: (DragDownDetails details) {
+          initposition = details.globalPosition.dx;
+        },
+
+        onHorizontalDragUpdate: (DragUpdateDetails details) {
+          setState(() => fontSize = initfontSize + (details.globalPosition.dx - initposition)*0.1);
+        },
+
+        
+
+
+        // onScaleUpdate: (ScaleUpdateDetails details) {
+        //   print(details.scale);
+        //   setState(() => fontSize = initfontSize + (initfontSize * details.scale * 0.35));
+        // },
+
+        // onScaleEnd: (ScaleEndDetails details) {
+        //   initfontSize = fontSize;
+        // },
+        child: Stack(
+          children: <Widget>[
+            (estrofas.isNotEmpty ? ListView.builder(
+              padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
+              itemCount: estrofas.length,
+              itemBuilder: (BuildContext context, int index) =>
+                (estrofas[index].coro ? 
+                Coro(coro: estrofas[index].parrafo, fontSize: fontSize,) :
+                Estrofa(numero: estrofas[index].orden, estrofa: estrofas[index].parrafo,fontSize: fontSize,))
+            ) :
+            Center(child: CircularProgressIndicator(),)),
+            Align(
+              alignment: FractionalOffset.bottomCenter,
+              child: FractionalTranslation(
+                translation: Offset(0.0, 1.0 - switchMode.value),
+                child: Card(
+                  margin: EdgeInsets.all(0.0),
+                  elevation: 10.0,
+                  child: !cargando ? Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            BotonVoz(
+                              voz: 'Soprano',
+                              activo: voces[0],
                               onPressed: () {
-                                double newProgress = currentProgress - 0.1;
-                                if(newProgress <= 0.0)
-                                  vocesSeek(0.0);
-                                else vocesSeek(currentProgress - 0.1);
+                                if(voces[0])
+                                  pauseSingleVoice(0);
+                                else
+                                  resumeSingleVoice(0);
                               },
-                              icon: Icon(Icons.fast_rewind),
                             ),
-                            onPressed: () {},
-                          ),
-                          start ? RawMaterialButton(
-                            shape: CircleBorder(),
-                            child: IconButton(
-                              onPressed: pauseVoces,
-                              icon: Icon(Icons.pause),
-                            ),
-                            onPressed: () {},
-                          ) : 
-                          RawMaterialButton(
-                            shape: CircleBorder(),
-                            child: IconButton(
-                              onPressed: !cargando ? resumeVoces : null,
-                              icon: Icon(Icons.play_arrow),
-                            ),
-                            onPressed: () {},
-                          ),
-                          RawMaterialButton(
-                            shape: CircleBorder(),
-                            child: IconButton(
+                            BotonVoz(
+                              voz: 'Tenor',
+                              activo: voces[1],
                               onPressed: () {
-                                double newProgress = currentProgress + 0.1;
-                                if(newProgress >= 1.0)
-                                  vocesSeek(1.0);
-                                else vocesSeek(currentProgress + 0.1);
+                                if(voces[1])
+                                  pauseSingleVoice(1);
+                                else
+                                  resumeSingleVoice(1);
                               },
-                              icon: Icon(Icons.fast_forward)
                             ),
-                            onPressed: () {},
-                          ),
-                        ],
-                      )
-                    ],
+                            BotonVoz(
+                              voz: 'Contra Alto',
+                              activo: voces[2],
+                              onPressed: () {
+                                if(voces[2])
+                                  pauseSingleVoice(2);
+                                else
+                                  resumeSingleVoice(2);
+                              },
+                            ),
+                            BotonVoz(
+                              voz: 'Bajo',
+                              activo: voces[3],
+                              onPressed: () {
+                                if(voces[3])
+                                  pauseSingleVoice(3);
+                                else
+                                  resumeSingleVoice(3);
+                              },
+                            ),
+                          ],
+                        ),
+                        Slider(
+                          onChangeStart: (double nextProgress) {
+                            setState(() {
+                              draggingProgress = nextProgress;
+                              dragging = true;
+                            });
+                          },
+                          onChanged: (double nextProgress) {
+                            setState(() => draggingProgress = nextProgress);
+                          },
+                          onChangeEnd: (double nextProgress) {
+                            setState(() {
+                              currentProgress = nextProgress;
+                              dragging = false;
+                            });
+                            vocesSeek(currentProgress);
+                          },
+                          value: dragging ? draggingProgress : currentProgress,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            RawMaterialButton(
+                              shape: CircleBorder(),
+                              child: IconButton(
+                                onPressed: () {
+                                  double newProgress = currentProgress - 0.1;
+                                  if(newProgress <= 0.0)
+                                    vocesSeek(0.0);
+                                  else vocesSeek(currentProgress - 0.1);
+                                },
+                                icon: Icon(Icons.fast_rewind),
+                              ),
+                              onPressed: () {},
+                            ),
+                            start ? RawMaterialButton(
+                              shape: CircleBorder(),
+                              child: IconButton(
+                                onPressed: pauseVoces,
+                                icon: Icon(Icons.pause),
+                              ),
+                              onPressed: () {},
+                            ) : 
+                            RawMaterialButton(
+                              shape: CircleBorder(),
+                              child: IconButton(
+                                onPressed: !cargando ? resumeVoces : null,
+                                icon: Icon(Icons.play_arrow),
+                              ),
+                              onPressed: () {},
+                            ),
+                            RawMaterialButton(
+                              shape: CircleBorder(),
+                              child: IconButton(
+                                onPressed: () {
+                                  double newProgress = currentProgress + 0.1;
+                                  if(newProgress >= 1.0)
+                                    vocesSeek(1.0);
+                                  else vocesSeek(currentProgress + 0.1);
+                                },
+                                icon: Icon(Icons.fast_forward)
+                              ),
+                              onPressed: () {},
+                            ),
+                          ],
+                        )
+                      ],
+                    )
+                  ) : Container(
+                    height: 140.0,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
                   )
-                ) : Container(
-                  height: 140.0,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              ),
+                ),
+              )
             )
-          )
-        ],
+          ],
+        ),
       ),
       floatingActionButton: vozDisponible ? Padding(
         padding: EdgeInsets.only(bottom: switchMode.value * 130),
