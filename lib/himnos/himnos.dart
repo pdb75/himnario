@@ -56,6 +56,51 @@ class _HimnosPageState extends State<HimnosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'Himnos y Cánticos del Evangelio',
+                    style: TextStyle(
+                      color: Colors.white
+                    ),
+                  )
+                ],
+              ),
+              decoration: BoxDecoration(
+                color: Theme.of(context).accentColor,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.favorite),
+              title: Text('Favoritos'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Ajustes'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.feedback),
+              title: Text('Feedback'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: Text('Himnos del Evangelio'),
         actions: <Widget>[
@@ -103,6 +148,7 @@ class _HimnosPageState extends State<HimnosPage> {
               title: Text(categorias[index-1].categoria),
               children: categorias[index-1].subCategorias.map((subCategoria) =>
                 ListTile(
+                  dense: true,
                   onTap: () {
                     Navigator.push(
                       context, 

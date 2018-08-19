@@ -12,13 +12,13 @@ class BotonVoz extends StatelessWidget {
     return !activo ? OutlineButton(
       child: Text(voz,
         style: TextStyle(
-          color: Colors.lightBlue
+          color: Theme.of(context).accentColor
         ),
       ),
       onPressed: onPressed ?? () {},
     ) :
     RaisedButton(
-      color: Colors.blue,
+      color: Theme.of(context).accentColor,
       child: Text(voz,
         style: TextStyle(
           color: Colors.white

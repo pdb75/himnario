@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:http/http.dart' as http;
 
 import './components/boton_voz.dart';
 import './components/estructura_himno.dart';
@@ -22,8 +24,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   List<AudioPlayer> audioVoces;
   List<String> stringVoces;
   List<bool> voces;
-  List<String> estrofas;
-  List<String> coros;
+  List<Parrafo> estrofas;
   bool dragging;
   double draggingProgress;
   bool modoVoces;
@@ -32,64 +33,50 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   double nextProgress;
   Duration currentDuration;
   int totalDuration;
+  bool vozDisponible;
+  bool cargando;
+  double fontSize;
 
   @override
   void initState() {
     super.initState();
+    cargando = true;
     stringVoces = ['Soprano', 'Tenor', 'ContraAlto', 'Bajo'];
     audioVoces = [AudioPlayer(),AudioPlayer(),AudioPlayer(),AudioPlayer()];
     modoVoces = false;
     start = false;
+    vozDisponible = false;
     dragging = false;
+    fontSize = 16.0;
     currentDuration = Duration();
-    initVoces();
     switchModeController = AnimationController(duration: Duration(milliseconds: 200), vsync: this);
     switchMode = CurvedAnimation(parent: switchModeController, curve: Curves.easeInOut);
     switchMode..addListener(() {
       setState(() {});
     });
     voces = [true, true, true, true];
-    estrofas = List<String>();
-    coros = List<String>();
+    estrofas = List<Parrafo>();
     currentProgress = 0.0;
-    estrofas.add("""Lleno de angustia y temores,
-en brava y oscura mar,
-el hombre perdido navega,
-cual barco en la tempestad.
-Olas de mal le rodean,
-nubes de gran pavor.
-El naufragio eternal le amenaza
-y su alma llena el terror.""");
-    estrofas.add("""Contra las olas y el viento
-batalla con ansiedad.
-Valiente procura librarse del
-bravo mar de impiedad.
-Mas ya sus fuerzas gastadas,
-rendido y sin valor,
-desmayando desea un refugio,
-un guía y un Salvador.""");
-    estrofas.add("""Fuerte y solícito acude
-Jesús, y con gran bondad
-aborda la frágil barquilla,
-y calma la tempestad.
-Libre de todo peligro, 
-salvo, seguro y en paz,
-hoy con Cristo navega el marino
-a eterna felicidad.""");
-    coros.add("""Mira, oh turbado, tu Salvador cerca está.
-Vio tu peligro y con suma bondad acude
-a librarte de ruina y dolor;
-domina los vientos, las nubes y el mar
-y te abre el puerto del bienestar.
-Su voz potente en la tempestad
-trae paz, dulce paz.
-Recibe a Cristo y navegarás
-en calma y paz.""");
+
+    http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible')
+      .then((res) {
+        if(res.body == 'si')
+          setState(() => vozDisponible = true);
+        else
+          setState(() => vozDisponible = false);
+      });
+
+    http.get('http://104.131.104.212:8085/himno/${widget.numero}')
+      .then((res) {
+        List<dynamic> data = json.decode(res.body);
+        setState(() => estrofas = Parrafo.fromJson(data));
+      });
   }
 
   Future<Null> initVoces() async {
+    setState(() => cargando = true);
     for (int i = 0; i < audioVoces.length; ++i) {
-      await audioVoces[i].play('http://104.131.104.212:8085/${stringVoces[i]}');
+      await audioVoces[i].play('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}');
       await audioVoces[i].stop();
     }
     audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
@@ -100,11 +87,12 @@ en calma y paz.""");
       });
     };
     audioVoces[0].completionHandler = () {
-    setState(() {
-      start = false;
-      currentProgress = 0.0;
-    });
+      setState(() {
+        start = false;
+        currentProgress = 0.0;
+      });
     };
+    setState(() => cargando = false);
     return null;
   }
 
@@ -122,7 +110,8 @@ en calma y paz.""");
       currentProgress = 0.0;
     });
     for (int i = 0; i < audioVoces.length; ++i) {
-      audioVoces[i].stop();
+      audioVoces[i].pause();
+      audioVoces[i].seek(Duration(milliseconds: 0));
     }
   }
 
@@ -170,6 +159,7 @@ en calma y paz.""");
       }
       setState(() {
         start = false;
+        cargando = true;
         currentProgress = 0.0;
         for (int i = 0; i < audioVoces.length; ++i) {
           voces[i] = true;
@@ -179,7 +169,6 @@ en calma y paz.""");
     else {
       await switchModeController.forward();
       await initVoces();
-      resumeVoces();
     }
   }
 
@@ -205,15 +194,15 @@ en calma y paz.""");
       ),
       body: Stack(
         children: <Widget>[
-          ListView(
+          (estrofas.isNotEmpty ? ListView.builder(
             padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
-            children: <Widget>[
-              Estrofa(numero: 1, estrofa: estrofas[0]),
-              Coro(coro: coros[0],),
-              Estrofa(numero: 2, estrofa: estrofas[1]),
-              Estrofa(numero: 3, estrofa: estrofas[2]),
-            ],
-          ),
+            itemCount: estrofas.length,
+            itemBuilder: (BuildContext context, int index) =>
+              (estrofas[index].coro ? 
+              Coro(coro: estrofas[index].parrafo, fontSize: fontSize,) :
+              Estrofa(numero: estrofas[index].orden, estrofa: estrofas[index].parrafo,fontSize: fontSize,))
+          ) :
+          Center(child: CircularProgressIndicator(),)),
           Align(
             alignment: FractionalOffset.bottomCenter,
             child: FractionalTranslation(
@@ -221,7 +210,7 @@ en calma y paz.""");
               child: Card(
                 margin: EdgeInsets.all(0.0),
                 elevation: 10.0,
-                child: Padding(
+                child: !cargando ? Padding(
                   padding: EdgeInsets.symmetric(vertical: 5.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -291,17 +280,6 @@ en calma y paz.""");
                         },
                         value: dragging ? draggingProgress : currentProgress,
                       ),
-                      // GestureDetector(
-                      //   onTapDown: onTapDown,
-                      //   child: Center(
-                      //     child: CustomPaint(
-                      //       painter: ProgressBar(
-                      //         currentProgress: currentProgress
-                      //       ),
-                      //       child: Container(height: 20.0),
-                      //     )
-                      //   ),
-                      // ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -329,7 +307,7 @@ en calma y paz.""");
                           RawMaterialButton(
                             shape: CircleBorder(),
                             child: IconButton(
-                              onPressed: resumeVoces,
+                              onPressed: !cargando ? resumeVoces : null,
                               icon: Icon(Icons.play_arrow),
                             ),
                             onPressed: () {},
@@ -351,16 +329,21 @@ en calma y paz.""");
                       )
                     ],
                   )
+                ) : Container(
+                  height: 140.0,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 )
               ),
             )
           )
         ],
       ),
-      floatingActionButton: Padding(
+      floatingActionButton: vozDisponible ? Padding(
         padding: EdgeInsets.only(bottom: switchMode.value * 130),
         child: FloatingActionButton(
-          backgroundColor: modoVoces ? Colors.red : Colors.blue,
+          backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
           onPressed: swithModes,
           child: Stack(
             children: <Widget>[
@@ -375,42 +358,7 @@ en calma y paz.""");
             ],
           )
         )
-      )
+      ) : null
     );
   }
-}
-
-class ProgressBar extends CustomPainter {
-  double currentProgress;
-  ProgressBar({this.currentProgress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    double canvasCurrentProgress = 15 + (size.width - 30) * currentProgress;
-
-    Paint totalProgress = Paint()
-      ..color = Colors.grey
-      ..strokeWidth = 10.0
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(15.0, size.height/2), Offset(size.width - 15, size.height/2), totalProgress);
-
-    Paint currenProgress = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 10.0
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(15.0, size.height/2), Offset(canvasCurrentProgress, size.height/2), currenProgress);
-
-    Paint currenProgressCircle = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 10.0
-      ..strokeCap = StrokeCap.round;
-    canvas.drawCircle(Offset(canvasCurrentProgress, size.height/2), 10.0, currenProgressCircle);
-  }
-
-  @override
-  bool shouldRepaint(ProgressBar old) {
-
-    return true;
-  }
-
 }

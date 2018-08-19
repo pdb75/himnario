@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class Estrofa extends StatelessWidget {
   int numero;
   String estrofa;
+  double fontSize;
 
-  Estrofa({this.numero, this.estrofa});
+  Estrofa({this.numero, this.estrofa, this.fontSize});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class Estrofa extends StatelessWidget {
           Text(estrofa,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 20.0
+            fontSize: fontSize
           ),
           )
         ],
@@ -42,8 +43,9 @@ class Estrofa extends StatelessWidget {
 
 class Coro extends StatelessWidget {
   String coro;
+  double fontSize;
 
-  Coro({this.coro});
+  Coro({this.coro, this.fontSize});
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +74,35 @@ class Coro extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
                 fontStyle: FontStyle.italic,
-                fontSize: 20.0
+                fontSize: fontSize
               ),
           )
         ],
       ),
     );
+  }
+}
+
+class Parrafo {
+  int numero;
+  int orden;
+  bool coro;
+  String parrafo;
+
+  Parrafo({this.numero, this.orden, this.coro, this.parrafo});
+
+  static List<Parrafo> fromJson(List<dynamic> res) {
+    List<Parrafo> parrafos = List<Parrafo>();
+    int numeroEstrofa = 0;
+    for (var x in res) {
+      if (x['coro'] == 0) ++numeroEstrofa;
+      parrafos.add(Parrafo(
+        numero: x['numero'],
+        orden: numeroEstrofa,
+        coro: x['coro'] == 1 ? true : false,
+        parrafo: x['parrafo']
+      ));
+    }
+    return parrafos;
   }
 }
