@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
 
 import '../models/himnos.dart';
 import '../himnoPage/himno.dart';
@@ -20,40 +21,41 @@ class TemaPage extends StatefulWidget {
 class _TemaPageState extends State<TemaPage> {
   List<Himno> himnos;
   bool cargando;
+  Database db;
 
   @override
   void initState() {
     super.initState();
     cargando = true;
     himnos = List<Himno>();
-    fetchHimnos();
+    initDB();
+  }
+
+  Future<Null> initDB() async {
+    String databasesPath = await getDatabasesPath();
+    String path = databasesPath + "/himnos.db";
+    db = await openReadOnlyDatabase(path);
+
+    await fetchHimnos();
+    return null;
   }
 
   Future<Null> fetchHimnos() async {
-    print(widget.id);
     setState(() => cargando = true);
     if (widget.id == 0) {
-      await http.get('http://104.131.104.212:8085/himnos/todos')
-      .then((res) {
-        List<dynamic> data = json.decode(res.body);
-        setState(() {
-          himnos = Himno.fromJson(data);
-        });
-      })
-      .catchError((error) => print(error));
-    setState(() => cargando = false);
+      List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos order by himnos.id ASC');
+      himnos = Himno.fromJson(data);
     } else {
-      String query = widget.subtema ? 'sub_categorias' : 'categorias';
-      await http.get('http://104.131.104.212:8085/$query/${widget.id}/himnos')
-        .then((res) {
-          List<dynamic> data = json.decode(res.body);
-          setState(() {
-            himnos = Himno.fromJson(data);
-          });
-        })
-        .catchError((error) => print(error));
-      setState(() => cargando = false);
+      List<Map<String,dynamic>> data;
+      if(widget.subtema) {
+        data = await db.rawQuery('select himnos.id, himnos.titulo from himnos join sub_tema_himnos on sub_tema_himnos.himno_id = himnos.id where sub_tema_himnos.sub_tema_id = ${widget.id} order by himnos.id ASC');
+      } else {
+        data = await db.rawQuery('select himnos.id, himnos.titulo from himnos join tema_himnos on himnos.id = tema_himnos.himno_id where tema_himnos.tema_id = ${widget.id} order by himnos.id ASC');
+      }
+      himnos = Himno.fromJson(data);
     }
+
+    setState(() => cargando = false);
     return null;
   }
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
 
 import './components/boton_voz.dart';
 import './components/estructura_himno.dart';
@@ -36,6 +37,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   bool vozDisponible;
   bool cargando;
   double fontSize;
+  Database db;
 
   @override
   void initState() {
@@ -57,7 +59,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     voces = [true, true, true, true];
     estrofas = List<Parrafo>();
     currentProgress = 0.0;
-
+    getHimno();
     http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible')
       .then((res) {
         if(res.body == 'si')
@@ -65,13 +67,20 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         else
           setState(() => vozDisponible = false);
       });
-
-    http.get('http://104.131.104.212:8085/himno/${widget.numero}')
-      .then((res) {
-        List<dynamic> data = json.decode(res.body);
-        setState(() => estrofas = Parrafo.fromJson(data));
-      });
   }
+
+  Future<Null> getHimno() async {
+    String databasesPath = await getDatabasesPath();
+    String path = databasesPath + "/himnos.db";
+    db = await openReadOnlyDatabase(path);
+
+    List<Map<String,dynamic>> parrafos = await db.rawQuery('select * from parrafos where himno_id = ${widget.numero}');
+    setState(() => estrofas = Parrafo.fromJson(parrafos));
+
+    return null;
+  }
+
+
 
   Future<Null> initVoces() async {
     setState(() => cargando = true);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
 
 import '../models/himnos.dart';
 import '../himnoPage/himno.dart';
@@ -20,38 +21,34 @@ class Buscador extends StatefulWidget {
 class _BuscadorState extends State<Buscador> {
   List<Himno> himnos;
   bool cargando;
+  Database db; 
 
   @override
   void initState() {
     super.initState();
     cargando = true;
     himnos = List<Himno>();
+    initDB();
+  }
+
+  Future<Null> initDB() async {
+    String databasesPath = await getDatabasesPath();
+    String path = databasesPath + "/himnos.db";
+    db = await openReadOnlyDatabase(path);
+    List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos order by himnos.id ASC');
+    setState(() {
+      himnos = Himno.fromJson(data);
+      cargando = false;
+    });
+    return null;
   }
 
   Future<Null> fetchHimnos(String query) async {
     setState(() => cargando = true);
-    if (widget.id == 0) {
-      await http.get('http://104.131.104.212:8085/himnos/todos/$query')
-      .then((res) {
-        List<dynamic> data = json.decode(res.body);
-        setState(() {
-          himnos = Himno.fromJson(data);
-        });
-      })
-      .catchError((error) => print(error));
+    // List<Map<String,dynamic>> data = await db.rawQuery("select himnos.id, himnos.titulo from himnos where himnos.id || ' ' || himnos.titulo like '%$query%'");
+    List<Map<String,dynamic>> data = await db.rawQuery("select himnos.id, himnos.titulo from himnos join parrafos on parrafos.himno_id = himnos.id where himnos.id || ' ' || himnos.titulo like '%$query%' or parrafos.parrafo like '%$query%' group by himnos.id order by himnos.id ASC");
+    himnos = Himno.fromJson(data);
     setState(() => cargando = false);
-    } else {
-      String tema = widget.subtema ? 'sub_categorias' : 'categorias';
-      await http.get('http://104.131.104.212:8085/$tema/${widget.id}/himnos/$query')
-        .then((res) {
-          List<dynamic> data = json.decode(res.body);
-          setState(() {
-            himnos = Himno.fromJson(data);
-          });
-        })
-        .catchError((error) => print(error));
-      setState(() => cargando = false);
-    }
     return null;
   }
 

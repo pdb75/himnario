@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
 
 import '../models/himnos.dart';
 import './tema.dart';
@@ -14,6 +16,7 @@ class HimnosPage extends StatefulWidget {
 
 class _HimnosPageState extends State<HimnosPage> {
   List<Categoria> categorias;
+  Database db;
   bool cargando;
 
   @override
@@ -21,86 +24,97 @@ class _HimnosPageState extends State<HimnosPage> {
     super.initState();
     cargando = true;
     categorias = List<Categoria>();
-    fetchCategorias();
+    initDB();
+  }
+
+  Future<Null> initDB() async {
+    String databasesPath = await getDatabasesPath();
+    String path = databasesPath + "/himnos.db";
+    
+    try {
+      db = await openReadOnlyDatabase(path);
+    } catch (e) {
+      ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
+      List<int> bytes =
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      await new File(path).writeAsBytes(bytes);
+      db = await openReadOnlyDatabase(path);
+    }
+    await fetchCategorias();
+    return null;
   }
 
   Future<Null> fetchCategorias() async {
+
     setState(() => cargando = true);
-    await http.get('http://104.131.104.212:8085/categorias')
-      .then((res) {
-        List<dynamic> data = json.decode(res.body);
-        setState(() {
-          categorias = Categoria.fromJson(data);
-        });
-      })
-      .catchError((error) => print(error));
+
+    List<Map<String, dynamic>> temas = await db.rawQuery('select * from temas');
+    categorias = Categoria.fromJson(temas);
+
     for (Categoria categoria in categorias) {
-      await http.get('http://104.131.104.212:8085/categorias/${categoria.id}')
-        .then((res) {
-          List<dynamic> data = json.decode(res.body);
-          for (var x in data) {
-            setState(() => categoria.subCategorias.add(SubCategoria(
-              id: x['id'],
-              categoriaId: x['tema_id'],
-              subCategoria: x['sub_tema']
-            )));
-          }
-        });
+      List<Map<String, dynamic>> subTemas = await db.rawQuery('select * from sub_temas where tema_id = ${categoria.id}');
+      for (var x in subTemas) {
+        categoria.subCategorias.add(SubCategoria(
+          id: x['id'],
+          subCategoria: x['sub_tema'],
+          categoriaId: x['tema_id']
+        ));
+      }
     }
+
     setState(() => cargando = false);
     return null;
-
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    'Himnos y Cánticos del Evangelio',
-                    style: TextStyle(
-                      color: Colors.white
-                    ),
-                  )
-                ],
-              ),
-              decoration: BoxDecoration(
-                color: Theme.of(context).accentColor,
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.favorite),
-              title: Text('Favoritos'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Ajustes'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.feedback),
-              title: Text('Feedback'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
+      // drawer: Drawer(
+      //   child: ListView(
+      //     padding: EdgeInsets.zero,
+      //     children: <Widget>[
+      //       DrawerHeader(
+      //         child: Column(
+      //           crossAxisAlignment: CrossAxisAlignment.center,
+      //           mainAxisAlignment: MainAxisAlignment.center,
+      //           children: <Widget>[
+      //             Text(
+      //               'Himnos y Cánticos del Evangelio',
+      //               style: TextStyle(
+      //                 color: Colors.white
+      //               ),
+      //             )
+      //           ],
+      //         ),
+      //         decoration: BoxDecoration(
+      //           color: Theme.of(context).accentColor,
+      //         ),
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.favorite),
+      //         title: Text('Favoritos'),
+      //         onTap: () {
+      //           Navigator.pop(context);
+      //         },
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.settings),
+      //         title: Text('Ajustes'),
+      //         onTap: () {
+      //           Navigator.pop(context);
+      //         },
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.feedback),
+      //         title: Text('Feedback'),
+      //         onTap: () {
+      //           Navigator.pop(context);
+      //         },
+      //       ),
+      //     ],
+      //   ),
+      // ),
       appBar: AppBar(
         title: Text('Himnos del Evangelio'),
         actions: <Widget>[
