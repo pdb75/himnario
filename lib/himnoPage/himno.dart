@@ -212,18 +212,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         onHorizontalDragUpdate: (DragUpdateDetails details) {
           setState(() => fontSize = initfontSize + (details.globalPosition.dx - initposition)*0.1);
         },
-
-        
-
-
-        // onScaleUpdate: (ScaleUpdateDetails details) {
-        //   print(details.scale);
-        //   setState(() => fontSize = initfontSize + (initfontSize * details.scale * 0.35));
-        // },
-
-        // onScaleEnd: (ScaleEndDetails details) {
-        //   initfontSize = fontSize;
-        // },
         child: Stack(
           children: <Widget>[
             (estrofas.isNotEmpty ? ListView.builder(
