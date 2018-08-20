@@ -204,6 +204,12 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.star,),
+          )
+        ],
         title: Text('${widget.numero} - ${widget.titulo}'),
       ),
       body: GestureDetector(

@@ -62,7 +62,7 @@ class _BuscadorState extends State<Buscador> {
             //   borderRadius: BorderRadius.circular(10.0),
             // ),
             filled: true,
-            fillColor: Colors.white
+            fillColor: Theme.of(context).canvasColor
           ),
         ),
       ),

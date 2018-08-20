@@ -88,6 +88,7 @@ class _TemaPageState extends State<TemaPage> {
                   context,
                   MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)) );
               },
+              leading: Icon(Icons.star),
               title: Text('${himnos[index].numero} - ${himnos[index].titulo}'),
             )
         ),

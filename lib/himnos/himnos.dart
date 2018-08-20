@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/himnos.dart';
 import './tema.dart';
 import '../buscador/buscador.dart';
+import '../ajustesPage/ajustes_page.dart';
 
 class HimnosPage extends StatefulWidget {
   @override
@@ -65,51 +67,59 @@ class _HimnosPageState extends State<HimnosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // drawer: Drawer(
-      //   child: ListView(
-      //     padding: EdgeInsets.zero,
-      //     children: <Widget>[
-      //       DrawerHeader(
-      //         child: Column(
-      //           crossAxisAlignment: CrossAxisAlignment.center,
-      //           mainAxisAlignment: MainAxisAlignment.center,
-      //           children: <Widget>[
-      //             Text(
-      //               'Himnos y Cánticos del Evangelio',
-      //               style: TextStyle(
-      //                 color: Colors.white
-      //               ),
-      //             )
-      //           ],
-      //         ),
-      //         decoration: BoxDecoration(
-      //           color: Theme.of(context).accentColor,
-      //         ),
-      //       ),
-      //       ListTile(
-      //         leading: Icon(Icons.favorite),
-      //         title: Text('Favoritos'),
-      //         onTap: () {
-      //           Navigator.pop(context);
-      //         },
-      //       ),
-      //       ListTile(
-      //         leading: Icon(Icons.settings),
-      //         title: Text('Ajustes'),
-      //         onTap: () {
-      //           Navigator.pop(context);
-      //         },
-      //       ),
-      //       ListTile(
-      //         leading: Icon(Icons.feedback),
-      //         title: Text('Feedback'),
-      //         onTap: () {
-      //           Navigator.pop(context);
-      //         },
-      //       ),
-      //     ],
-      //   ),
-      // ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).accentColor
+              ),
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'Himnos y Cánticos del Evangelio',
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                        color: Theme.of(context).indicatorColor,
+                        fontSize: 20.0
+                      )
+                    )
+                  ],
+                ),
+              )
+            ),
+            ListTile(
+              leading: Icon(Icons.favorite),
+              title: Text('Favoritos'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Ajustes'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (BuildContext context) => AjustesPage())
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.feedback),
+              title: Text('Feedback'),
+              onTap: () {
+                launch('https://play.google.com/store/apps/details?id=com.br572.himnario');
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: Text('Himnos del Evangelio'),
         actions: <Widget>[
