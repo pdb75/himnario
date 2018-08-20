@@ -28,7 +28,7 @@ class _AjustesPageState extends State<AjustesPage> {
             onTap: () {
               showDialog(
                 context: context,
-                child: TemasPage()
+                builder: (BuildContext context) => TemasPage(),
                 );
             },
           ),

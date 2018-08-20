@@ -5,11 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info/package_info.dart';
 
 import '../models/himnos.dart';
 import './tema.dart';
 import '../buscador/buscador.dart';
 import '../ajustesPage/ajustes_page.dart';
+import '../favoritosPage/favoritos_page.dart';
 
 class HimnosPage extends StatefulWidget {
   @override
@@ -32,12 +35,36 @@ class _HimnosPageState extends State<HimnosPage> {
   Future<Null> initDB() async {
     String databasesPath = await getDatabasesPath();
     String path = databasesPath + "/himnos.db";
-    
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String version = prefs.getString('version');
+    String actualVersion = (await PackageInfo.fromPlatform()).version;
+    if (version == null || version != actualVersion) {
+      await copiarBase(path);
+      prefs.setString('version', actualVersion);
+    } else db = await openReadOnlyDatabase(path);
+    await fetchCategorias();
+    return null;
+  }
+
+  Future<Null> copiarBase(String path) async {
+    // Favoritos
+    List<int> favoritos = List<int>();
+    try {
+      db = await openReadOnlyDatabase(path);
+      for(Map<String, dynamic> favorito in await db.rawQuery('select * from favoritos')) {
+        favoritos.add(favorito['himno_id']);
+      }
+      await db.close();
+    } catch (e) {
+      
+    }
     ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
     List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     await new File(path).writeAsBytes(bytes);
-    db = await openReadOnlyDatabase(path);
-    await fetchCategorias();
+    db = await openDatabase(path);
+    for (int favorito in favoritos)
+      await db.rawInsert('insert into favoritos values ($favorito)');
     return null;
   }
 
@@ -61,6 +88,12 @@ class _HimnosPageState extends State<HimnosPage> {
 
     setState(() => cargando = false);
     return null;
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
+    db.close();
   }
 
 
@@ -96,7 +129,12 @@ class _HimnosPageState extends State<HimnosPage> {
               leading: Icon(Icons.favorite),
               title: Text('Favoritos'),
               onTap: () {
+                db.close();
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (BuildContext context) => FavoritosPage())
+                );
               },
             ),
             ListTile(
@@ -136,9 +174,7 @@ class _HimnosPageState extends State<HimnosPage> {
       ),
       body: cargando ? 
       Center(child: CircularProgressIndicator(),)
-      : RefreshIndicator(
-        onRefresh: fetchCategorias,
-        child: ListView.builder(
+      : ListView.builder(
           itemCount: categorias.length + 1,
           itemBuilder: (BuildContext context, int index) {
             return index == 0 ? 
@@ -180,7 +216,6 @@ class _HimnosPageState extends State<HimnosPage> {
             );
           }
         ),
-      )
     );
   }
 }

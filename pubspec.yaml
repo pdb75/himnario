@@ -21,6 +21,7 @@ dependencies:
   sqflite:
   screen:
   url_launcher:
+  package_info:
   dynamic_theme:
     git:
       url: git://github.com/Norbert515/dynamic_theme.git

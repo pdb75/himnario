@@ -20,20 +20,22 @@ class _TemasPageState extends State<TemasPage> {
     temasTema = [
       ThemeData(
         primarySwatch: Colors.deepPurple,
+        indicatorColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.deepPurpleAccent,
-        indicatorColor: Colors.black,
+        indicatorColor: Colors.white,
         primaryColorDark: Colors.deepPurple,
         primaryColor: Colors.deepPurple,
         brightness: Brightness.dark
       ),
       ThemeData(
         primarySwatch: Colors.blue,
+        indicatorColor: Colors.white,
       ),
       ThemeData(
         accentColor: Colors.blueAccent,
-        indicatorColor: Colors.black,
+        indicatorColor: Colors.white,
         primaryColorDark: Colors.blue,
         primaryColor: Colors.blue,
         brightness: Brightness.dark
@@ -51,22 +53,22 @@ class _TemasPageState extends State<TemasPage> {
       ),
       ThemeData(
         primarySwatch: Colors.green,
-        indicatorColor: Colors.black
+        indicatorColor: Colors.white,
       ),
       ThemeData(
         accentColor: Colors.greenAccent,
-        indicatorColor: Colors.black,
+        indicatorColor: Colors.white,
         primaryColorDark: Colors.green,
         primaryColor: Colors.green,
         brightness: Brightness.dark
       ),
       ThemeData(
         primarySwatch: Colors.pink,
-        indicatorColor: Colors.black
+        indicatorColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.pinkAccent,
-        indicatorColor: Colors.black,
+        indicatorColor: Colors.white,
         primaryColorDark: Colors.pink,
         primaryColor: Colors.pink,
         brightness: Brightness.dark
@@ -77,7 +79,7 @@ class _TemasPageState extends State<TemasPage> {
       ),
       ThemeData(
         accentColor: Colors.redAccent,
-        indicatorColor: Colors.black,
+        indicatorColor: Colors.white,
         primaryColorDark: Colors.red,
         primaryColor: Colors.red,
         brightness: Brightness.dark
@@ -101,7 +103,6 @@ class _TemasPageState extends State<TemasPage> {
     List<Widget> botones = List<Widget>();
     for(int i = 0; i < temasTema.length; ++i) {
       if (Theme.of(context).primaryColor == temasTema[i].primaryColor && value == null && Theme.of(context).brightness == temasTema[i].brightness) {
-        print(temasTema[i].brightness.toString());
         value = i;
       }
       botones.add(
