@@ -113,6 +113,24 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       await file.writeAsBytes(bytes);
     }
 
+    for (int i = 0; i < audioVoces.length; ++i) {
+      await audioVoces[i].play(path + '/${widget.numero}-${stringVoces[i]}.mp3');
+      await audioVoces[i].stop();
+    }
+    audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
+    audioVoces[0].positionHandler = (Duration duration) {
+      setState(() {
+        currentProgress = duration.inMilliseconds / totalDuration;
+        currentDuration = duration;
+      });
+    };
+    audioVoces[0].completionHandler = () {
+      setState(() {
+        start = false;
+        currentProgress = 0.0;
+      });
+    };
+
     setState(() => cargando = false);
 
     return null;
@@ -279,9 +297,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                 Coro(coro: estrofas[index].parrafo, fontSize: fontSize,) :
                 Estrofa(numero: estrofas[index].orden, estrofa: estrofas[index].parrafo,fontSize: fontSize,))
             ) :
-            Center(child: CircularProgressIndicator(
-              value: 1.0,
-            ),)),
+            Center(child: CircularProgressIndicator(),)),
             Align(
               alignment: FractionalOffset.bottomCenter,
               child: FractionalTranslation(
@@ -386,7 +402,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                             RawMaterialButton(
                               shape: CircleBorder(),
                               child: IconButton(
-                                onPressed: !cargando ? resumeVoces : null,
+                                onPressed: !cargando ? () {
+                                  resumeVoces();
+                                  vocesSeek(currentProgress);
+                                } : null,
                                 icon: Icon(Icons.play_arrow),
                               ),
                               onPressed: () {},
