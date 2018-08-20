@@ -21,7 +21,7 @@ class BotonVoz extends StatelessWidget {
       color: Theme.of(context).accentColor,
       child: Text(voz,
         style: TextStyle(
-          color: Colors.white
+          color: Theme.of(context).indicatorColor
         ),
       ),
       onPressed: onPressed ?? () {},

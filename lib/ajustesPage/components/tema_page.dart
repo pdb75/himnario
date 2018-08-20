@@ -2,11 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import './himnos/himnos.dart';
+class TemasPage extends StatefulWidget {
+  @override
+  _TemasPageState createState() => _TemasPageState();
+}
 
-void main() async {
-  MaterialPageRoute.debugEnableFadingRoutes = true;
-  List<ThemeData> temasTema = [
+
+class _TemasPageState extends State<TemasPage> {
+  List<String> temasNombre;
+  List<ThemeData> temasTema;
+  int value;
+
+  @override
+  void initState() {
+    super.initState();
+    temasNombre = ['Morado', 'Morado Dark', 'Azul', 'Azul Dark', 'Naranjo', 'Naranjo Dark', 'Verde', 'Verde Dark', 'Rosa', 'Rosa Dark', 'Rojo', 'Rojo Dark', 'Cafe', 'Cafe Dark'];
+    temasTema = [
       ThemeData(
         primarySwatch: Colors.deepPurple,
         indicatorColor: Colors.white
@@ -85,39 +96,50 @@ void main() async {
         brightness: Brightness.dark
       )
     ];
-  ThemeData tema;
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String color = prefs.getString('tema');
-  String brightness = prefs.getString('brightness');
-  for(ThemeData x in temasTema)
-    if(x.primaryColor.toString() == color && x.brightness.toString() == brightness) {
-      tema = x;
-      break;
-    }
-  if (tema == null)
-    tema = ThemeData(
-      primarySwatch: Colors.deepPurple,
-      indicatorColor: Colors.white
-    );
-  runApp(MyApp(tema: tema));
-}
-class MyApp extends StatelessWidget {
-
-  MyApp({this.tema});
-
-  ThemeData tema;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DynamicTheme(
-      data: (Brightness brightness) => tema,
-      themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
-        MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Himnos y Cánticos del Evangelio',
-        theme: theme,
-        home: HimnosPage(),
-      )
+    List<Widget> botones = List<Widget>();
+    for(int i = 0; i < temasTema.length; ++i) {
+      if (Theme.of(context).primaryColor == temasTema[i].primaryColor && value == null && Theme.of(context).brightness == temasTema[i].brightness) {
+        value = i;
+      }
+      botones.add(
+        InkWell(
+          onTap: () {
+            SharedPreferences.getInstance()
+              .then((prefs) {
+                prefs.setString('tema', temasTema[i].primaryColor.toString());
+                prefs.setString('brightness', temasTema[i].brightness.toString());
+              });
+            DynamicTheme.of(context).setThemeData(temasTema[i]);
+            setState(() => value = i);
+          },
+          child: Row(
+            children: <Widget>[
+              Radio(
+                onChanged: (int e) {
+                  SharedPreferences.getInstance()
+                    .then((prefs) {
+                      prefs.setString('tema', temasTema[i].primaryColor.toString());
+                      prefs.setString('brightness', temasTema[i].brightness.toString());
+                    });
+                  DynamicTheme.of(context).setThemeData(temasTema[i]);
+                  setState(() => value = e);
+                },
+                groupValue: value,
+                value: i,
+              ),
+              Text(temasNombre[i])
+            ],
+          ),
+        )
+      );
+    }
+    return SimpleDialog(
+      title: Text('Seleccionar Tema'),
+      children: botones
     );
   }
 }

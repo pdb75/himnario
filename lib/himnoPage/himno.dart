@@ -36,6 +36,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   int totalDuration;
   bool vozDisponible;
   bool cargando;
+  bool favorito;
   double initfontSize;
   double fontSize;
   double initposition;
@@ -52,6 +53,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     start = false;
     vozDisponible = false;
     dragging = false;
+    favorito = false;
     initfontSize = 16.0;
     fontSize = initfontSize;
     currentDuration = Duration();
@@ -76,10 +78,16 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   Future<Null> getHimno() async {
     String databasesPath = await getDatabasesPath();
     String path = databasesPath + "/himnos.db";
-    db = await openReadOnlyDatabase(path);
+    db = await openDatabase(path);
 
     List<Map<String,dynamic>> parrafos = await db.rawQuery('select * from parrafos where himno_id = ${widget.numero}');
-    setState(() => estrofas = Parrafo.fromJson(parrafos));
+
+    List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
+
+    setState(() {
+      favorito = favoritosQuery.isNotEmpty;
+      estrofas = Parrafo.fromJson(parrafos);
+    });
 
     return null;
   }
@@ -135,6 +143,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       audioVoces[i].release();
     }
     Screen.keepOn(false);
+    db.close();
   }
 
   void pauseVoces() {
@@ -200,10 +209,28 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     });
   }
 
+  void toggleFavorito() async {
+    await db.transaction((action) async {
+      if(favorito) {
+        await action.rawDelete('delete from favoritos where himno_id = ${widget.numero}');
+      } else {
+        await action.rawInsert('insert into favoritos values (${widget.numero})');
+      }
+    });
+    setState(() => favorito = !favorito);
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            onPressed: toggleFavorito,
+            icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
+          )
+        ],
         title: Text('${widget.numero} - ${widget.titulo}'),
       ),
       body: GestureDetector(

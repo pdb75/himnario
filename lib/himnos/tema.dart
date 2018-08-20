@@ -57,6 +57,12 @@ class _TemaPageState extends State<TemaPage> {
     return null;
   }
 
+  @override
+  void dispose(){
+    super.dispose();
+    db.close();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +71,8 @@ class _TemaPageState extends State<TemaPage> {
         title: Text(widget.tema),
         actions: <Widget>[
           IconButton(
-            onPressed: () {
+            onPressed: () async {
+              await db.close();
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (BuildContext context) => Buscador(id: widget.id, subtema:widget.subtema))
@@ -77,13 +84,12 @@ class _TemaPageState extends State<TemaPage> {
       ),
       body: cargando ? 
       Center(child: CircularProgressIndicator(),)
-      : RefreshIndicator(
-        onRefresh: fetchHimnos,
-        child: ListView.builder(
+      : ListView.builder(
           itemCount: himnos.length,
           itemBuilder: (BuildContext context, int index) =>
             ListTile(
-              onTap: () {
+              onTap: () async {
+                await db.close();
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)) );
@@ -91,44 +97,6 @@ class _TemaPageState extends State<TemaPage> {
               title: Text('${himnos[index].numero} - ${himnos[index].titulo}'),
             )
         ),
-      )
-    );
-  }
-}
-
-class CategoriaPage extends StatefulWidget {
-
-  CategoriaPage({this.categoria, this.subCategoria});
-
-  final Categoria categoria;
-  final SubCategoria subCategoria;
-  
-  @override
-  _CategoriaPageState createState() => _CategoriaPageState();
-}
-
-class _CategoriaPageState extends State<CategoriaPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Cena del Señor'),
-      ),
-      body: ListView.builder(
-            itemCount: 30,
-            itemBuilder: (BuildContext context, int index) => 
-              Column(
-                children: <Widget>[
-                  ListTile(
-                    onTap: () {
-                        Navigator.of(context).pushNamed('/himno');
-                      },
-                    title: Text('${index + 1} - A casa vete'),
-                    subtitle: Text('Evangelio'),
-                  ),
-                ],
-              )
-          ),
     );
   }
 }
