@@ -1,6 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
@@ -41,11 +46,13 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   double fontSize;
   double initposition;
   Database db;
+  HttpClient cliente;
 
   @override
   void initState() {
     super.initState();
     Screen.keepOn(true);
+    cliente = HttpClient();
     cargando = true;
     stringVoces = ['Soprano', 'Tenor', 'ContraAlto', 'Bajo'];
     audioVoces = [AudioPlayer(),AudioPlayer(),AudioPlayer(),AudioPlayer()];
@@ -96,26 +103,43 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
   Future<Null> initVoces() async {
     setState(() => cargando = true);
-    for (int i = 0; i < audioVoces.length; ++i) {
-      await audioVoces[i].play('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}');
-      await audioVoces[i].stop();
+    String path = (await getApplicationDocumentsDirectory()).path;
+    for(int i = 0; i < audioVoces.length; ++i) {
+      HttpClientRequest request = await cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'));
+      HttpClientResponse response = await request.close();
+      Uint8List bytes = await consolidateHttpClientResponseBytes(response);
+      File file = File(path + '/${widget.numero}-${stringVoces[i]}.mp3');
+      print(path + '/${widget.numero}-${stringVoces[i]}.mp3');
+      await file.writeAsBytes(bytes);
     }
-    audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
-    audioVoces[0].positionHandler = (Duration duration) {
-      setState(() {
-        currentProgress = duration.inMilliseconds / totalDuration;
-        currentDuration = duration;
-      });
-    };
-    audioVoces[0].completionHandler = () {
-      setState(() {
-        start = false;
-        currentProgress = 0.0;
-      });
-    };
+
     setState(() => cargando = false);
+
     return null;
   }
+
+  // Future<Null> initVoces() async {
+  //   setState(() => cargando = true);
+  //   for (int i = 0; i < audioVoces.length; ++i) {
+  //     await audioVoces[i].play('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}');
+  //     await audioVoces[i].stop();
+  //   }
+  //   audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
+  //   audioVoces[0].positionHandler = (Duration duration) {
+  //     setState(() {
+  //       currentProgress = duration.inMilliseconds / totalDuration;
+  //       currentDuration = duration;
+  //     });
+  //   };
+  //   audioVoces[0].completionHandler = () {
+  //     setState(() {
+  //       start = false;
+  //       currentProgress = 0.0;
+  //     });
+  //   };
+  //   setState(() => cargando = false);
+  //   return null;
+  // }
 
   void resumeVoces() {
     audioVoces[0].resume();
@@ -255,7 +279,9 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                 Coro(coro: estrofas[index].parrafo, fontSize: fontSize,) :
                 Estrofa(numero: estrofas[index].orden, estrofa: estrofas[index].parrafo,fontSize: fontSize,))
             ) :
-            Center(child: CircularProgressIndicator(),)),
+            Center(child: CircularProgressIndicator(
+              value: 1.0,
+            ),)),
             Align(
               alignment: FractionalOffset.bottomCenter,
               child: FractionalTranslation(
