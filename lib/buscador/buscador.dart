@@ -76,9 +76,10 @@ class _BuscadorState extends State<Buscador> {
         ListTile(
           onTap: () async {
             await db.close();
-            Navigator.push(
+            await Navigator.push(
               context,
-              MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)) );
+              MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)));
+            Navigator.pop(context);
           },
           title: Text('${himnos[index].numero} - ${himnos[index].titulo}'),
         ),
