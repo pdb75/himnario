@@ -114,7 +114,9 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     }
 
     for (int i = 0; i < audioVoces.length; ++i) {
-      await audioVoces[i].play(path + '/${widget.numero}-${stringVoces[i]}.mp3');
+      await audioVoces[i].setUrl('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}');
+      await audioVoces[i].setReleaseMode(ReleaseMode.STOP);
+      await audioVoces[i].resume();
       await audioVoces[i].stop();
     }
     audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
