@@ -24,7 +24,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
 
   void initDB() async {
     String path = await getDatabasesPath();
-    db = await openReadOnlyDatabase(path + '/himnos.db');
+    db = await openDatabase(path + '/himnos.db');
     List<Map<String,dynamic>> favoritos = await db.rawQuery('select * from himnos join favoritos on himnos.id = favoritos.himno_id order by himnos.id ASC');
     cargando = false;
     setState(() => himnos = Himno.fromJson(favoritos));
@@ -46,10 +46,12 @@ class _FavoritosPageState extends State<FavoritosPage> {
         itemCount: himnos.length,
         itemBuilder: (BuildContext context, int index) => 
         ListTile(
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            await db.close();
+            await Navigator.push(
               context, 
               MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)));
+            initDB();
           },
           leading: Icon(Icons.star),
           title: Text('${himnos[index].numero} - ${himnos[index].titulo}'),

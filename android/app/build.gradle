@@ -40,8 +40,8 @@ android {
         applicationId "com.br572.himnario"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 14
-        versionName "1.4"
+        versionCode 15
+        versionName "1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
