@@ -40,10 +40,12 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   double initfontSize;
   double fontSize;
   double initposition;
+  int max;
   Database db;
 
   @override
   void initState() {
+    max = 0;
     super.initState();
     Screen.keepOn(true);
     cargando = true;
@@ -68,8 +70,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     getHimno();
     http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible')
       .then((res) {
-        if(res.body == 'si')
+        if(res.body == 'si') {
+          initVoces();
           setState(() => vozDisponible = true);
+        }
         else
           setState(() => vozDisponible = false);
       });
@@ -81,6 +85,17 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     db = await openDatabase(path);
 
     List<Map<String,dynamic>> parrafos = await db.rawQuery('select * from parrafos where himno_id = ${widget.numero}');
+
+    for (Map<String,dynamic> parrafo in parrafos) {
+      for (String linea in parrafo['parrafo'].split('\n')) {
+        if (linea.length > max) max = linea.length;
+      }
+    }
+    print(max);
+    print((MediaQuery.of(context).size.width - 30)/max);
+    initfontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
+    fontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
+
 
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
 
@@ -179,35 +194,31 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     modoVoces = !modoVoces;
     if(switchMode.value == 1.0) {
       await switchModeController.reverse();
-      for (int i = 0; i < audioVoces.length; ++i) {
-        await audioVoces[i].release();
-      }
+      stopVoces();
       setState(() {
         start = false;
-        cargando = true;
         currentProgress = 0.0;
         for (int i = 0; i < audioVoces.length; ++i) {
-          voces[i] = true;
+          
         }
       });
     }
     else {
       await switchModeController.forward();
-      await initVoces();
     }
   }
 
   void pauseSingleVoice(int index) {
     audioVoces[index].setVolume(0.0);
     setState(() {
-      voces[index] = !voces[index];
+      voces[index] = false;
     });
   }
 
   void resumeSingleVoice(int index) {
     audioVoces[index].setVolume(1.0);
     setState(() {
-      voces[index] = !voces[index];
+      voces[index] = true;
     });
   }
 
@@ -245,6 +256,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         },
 
         onHorizontalDragEnd: (DragEndDetails details) {
+          print(fontSize);
           initfontSize = fontSize;
         },
         child: Stack(
