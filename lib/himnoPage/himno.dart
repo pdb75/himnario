@@ -419,7 +419,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                               shape: CircleBorder(),
                               child: IconButton(
                                 onPressed: !cargando ? () {
-                                  resumeVoces();
                                   vocesSeek(currentProgress);
                                 } : null,
                                 icon: Icon(Icons.play_arrow),
