@@ -1,6 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
@@ -26,6 +31,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   List<String> stringVoces;
   List<bool> voces;
   List<Parrafo> estrofas;
+  List<File> archivos;
   bool dragging;
   double draggingProgress;
   bool modoVoces;
@@ -42,13 +48,16 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   double initposition;
   int max;
   Database db;
+  HttpClient cliente;
 
   @override
   void initState() {
     max = 0;
     super.initState();
     Screen.keepOn(true);
+    cliente = HttpClient();
     cargando = true;
+    archivos = List<File>(4);
     stringVoces = ['Soprano', 'Tenor', 'ContraAlto', 'Bajo'];
     audioVoces = [AudioPlayer(),AudioPlayer(),AudioPlayer(),AudioPlayer()];
     modoVoces = false;
@@ -107,30 +116,65 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     return null;
   }
 
-
-
   Future<Null> initVoces() async {
     setState(() => cargando = true);
-    for (int i = 0; i < audioVoces.length; ++i) {
-      await audioVoces[i].setUrl('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}');
-      await audioVoces[i].setReleaseMode(ReleaseMode.STOP);
-      await audioVoces[i].resume();
-      await audioVoces[i].stop();
+    String path = (await getApplicationDocumentsDirectory()).path;
+    List<bool> done = [false, false, false, false];
+    for(int i = 0; i < audioVoces.length - 1; ++i) {
+      print('descargando ${stringVoces[i]}...');
+      cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'))
+        .then((request) => request.close())
+        .then((response) => consolidateHttpClientResponseBytes(response))
+        .then((bytes) {
+          done[i] = true;
+          archivos[i] = File(path + '/${widget.numero}-${stringVoces[i]}.mp3');
+          archivos[i].writeAsBytes(bytes);
+        });
     }
-    audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
-    audioVoces[0].positionHandler = (Duration duration) {
-      setState(() {
-        currentProgress = duration.inMilliseconds / totalDuration;
-        currentDuration = duration;
-      });
-    };
-    audioVoces[0].completionHandler = () {
-      setState(() {
-        start = false;
-        currentProgress = 0.0;
-      });
-    };
-    setState(() => cargando = false);
+    HttpClientRequest request = await cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[3]}'));
+    HttpClientResponse response = await request.close();
+    Uint8List bytes = await consolidateHttpClientResponseBytes(response);
+    archivos[3] = File(path + '/${widget.numero}-${stringVoces[3]}.mp3');
+    print(path + '/${widget.numero}-${stringVoces[3]}.mp3');
+    await archivos[3].writeAsBytes(bytes);
+    done[3] = true;
+
+    while(done.contains(false)) {
+      await Future.delayed(Duration(milliseconds: 200));
+    }
+
+    if(cliente != null) 
+      for (int i = 0; i < audioVoces.length; ++i) {
+        await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
+        await audioVoces[i].setReleaseMode(ReleaseMode.STOP);
+        await audioVoces[i].resume();
+        await audioVoces[i].stop();
+      }
+      audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
+      audioVoces[0].positionHandler = (Duration duration) {
+        setState(() {
+          currentProgress = duration.inMilliseconds / totalDuration;
+          currentDuration = duration;
+        });
+      };
+      audioVoces[0].completionHandler = () {
+        setState(() {
+          start = false;
+          currentProgress = 0.0;
+        });
+      };
+
+    if(cliente != null) {
+      setState(() => cargando = false);
+    } else {
+      for (int i = 0; i < audioVoces.length; ++i) {
+        audioVoces[i].release();
+        if(archivos[i] != null) 
+          if(archivos[i].existsSync())
+            archivos[i].deleteSync();
+      }
+    }
+
     return null;
   }
 
@@ -156,9 +200,14 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     super.dispose();
+    cliente = null;
     for (int i = 0; i < audioVoces.length; ++i) {
       audioVoces[i].release();
+      if(archivos[i] != null) 
+        if(archivos[i].existsSync())
+          archivos[i].deleteSync();
     }
+    switchModeController.dispose();
     Screen.keepOn(false);
     db.close();
   }
@@ -194,12 +243,12 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     modoVoces = !modoVoces;
     if(switchMode.value == 1.0) {
       await switchModeController.reverse();
-      stopVoces();
       setState(() {
         start = false;
         currentProgress = 0.0;
         for (int i = 0; i < audioVoces.length; ++i) {
-          
+          voces[i] = true;
+          audioVoces[i].stop();
         }
       });
     }
@@ -374,7 +423,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                             RawMaterialButton(
                               shape: CircleBorder(),
                               child: IconButton(
-                                onPressed: !cargando ? resumeVoces : null,
+                                onPressed: !cargando ? () {
+                                  resumeVoces();
+                                  vocesSeek(currentProgress);
+                                } : null,
                                 icon: Icon(Icons.play_arrow),
                               ),
                               onPressed: () {},
