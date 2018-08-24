@@ -120,24 +120,16 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     setState(() => cargando = true);
     String path = (await getApplicationDocumentsDirectory()).path;
     List<bool> done = [false, false, false, false];
-    for(int i = 0; i < audioVoces.length - 1; ++i) {
-      print('descargando ${stringVoces[i]}...');
+    for(int i = 0; i < audioVoces.length; ++i) {
       cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'))
         .then((request) => request.close())
         .then((response) => consolidateHttpClientResponseBytes(response))
-        .then((bytes) {
-          done[i] = true;
+        .then((bytes) async {
           archivos[i] = File(path + '/${widget.numero}-${stringVoces[i]}.mp3');
-          archivos[i].writeAsBytes(bytes);
+          await archivos[i].writeAsBytes(bytes);
+          done[i] = true;
         });
     }
-    HttpClientRequest request = await cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[3]}'));
-    HttpClientResponse response = await request.close();
-    Uint8List bytes = await consolidateHttpClientResponseBytes(response);
-    archivos[3] = File(path + '/${widget.numero}-${stringVoces[3]}.mp3');
-    print(path + '/${widget.numero}-${stringVoces[3]}.mp3');
-    await archivos[3].writeAsBytes(bytes);
-    done[3] = true;
 
     while(done.contains(false)) {
       await Future.delayed(Duration(milliseconds: 200));
@@ -145,7 +137,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
     if(cliente != null) 
       for (int i = 0; i < audioVoces.length; ++i) {
-        await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
+        int success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
+        while(success != 1) {
+          success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
+        }
         await audioVoces[i].setReleaseMode(ReleaseMode.STOP);
         await audioVoces[i].resume();
         await audioVoces[i].stop();
