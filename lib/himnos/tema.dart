@@ -19,12 +19,22 @@ class TemaPage extends StatefulWidget {
 class _TemaPageState extends State<TemaPage> {
   List<Himno> himnos;
   bool cargando;
+  bool dragging;
+  double scollPosition;
+  ScrollController scrollController;
   Database db;
 
   @override
   void initState() {
     super.initState();
+    scrollController = ScrollController(initialScrollOffset: 0.0);
+    scrollController.addListener((){
+      double maxScrollPosition = MediaQuery.of(context).size.height - 130.0;
+      setState(() => scollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
+    });
     cargando = true;
+    scollPosition = 105.0 - 90.0;
+    dragging = false;
     himnos = List<Himno>();
     initDB();
   }
@@ -82,21 +92,101 @@ class _TemaPageState extends State<TemaPage> {
           ),
         ],
       ),
-      body: cargando ? 
-      Center(child: CircularProgressIndicator(),)
-      : ListView.builder(
-          itemCount: himnos.length,
-          itemBuilder: (BuildContext context, int index) =>
-            ListTile(
-              onTap: () async {
-                await db.close();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)) );
-              },
-              title: Text('${himnos[index].numero} - ${himnos[index].titulo}'),
-            )
-        ),
+      body: Stack(
+        children: <Widget>[
+          cargando ? 
+          Center(child: CircularProgressIndicator(),)
+          : ListView.builder(
+            controller: scrollController,
+              itemCount: himnos.length,
+              itemBuilder: (BuildContext context, int index) =>
+                ListTile(
+                  onTap: () async {
+                    await db.close();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)) );
+                  },
+                  title: Text('${himnos[index].numero} - ${himnos[index].titulo}'),
+                )
+            ),
+            himnos.length*60.0 > MediaQuery.of(context).size.height ?
+            Align(
+              alignment: FractionalOffset.centerRight,
+              child: GestureDetector(
+                onVerticalDragStart: (DragStartDetails details) {
+                  double position;
+                  if(details.globalPosition.dy > MediaQuery.of(context).size.height - 25.0)
+                    position = MediaQuery.of(context).size.height - 115.0;
+                  else if (details.globalPosition.dy < 105)
+                    position = 105.0 - 90.0;
+                  else 
+                    position = details.globalPosition.dy - 90;
+                  setState(() {
+                    scollPosition = position;
+                    dragging = true;
+                  });
+                  scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
+                },
+                onVerticalDragUpdate: (DragUpdateDetails details) {
+                  double position;
+                  if(details.globalPosition.dy > MediaQuery.of(context).size.height - 25.0)
+                    position = MediaQuery.of(context).size.height - 115.0;
+                  else if (details.globalPosition.dy < 105)
+                    position = 105.0 - 90.0;
+                  else 
+                    position = details.globalPosition.dy - 90;
+                  setState(() {
+                    scollPosition = position;
+                    dragging = true;
+                  });
+                  scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
+                },
+                onVerticalDragEnd: (DragEndDetails details) {
+                  setState(() {
+                    dragging = false;
+                  });
+                },
+                child: Container(
+                  height: double.infinity,
+                  width: 40.0,
+                  child: CustomPaint(
+                    painter: SideScroller(
+                      position: scollPosition,
+                      context: context,
+                      dragging: dragging  
+                    ),
+                  ),
+                )
+              )
+            ) : Container()
+        ],
+      )
+      
     );
+  }
+}
+
+class SideScroller extends CustomPainter {
+  final double position;
+  bool dragging;
+  Paint scrollBar;
+
+  SideScroller({this.position, BuildContext context, this.dragging}) {
+    scrollBar = Paint()
+      ..color = dragging ? Theme.of(context).accentColor : Colors.grey
+      ..strokeWidth = 10.0
+      ..strokeCap = StrokeCap.round;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawLine(Offset(size.width - 15, position), Offset(size.width - 15, position + 20), scrollBar);
+  }
+
+  @override
+  bool shouldRepaint(SideScroller oldDelegate) {
+    return oldDelegate.position != position ||
+      oldDelegate.dragging != dragging;
   }
 }
