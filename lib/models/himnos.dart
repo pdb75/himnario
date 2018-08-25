@@ -42,8 +42,10 @@ class SubCategoria {
 class Himno {
   int numero;
   String titulo;
+  bool favorito;
+  bool descargado;
 
-  Himno({this.numero, this.titulo});
+  Himno({this.numero, this.titulo, this.favorito = false, this.descargado = false});
 
   static List<Himno> fromJson(List<dynamic> res) {
     List<Himno> himno = List<Himno>();

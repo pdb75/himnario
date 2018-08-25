@@ -19,7 +19,7 @@ class Buscador extends StatefulWidget {
 class _BuscadorState extends State<Buscador> {
   List<Himno> himnos;
   bool cargando;
-  double scollPosition;
+  double scrollPosition;
   bool dragging;
   ScrollController scrollController;
   Database db; 
@@ -29,10 +29,10 @@ class _BuscadorState extends State<Buscador> {
     super.initState();
     scrollController = ScrollController(initialScrollOffset: 0.0);
     cargando = true;
-    scollPosition = 105.0 - 90.0;
+    scrollPosition = 105.0 - 90.0;
     scrollController.addListener((){
       double maxScrollPosition = MediaQuery.of(context).size.height - 130.0;
-      setState(() => scollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
+      setState(() => scrollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
     });
     cargando = true;
     dragging = false;
@@ -54,10 +54,16 @@ class _BuscadorState extends State<Buscador> {
 
   Future<Null> fetchHimnos(String query) async {
     setState(() => cargando = true);
+    List<Himno> himnostemp = List<Himno>();
     String queryTitulo = '';
     String queryParrafo = '';
     List<String> palabras = query.split(' ');
     for (String palabra in palabras) {
+      palabra.replaceAll('á', 'a');
+      palabra.replaceAll('é', 'e');
+      palabra.replaceAll('í', 'i');
+      palabra.replaceAll('ó', 'o');
+      palabra.replaceAll('ú', 'u');
       if(queryTitulo.isEmpty)
         queryTitulo += "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(himnos.id || ' ' || himnos.titulo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
       else queryTitulo += " and REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(himnos.id || ' ' || himnos.titulo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
@@ -68,7 +74,25 @@ class _BuscadorState extends State<Buscador> {
     }
     
     List<Map<String,dynamic>> data = await db.rawQuery("select himnos.id, himnos.titulo from himnos join parrafos on parrafos.himno_id = himnos.id where $queryTitulo or $queryParrafo group by himnos.id order by himnos.id ASC");
-    himnos = Himno.fromJson(data);
+    List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
+    List<int> favoritos = List<int>();
+    for(dynamic favorito in favoritosQuery) {
+      favoritos.add(favorito['himno_id']);
+    }
+    List<Map<String,dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
+    List<int> descargas = List<int>();
+    for(dynamic descarga in descargasQuery) {
+      descargas.add(descarga['himno_id']);
+    }
+    for(dynamic himno in data) {
+      himnostemp.add(Himno(
+        numero: himno['id'],
+        titulo: himno['titulo'],
+        descargado: descargas.contains(himno['id']),
+        favorito: favoritos.contains(himno['id']),
+      ));
+    }
+    himnos = himnostemp;
     setState(() => cargando = false);
     return null;
   }
@@ -103,11 +127,26 @@ class _BuscadorState extends State<Buscador> {
               onTap: () async {
                 await db.close();
                 await Navigator.push(
-                  context,
+                  context, 
                   MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)));
                 Navigator.pop(context);
               },
-              title: Text('${himnos[index].numero} - ${himnos[index].titulo}'),
+              leading: himnos[index].favorito ? Icon(Icons.star, color: Theme.of(context).accentColor,) : null,
+              title: Row(
+                children: <Widget>[
+                  Text('${himnos[index].numero} - ${himnos[index].titulo}'),
+                  himnos[index].descargado ? Container(
+                    width: 20.0,
+                    height: 20.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).accentColor,
+                    ),
+                    margin: EdgeInsets.only(bottom: 20.0, left: 2.0),
+                    child: Icon(Icons.get_app,size: 15.0, color: Theme.of(context).indicatorColor,)
+                  ) : Icon(Icons.get_app, size: 0.0,),
+                ],
+              ),
             ),
           ),
           himnos.length*60.0 > MediaQuery.of(context).size.height ?
@@ -123,7 +162,7 @@ class _BuscadorState extends State<Buscador> {
                 else 
                   position = details.globalPosition.dy - 90;
                 setState(() {
-                  scollPosition = position;
+                  scrollPosition = position;
                   dragging = true;
                 });
                 scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
@@ -137,7 +176,7 @@ class _BuscadorState extends State<Buscador> {
                 else 
                   position = details.globalPosition.dy - 90;
                 setState(() {
-                  scollPosition = position;
+                  scrollPosition = position;
                   dragging = true;
                 });
                 scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
@@ -152,7 +191,7 @@ class _BuscadorState extends State<Buscador> {
                 width: 40.0,
                 child: CustomPaint(
                   painter: SideScroller(
-                    position: scollPosition,
+                    position: scrollPosition,
                     context: context,
                     dragging: dragging  
                   ),

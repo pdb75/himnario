@@ -13,6 +13,7 @@ import './tema.dart';
 import '../buscador/buscador.dart';
 import '../ajustesPage/ajustes_page.dart';
 import '../favoritosPage/favoritos_page.dart';
+import '../descargadosPage/descargados_page.dart';
 
 class HimnosPage extends StatefulWidget {
   @override
@@ -39,32 +40,46 @@ class _HimnosPageState extends State<HimnosPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String version = prefs.getString('version');
     String actualVersion = (await PackageInfo.fromPlatform()).version;
+    print('actualVersion: $actualVersion');
+    print('version: $version');
     if (version == null || version != actualVersion) {
-      await copiarBase(path);
+      await copiarBase(path, version == null);
       prefs.setString('version', actualVersion);
     } else db = await openReadOnlyDatabase(path);
     await fetchCategorias();
     return null;
   }
 
-  Future<Null> copiarBase(String path) async {
+  Future<Null> copiarBase(String path, bool fistRun) async {
+    print('entro a copiar');
+    print(fistRun);
     // Favoritos
     List<int> favoritos = List<int>();
-    try {
+    // Descargados
+    List<int> descargados = List<int>();
+    if (!fistRun) {
+      print('abriendo base de datos');
       db = await openReadOnlyDatabase(path);
-      for(Map<String, dynamic> favorito in await db.rawQuery('select * from favoritos')) {
+      for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
         favoritos.add(favorito['himno_id']);
       }
+      try {
+        for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+          descargados.add(descargado['himno_id']);
+        }
+      } catch(e) {print(e);}
       await db.close();
-    } catch (e) {
-      
     }
     ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
     List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     await new File(path).writeAsBytes(bytes);
     db = await openDatabase(path);
-    for (int favorito in favoritos)
-      await db.rawInsert('insert into favoritos values ($favorito)');
+    if (!fistRun) {
+      for (int favorito in favoritos)
+        await db.rawInsert('insert into favoritos values ($favorito)');
+      for (int descargado in descargados)
+        await db.rawInsert('insert into descargados values ($descargado)');
+    }
     return null;
   }
 
@@ -134,6 +149,18 @@ class _HimnosPageState extends State<HimnosPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (BuildContext context) => FavoritosPage())
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.get_app),
+              title: Text('Himnos Descargados'),
+              onTap: () {
+                db.close();
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (BuildContext context) => DescargadosPage())
                 );
               },
             ),

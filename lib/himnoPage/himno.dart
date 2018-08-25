@@ -46,6 +46,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   double initfontSize;
   double fontSize;
   double initposition;
+  bool descargado;
   int max;
   Database db;
   HttpClient cliente;
@@ -56,6 +57,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     super.initState();
     Screen.keepOn(true);
     cliente = HttpClient();
+    descargado = false;
     cargando = true;
     archivos = List<File>(4);
     stringVoces = ['Soprano', 'Tenor', 'ContraAlto', 'Bajo'];
@@ -77,15 +79,57 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     estrofas = List<Parrafo>();
     currentProgress = 0.0;
     getHimno();
-    http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible')
-      .then((res) {
-        if(res.body == 'si') {
-          initVoces();
-          setState(() => vozDisponible = true);
+  }
+
+  void deleteVocesFiles() async {
+    String path = (await getApplicationDocumentsDirectory()).path;
+    for (int i = 0; i < audioVoces.length; ++i) {
+      try {File(path + '/${widget.numero}-${stringVoces[i]}.mp3').delete();}
+      catch (e) {print(e);}
+    }
+  }
+
+  Future<Null> initVocesDownloaded() async {
+    setState(() {
+      cargando = true;
+      vozDisponible = true;
+    });
+    String path = (await getApplicationDocumentsDirectory()).path;
+    if(cliente != null) 
+      for (int i = 0; i < audioVoces.length; ++i) {
+        int success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
+        while(success != 1) {
+          HttpClient cliente = HttpClient();
+          HttpClientRequest request = await cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'));
+          HttpClientResponse response = await request.close();
+          Uint8List bytes = await consolidateHttpClientResponseBytes(response);
+          File archivo = File(path + '/${widget.numero}-${stringVoces[i]}.mp3');
+          await archivo.writeAsBytes(bytes);
+          success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
         }
-        else
-          setState(() => vozDisponible = false);
-      });
+        await audioVoces[i].setReleaseMode(ReleaseMode.STOP);
+        await audioVoces[i].resume();
+        await audioVoces[i].stop();
+      }
+      audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
+      audioVoces[0].positionHandler = (Duration duration) {
+        setState(() {
+          currentProgress = duration.inMilliseconds / totalDuration;
+          currentDuration = duration;
+        });
+      };
+      audioVoces[0].completionHandler = () {
+        setState(() {
+          start = false;
+          currentProgress = 0.0;
+        });
+      };
+
+    if(cliente != null) {
+      setState(() => cargando = false);
+    } else if(archivos[0] == null && !descargado)
+        deleteVocesFiles();
+    return null;
   }
 
   Future<Null> getHimno() async {
@@ -107,11 +151,25 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
 
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
+    List<Map<String,dynamic>> descargadoQuery = await db.rawQuery('select * from descargados where himno_id = ${widget.numero}');
 
     setState(() {
       favorito = favoritosQuery.isNotEmpty;
+      descargado = descargadoQuery.isNotEmpty;
       estrofas = Parrafo.fromJson(parrafos);
     });
+
+    if (descargadoQuery.isEmpty) {
+      http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible')
+      .then((res) {
+        if(res.body == 'si') {
+          initVoces();
+          setState(() => vozDisponible = true);
+        }
+        else
+          setState(() => vozDisponible = false);
+      });
+    } else initVocesDownloaded();
 
     return null;
   }
@@ -164,12 +222,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     } else {
       for (int i = 0; i < audioVoces.length; ++i) {
         audioVoces[i].release();
-        if(archivos[i] != null) 
+        if(archivos[i] != null && !descargado) 
           if(archivos[i].existsSync())
             archivos[i].deleteSync();
       }
     }
-
     return null;
   }
 
@@ -196,11 +253,15 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   void dispose() {
     super.dispose();
     cliente = null;
-    for (int i = 0; i < audioVoces.length; ++i) {
-      audioVoces[i].release();
-      if(archivos[i] != null) 
-        if(archivos[i].existsSync())
-          archivos[i].deleteSync();
+    if(vozDisponible) {
+      if(archivos[0] == null && !descargado)
+        deleteVocesFiles();
+      for (int i = 0; i < audioVoces.length; ++i) {
+        audioVoces[i].release();
+        if(archivos[i] != null && !descargado) 
+          if(archivos[i].existsSync())
+            archivos[i].deleteSync();
+      }
     }
     switchModeController.dispose();
     Screen.keepOn(false);
@@ -275,7 +336,17 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       }
     });
     setState(() => favorito = !favorito);
+  }
 
+  void toggleDescargado() async {
+    await db.transaction((action) async {
+      if(descargado) {
+        await action.rawDelete('delete from descargados where himno_id = ${widget.numero}');
+      } else {
+        await action.rawInsert('insert into descargados values (${widget.numero})');
+      }
+    });
+    setState(() => descargado = !descargado);
   }
 
   @override
@@ -283,6 +354,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
+          vozDisponible ? IconButton(
+            onPressed: toggleDescargado,
+            icon: descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
+          ) : Container(),
           IconButton(
             onPressed: toggleFavorito,
             icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),

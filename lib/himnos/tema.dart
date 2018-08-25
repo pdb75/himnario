@@ -20,7 +20,7 @@ class _TemaPageState extends State<TemaPage> {
   List<Himno> himnos;
   bool cargando;
   bool dragging;
-  double scollPosition;
+  double scrollPosition;
   ScrollController scrollController;
   Database db;
 
@@ -30,10 +30,10 @@ class _TemaPageState extends State<TemaPage> {
     scrollController = ScrollController(initialScrollOffset: 0.0);
     scrollController.addListener((){
       double maxScrollPosition = MediaQuery.of(context).size.height - 130.0;
-      setState(() => scollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
+      setState(() => scrollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
     });
     cargando = true;
-    scollPosition = 105.0 - 90.0;
+    scrollPosition = 105.0 - 90.0;
     dragging = false;
     himnos = List<Himno>();
     initDB();
@@ -50,19 +50,34 @@ class _TemaPageState extends State<TemaPage> {
 
   Future<Null> fetchHimnos() async {
     setState(() => cargando = true);
+    List<Map<String,dynamic>> data;
     if (widget.id == 0) {
-      List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos order by himnos.id ASC');
-      himnos = Himno.fromJson(data);
+      data = await db.rawQuery('select himnos.id, himnos.titulo from himnos order by himnos.id ASC');
     } else {
-      List<Map<String,dynamic>> data;
       if(widget.subtema) {
         data = await db.rawQuery('select himnos.id, himnos.titulo from himnos join sub_tema_himnos on sub_tema_himnos.himno_id = himnos.id where sub_tema_himnos.sub_tema_id = ${widget.id} order by himnos.id ASC');
       } else {
         data = await db.rawQuery('select himnos.id, himnos.titulo from himnos join tema_himnos on himnos.id = tema_himnos.himno_id where tema_himnos.tema_id = ${widget.id} order by himnos.id ASC');
       }
-      himnos = Himno.fromJson(data);
     }
-
+    List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
+    List<int> favoritos = List<int>();
+    for(dynamic favorito in favoritosQuery) {
+      favoritos.add(favorito['himno_id']);
+    }
+    List<Map<String,dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
+    List<int> descargas = List<int>();
+    for(dynamic descarga in descargasQuery) {
+      descargas.add(descarga['himno_id']);
+    }
+    for(dynamic himno in data) {
+      himnos.add(Himno(
+        numero: himno['id'],
+        titulo: himno['titulo'],
+        descargado: descargas.contains(himno['id']),
+        favorito: favoritos.contains(himno['id']),
+      ));
+    }
     setState(() => cargando = false);
     return null;
   }
@@ -101,14 +116,31 @@ class _TemaPageState extends State<TemaPage> {
               itemCount: himnos.length,
               itemBuilder: (BuildContext context, int index) =>
                 ListTile(
-                  onTap: () async {
-                    await db.close();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)) );
-                  },
-                  title: Text('${himnos[index].numero} - ${himnos[index].titulo}'),
-                )
+                onTap: () async {
+                  await db.close();
+                  await Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)));
+                  initDB();
+                  scrollPosition = 105.0 - 90.0;
+                },
+                leading: himnos[index].favorito ? Icon(Icons.star, color: Theme.of(context).accentColor,) : null,
+                title: Row(
+                  children: <Widget>[
+                    Text('${himnos[index].numero} - ${himnos[index].titulo}'),
+                    himnos[index].descargado ? Container(
+                      width: 20.0,
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Theme.of(context).accentColor,
+                      ),
+                      margin: EdgeInsets.only(bottom: 20.0, left: 2.0),
+                      child: Icon(Icons.get_app,size: 15.0, color: Theme.of(context).indicatorColor,)
+                    ) : Icon(Icons.get_app, size: 0.0,),
+                  ],
+                ),
+              ),
             ),
             himnos.length*60.0 > MediaQuery.of(context).size.height ?
             Align(
@@ -123,7 +155,7 @@ class _TemaPageState extends State<TemaPage> {
                   else 
                     position = details.globalPosition.dy - 90;
                   setState(() {
-                    scollPosition = position;
+                    scrollPosition = position;
                     dragging = true;
                   });
                   scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
@@ -137,7 +169,7 @@ class _TemaPageState extends State<TemaPage> {
                   else 
                     position = details.globalPosition.dy - 90;
                   setState(() {
-                    scollPosition = position;
+                    scrollPosition = position;
                     dragging = true;
                   });
                   scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
@@ -152,7 +184,7 @@ class _TemaPageState extends State<TemaPage> {
                   width: 40.0,
                   child: CustomPaint(
                     painter: SideScroller(
-                      position: scollPosition,
+                      position: scrollPosition,
                       context: context,
                       dragging: dragging  
                     ),

@@ -8,12 +8,12 @@ import 'package:sqflite/sqflite.dart';
 import '../models/himnos.dart';
 import '../himnoPage/himno.dart';
 
-class FavoritosPage extends StatefulWidget {
+class DescargadosPage extends StatefulWidget {
   @override
-  _FavoritosPageState createState() => _FavoritosPageState();
+  _DescargadosPageState createState() => _DescargadosPageState();
 }
 
-class _FavoritosPageState extends State<FavoritosPage> {
+class _DescargadosPageState extends State<DescargadosPage> {
   List<Himno> himnos;
   Database db;
   bool cargando;
@@ -41,17 +41,17 @@ class _FavoritosPageState extends State<FavoritosPage> {
     himnos = List<Himno>();
     String path = await getDatabasesPath();
     db = await openDatabase(path + '/himnos.db');
-    List<Map<String,dynamic>> data = await db.rawQuery('select * from himnos join favoritos on favoritos.himno_id = himnos.id order by himnos.id ASC');
-    List<Map<String,dynamic>> descargadosQuery = await db.rawQuery('select * from descargados');
-    List<int> descargados = List<int>();
-    for(dynamic descargado in descargadosQuery)
-      descargados.add(descargado['himno_id']);
+    List<Map<String,dynamic>> data = await db.rawQuery('select * from himnos join descargados on descargados.himno_id = himnos.id order by himnos.id ASC');
+    List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
+    List<int> favoritos = List<int>();
+    for(dynamic favorito in favoritosQuery)
+      favoritos.add(favorito['himno_id']);
     for(dynamic himno in data) {
       himnos.add(Himno(
         numero: himno['id'],
         titulo: himno['titulo'],
-        descargado: descargados.contains(himno['id']),
-        favorito: true
+        descargado: true,
+        favorito: favoritos.contains(himno['id'])
       ));
     }
     setState(() => cargando = false);
@@ -61,7 +61,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Favoritos'),
+        title: Text('Himnos Descargados'),
       ),
       body: Stack(
         children: <Widget>[  
@@ -70,7 +70,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
             child: CircularProgressIndicator()
           ) :
           himnos.isEmpty ? 
-          Center(child: Text('No has agregando ningún himno\n a tu lista de favoritos', textAlign: TextAlign.center,),) :
+          Center(child: Text('No has descargado ningún himno\n para escuchar la melodia sin conexión', textAlign: TextAlign.center,),) :
           ListView.builder(
             controller: scrollController,
             itemCount: himnos.length,
@@ -83,7 +83,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
                   MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)));
                 initDB();
               },
-              leading: Icon(Icons.star, color: Theme.of(context).accentColor,),
+              leading: himnos[index].favorito ? Icon(Icons.star, color: Theme.of(context).accentColor,) : null,
               title: Row(
                 children: <Widget>[
                   Text('${himnos[index].numero} - ${himnos[index].titulo}'),
