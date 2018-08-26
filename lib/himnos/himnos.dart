@@ -60,7 +60,7 @@ class _HimnosPageState extends State<HimnosPage> {
     List<int> descargados = List<int>();
     if (!fistRun) {
       print('abriendo base de datos');
-      db = await openReadOnlyDatabase(path);
+      db = await openDatabase(path);
       for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
         favoritos.add(favorito['himno_id']);
       }
