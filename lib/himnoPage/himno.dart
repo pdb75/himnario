@@ -133,7 +133,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   }
 
   Future<Null> getHimno() async {
-    String databasesPath = await getDatabasesPath();
+    String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
     db = await openDatabase(path);
 

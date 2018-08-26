@@ -35,7 +35,7 @@ class _HimnosPageState extends State<HimnosPage> {
   }
 
   Future<Null> initDB() async {
-    String databasesPath = await getDatabasesPath();
+    String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -51,51 +51,53 @@ class _HimnosPageState extends State<HimnosPage> {
     return null;
   }
 
-  Future<Null> copiarBase(String path, bool fistRun) async {
+  Future<Null> copiarBase(String dbPath, bool fistRun) async {
     print('entro a copiar');
     print(fistRun);
     // Favoritos
     List<int> favoritos = List<int>();
     // Descargados
-    List<int> descargados = List<int>();
+    List<List<int>> descargados = List<List<int>>();
     if (!fistRun) {
       print('abriendo base de datos');
-      db = await openDatabase(path);
+      try {
+      // para los de las versiones anteriores puedan guardar sus cosas
+      db = await openDatabase(await getDatabasesPath() + '/himnos.db');
       for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
         favoritos.add(favorito['himno_id']);
       }
       // solo en esta actualización
-      
-      try {
-        List<String> voces = ['Soprano', 'Tenor', 'Bajo', 'ContraAlto'];
-        String path = (await getApplicationDocumentsDirectory()).path;
-        for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
-          for(int i = 0; i < voces.length; ++i) {
-            File archivo = File(path + '/${descargado['himno_id']}-${voces[i]}.mp3');
-            archivo.deleteSync();
-          }
-        }
-        await db.transaction((action) async {
-          await action.rawDelete('delete from descargados');
-        });
-      } catch(e) {print(e);}
-
-      // try {
-      //   for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
-      //     descargados.add(descargado['himno_id']);
+      // List<String> voces = ['Soprano', 'Tenor', 'Bajo', 'ContraAlto'];
+      // String path = (await getApplicationDocumentsDirectory()).path;
+      // for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+      //   for(int i = 0; i < voces.length; ++i) {
+      //     File archivo = File(path + '/${descargado['himno_id']}-${voces[i]}.mp3');
+      //     archivo.deleteSync();
       //   }
-      // } catch(e) {print(e);}
+      // }
+      // await db.transaction((action) async {
+      //   await action.rawDelete('delete from descargados');
+      // });
+
+      try {
+        for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+          descargados.add([descargado['himno_id'], descargado['duracion']]);
+        }
+      } catch(e) {print(e);}
       await db.close();
+      } catch(e) {print(e);}
     }
     ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
     List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    await new File(path).writeAsBytes(bytes);
-    db = await openDatabase(path);
+    print('antes de abrir');
+    await new File(dbPath).writeAsBytes(bytes);
+    db = await openDatabase(dbPath);
+    print('despues de abrir');
     if (!fistRun) {
       for (int favorito in favoritos)
         await db.rawInsert('insert into favoritos values ($favorito)');
-      for (int descargado in descargados)
-        await db.rawInsert('insert into descargados values ($descargado)');
+      for (List<int> descargado in descargados)
+        await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
     }
     return null;
   }

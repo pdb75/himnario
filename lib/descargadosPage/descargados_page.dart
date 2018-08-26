@@ -39,7 +39,7 @@ class _DescargadosPageState extends State<DescargadosPage> {
   void initDB() async {
     setState(() => cargando = true);
     himnos = List<Himno>();
-    String path = await getDatabasesPath();
+    String path = (await getApplicationDocumentsDirectory()).path;
     db = await openDatabase(path + '/himnos.db');
     List<Map<String,dynamic>> data = await db.rawQuery('select * from himnos join descargados on descargados.himno_id = himnos.id order by himnos.id ASC');
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');

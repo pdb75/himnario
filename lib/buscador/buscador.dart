@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 
@@ -41,7 +42,7 @@ class _BuscadorState extends State<Buscador> {
   }
 
   Future<Null> initDB() async {
-    String databasesPath = await getDatabasesPath();
+    String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
     db = await openReadOnlyDatabase(path);
     List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos order by himnos.id ASC');

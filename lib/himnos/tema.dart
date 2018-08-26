@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 
@@ -40,7 +41,7 @@ class _TemaPageState extends State<TemaPage> {
   }
 
   Future<Null> initDB() async {
-    String databasesPath = await getDatabasesPath();
+    String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
     db = await openReadOnlyDatabase(path);
 
