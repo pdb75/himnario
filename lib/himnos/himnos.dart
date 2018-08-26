@@ -75,8 +75,8 @@ class _HimnosPageState extends State<HimnosPage> {
             archivo.deleteSync();
           }
         }
-        db.transaction((action) {
-          action.rawDelete('delete from descargados');
+        await db.transaction((action) async {
+          await action.rawDelete('delete from descargados');
         });
       } catch(e) {print(e);}
 
