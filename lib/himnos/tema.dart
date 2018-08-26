@@ -50,6 +50,7 @@ class _TemaPageState extends State<TemaPage> {
 
   Future<Null> fetchHimnos() async {
     setState(() => cargando = true);
+    himnos = List<Himno>();
     List<Map<String,dynamic>> data;
     if (widget.id == 0) {
       data = await db.rawQuery('select himnos.id, himnos.titulo from himnos order by himnos.id ASC');

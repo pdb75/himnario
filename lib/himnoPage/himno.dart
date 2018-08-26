@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -111,7 +112,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         await audioVoces[i].resume();
         await audioVoces[i].stop();
       }
-      audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
       audioVoces[0].positionHandler = (Duration duration) {
         setState(() {
           currentProgress = duration.inMilliseconds / totalDuration;
@@ -156,6 +156,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     setState(() {
       favorito = favoritosQuery.isNotEmpty;
       descargado = descargadoQuery.isNotEmpty;
+      totalDuration = descargadoQuery.isNotEmpty ? descargadoQuery[0]['duracion'] : 0;
       estrofas = Parrafo.fromJson(parrafos);
     });
 
@@ -178,6 +179,13 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     setState(() => cargando = true);
     String path = (await getApplicationDocumentsDirectory()).path;
     List<bool> done = [false, false, false, false];
+    cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/duracion'))
+      .then((request) => request.close())
+      .then((response) => consolidateHttpClientResponseBytes(response))
+      .then((bytes) async {
+        totalDuration = (double.parse(UTF8.decode(bytes))*1000).ceil();
+        print(totalDuration);
+      });
     for(int i = 0; i < audioVoces.length; ++i) {
       cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'))
         .then((request) => request.close())
@@ -203,7 +211,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         await audioVoces[i].resume();
         await audioVoces[i].stop();
       }
-      audioVoces[0].durationHandler = (Duration duration) => totalDuration = duration.inMilliseconds;
       audioVoces[0].positionHandler = (Duration duration) {
         setState(() {
           currentProgress = duration.inMilliseconds / totalDuration;
@@ -343,7 +350,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       if(descargado) {
         await action.rawDelete('delete from descargados where himno_id = ${widget.numero}');
       } else {
-        await action.rawInsert('insert into descargados values (${widget.numero})');
+        await action.rawInsert('insert into descargados values (${widget.numero}, $totalDuration)');
       }
     });
     setState(() => descargado = !descargado);

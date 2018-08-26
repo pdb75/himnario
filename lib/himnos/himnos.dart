@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
@@ -63,11 +64,27 @@ class _HimnosPageState extends State<HimnosPage> {
       for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
         favoritos.add(favorito['himno_id']);
       }
+      // solo en esta actualización
+      
       try {
+        List<String> voces = ['Soprano', 'Tenor', 'Bajo', 'ContraAlto'];
+        String path = (await getApplicationDocumentsDirectory()).path;
         for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
-          descargados.add(descargado['himno_id']);
+          for(int i = 0; i < voces.length; ++i) {
+            File archivo = File(path + '/${descargado['himno_id']}-${voces[i]}.mp3');
+            archivo.deleteSync();
+          }
         }
+        db.transaction((action) {
+          action.rawDelete('delete from descargados');
+        });
       } catch(e) {print(e);}
+
+      // try {
+      //   for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+      //     descargados.add(descargado['himno_id']);
+      //   }
+      // } catch(e) {print(e);}
       await db.close();
     }
     ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
