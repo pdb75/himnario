@@ -60,11 +60,11 @@ class _BuscadorState extends State<Buscador> {
     String queryParrafo = '';
     List<String> palabras = query.split(' ');
     for (String palabra in palabras) {
-      palabra.replaceAll('á', 'a');
-      palabra.replaceAll('é', 'e');
-      palabra.replaceAll('í', 'i');
-      palabra.replaceAll('ó', 'o');
-      palabra.replaceAll('ú', 'u');
+      palabra = palabra.replaceAll('á', 'a');
+      palabra = palabra.replaceAll('é', 'e');
+      palabra = palabra.replaceAll('í', 'i');
+      palabra = palabra.replaceAll('ó', 'o');
+      palabra = palabra.replaceAll('ú', 'u');
       if(queryTitulo.isEmpty)
         queryTitulo += "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(himnos.id || ' ' || himnos.titulo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
       else queryTitulo += " and REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(himnos.id || ' ' || himnos.titulo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";

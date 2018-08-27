@@ -44,14 +44,14 @@ class _HimnosPageState extends State<HimnosPage> {
     print('actualVersion: $actualVersion');
     print('version: $version');
     if (version == null || version != actualVersion) {
-      await copiarBase(path, version == null);
+      await copiarBase(path, version == null, version == null);
       prefs.setString('version', actualVersion);
     } else db = await openReadOnlyDatabase(path);
     await fetchCategorias();
     return null;
   }
 
-  Future<Null> copiarBase(String dbPath, bool fistRun) async {
+  Future<Null> copiarBase(String dbPath, bool fistRun, version) async {
     print('entro a copiar');
     print(fistRun);
     // Favoritos
@@ -62,7 +62,12 @@ class _HimnosPageState extends State<HimnosPage> {
       print('abriendo base de datos');
       try {
       // para los de las versiones anteriores puedan guardar sus cosas
-      db = await openDatabase(await getDatabasesPath() + '/himnos.db');
+      // db = await openDatabase(await getDatabasesPath() + '/himnos.db');
+      
+      // versiones despues de 2.2 en adelante
+      db = await openDatabase((await getApplicationDocumentsDirectory()).path + '/himnos.db');
+
+
       for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
         favoritos.add(favorito['himno_id']);
       }
