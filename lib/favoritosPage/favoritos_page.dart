@@ -28,7 +28,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
     scrollController = ScrollController(initialScrollOffset: 0.0);
     scrollController.addListener((){
       double maxScrollPosition = MediaQuery.of(context).size.height - 130.0;
-      setState(() => scollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
+      !dragging && setState(() => scollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
     });
     scollPosition = 105.0 - 90.0;
     dragging = false;
@@ -117,7 +117,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
                     scollPosition = position;
                     dragging = true;
                   });
-                  scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
+                  scrollController.jumpTo(((scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)))/56).floor()*56.0);
                 },
                 onVerticalDragUpdate: (DragUpdateDetails details) {
                   double position;
@@ -131,7 +131,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
                     scollPosition = position;
                     dragging = true;
                   });
-                  scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
+                  scrollController.jumpTo(((scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)))/56).floor()*56.0);
                 },
                 onVerticalDragEnd: (DragEndDetails details) {
                   setState(() {

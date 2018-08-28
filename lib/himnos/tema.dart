@@ -29,14 +29,14 @@ class _TemaPageState extends State<TemaPage> {
   void initState() {
     super.initState();
     scrollController = ScrollController(initialScrollOffset: 0.0);
+    himnos = List<Himno>();
     scrollController.addListener((){
       double maxScrollPosition = MediaQuery.of(context).size.height - 130.0;
-      setState(() => scrollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
+      !dragging && setState(() => scrollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
     });
     cargando = true;
     scrollPosition = 105.0 - 90.0;
     dragging = false;
-    himnos = List<Himno>();
     initDB();
   }
 
@@ -119,6 +119,7 @@ class _TemaPageState extends State<TemaPage> {
               itemBuilder: (BuildContext context, int index) =>
                 ListTile(
                 onTap: () async {
+                  print(context.size.height);
                   await db.close();
                   await Navigator.push(
                     context, 
@@ -160,7 +161,7 @@ class _TemaPageState extends State<TemaPage> {
                     scrollPosition = position;
                     dragging = true;
                   });
-                  scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
+                  scrollController.jumpTo(((scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)))/56).floor()*56.0);
                 },
                 onVerticalDragUpdate: (DragUpdateDetails details) {
                   double position;
@@ -174,7 +175,7 @@ class _TemaPageState extends State<TemaPage> {
                     scrollPosition = position;
                     dragging = true;
                   });
-                  scrollController.jumpTo(scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)));
+                  scrollController.jumpTo(((scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)))/56).floor()*56.0);
                 },
                 onVerticalDragEnd: (DragEndDetails details) {
                   setState(() {
