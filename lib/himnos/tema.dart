@@ -119,7 +119,6 @@ class _TemaPageState extends State<TemaPage> {
               itemBuilder: (BuildContext context, int index) =>
                 ListTile(
                 onTap: () async {
-                  print(context.size.height);
                   await db.close();
                   await Navigator.push(
                     context, 
@@ -173,7 +172,6 @@ class _TemaPageState extends State<TemaPage> {
                     position = details.globalPosition.dy - 90;
                   setState(() {
                     scrollPosition = position;
-                    dragging = true;
                   });
                   scrollController.jumpTo(((scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)))/56).floor()*56.0);
                 },

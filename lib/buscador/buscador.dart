@@ -105,10 +105,13 @@ class _BuscadorState extends State<Buscador> {
         title: TextField(
           autofocus: true,
           onChanged: fetchHimnos,
+          style: TextStyle(
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
+            fontFamily: 'Roboto',
+            fontSize: 20.0,
+            fontWeight: FontWeight.w500,
+          ),
           decoration: InputDecoration(
-            // border: OutlineInputBorder(
-            //   borderRadius: BorderRadius.circular(10.0),
-            // ),
             filled: true,
             fillColor: Theme.of(context).canvasColor
           ),
@@ -178,7 +181,6 @@ class _BuscadorState extends State<Buscador> {
                   position = details.globalPosition.dy - 90;
                 setState(() {
                   scrollPosition = position;
-                  dragging = true;
                 });
                 scrollController.jumpTo(((scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)))/56).floor()*56.0);
               },

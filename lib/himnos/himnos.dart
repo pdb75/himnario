@@ -15,6 +15,7 @@ import '../buscador/buscador.dart';
 import '../ajustesPage/ajustes_page.dart';
 import '../favoritosPage/favoritos_page.dart';
 import '../descargadosPage/descargados_page.dart';
+import '../quickBuscador/quick_buscador.dart';
 
 class HimnosPage extends StatefulWidget {
   @override
@@ -44,14 +45,14 @@ class _HimnosPageState extends State<HimnosPage> {
     print('actualVersion: $actualVersion');
     print('version: $version');
     if (version == null || version != actualVersion) {
-      await copiarBase(path, version == null, version == null);
+      await copiarBase(path, version == null, version == null ? 0.0 : double.parse(version));
       prefs.setString('version', actualVersion);
     } else db = await openReadOnlyDatabase(path);
     await fetchCategorias();
     return null;
   }
 
-  Future<Null> copiarBase(String dbPath, bool fistRun, version) async {
+  Future<Null> copiarBase(String dbPath, bool fistRun, double version) async {
     print('entro a copiar');
     print(fistRun);
     // Favoritos
@@ -61,15 +62,17 @@ class _HimnosPageState extends State<HimnosPage> {
     if (!fistRun) {
       print('abriendo base de datos');
       try {
-      // para los de las versiones anteriores puedan guardar sus cosas
-      // db = await openDatabase(await getDatabasesPath() + '/himnos.db');
-      
-      // versiones despues de 2.2 en adelante
-      db = await openDatabase((await getApplicationDocumentsDirectory()).path + '/himnos.db');
+      if(version < 2.2) {
+        print('Old Version db path');
+        db = await openDatabase(await getDatabasesPath() + '/himnos.db');
+      }
+      else {
+        print('New Version db path');
+        db = await openDatabase((await getApplicationDocumentsDirectory()).path + '/himnos.db');
+      }
 
-
-      for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
-        favoritos.add(favorito['himno_id']);
+        for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
+          favoritos.add(favorito['himno_id']);
       }
       // solo en esta actualización
       // List<String> voces = ['Soprano', 'Tenor', 'Bajo', 'ContraAlto'];
@@ -97,7 +100,6 @@ class _HimnosPageState extends State<HimnosPage> {
     print('antes de abrir');
     await new File(dbPath).writeAsBytes(bytes);
     db = await openDatabase(dbPath);
-    print('despues de abrir');
     if (!fistRun) {
       for (int favorito in favoritos)
         await db.rawInsert('insert into favoritos values ($favorito)');
@@ -267,6 +269,16 @@ class _HimnosPageState extends State<HimnosPage> {
             );
           }
         ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context, 
+            MaterialPageRoute(
+              builder: (BuildContext context) => QuickBuscador()
+            ));
+        },
+        child: Icon(Icons.keyboard),
+      ),
     );
   }
 }

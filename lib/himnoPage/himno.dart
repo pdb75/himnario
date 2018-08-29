@@ -144,8 +144,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         if (linea.length > max) max = linea.length;
       }
     }
-    print(max);
-    print((MediaQuery.of(context).size.width - 30)/max);
     initfontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
     fontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
 
