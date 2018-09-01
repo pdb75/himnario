@@ -1,6 +1,7 @@
 .DS_Store
 .dart_tool/
 scripts/node_modules
+scripts/himnos
 .packages
 .pub/
 
