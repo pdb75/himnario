@@ -16,6 +16,7 @@ import '../ajustesPage/ajustes_page.dart';
 import '../favoritosPage/favoritos_page.dart';
 import '../descargadosPage/descargados_page.dart';
 import '../quickBuscador/quick_buscador.dart';
+import '../vocesDisponibles/voces_disponibles.dart';
 
 class HimnosPage extends StatefulWidget {
   @override
@@ -86,7 +87,6 @@ class _HimnosPageState extends State<HimnosPage> {
       // await db.transaction((action) async {
       //   await action.rawDelete('delete from descargados');
       // });
-
       try {
         for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
           descargados.add([descargado['himno_id'], descargado['duracion']]);
@@ -169,8 +169,8 @@ class _HimnosPageState extends State<HimnosPage> {
             ListTile(
               leading: Icon(Icons.favorite),
               title: Text('Favoritos'),
-              onTap: () {
-                db.close();
+              onTap: () async {
+                await db.close();
                 Navigator.pop(context);
                 Navigator.push(
                   context,
@@ -181,12 +181,24 @@ class _HimnosPageState extends State<HimnosPage> {
             ListTile(
               leading: Icon(Icons.get_app),
               title: Text('Himnos Descargados'),
-              onTap: () {
-                db.close();
+              onTap: () async {
+                await db.close();
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (BuildContext context) => DescargadosPage())
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.record_voice_over),
+              title: Text('Voces Disponibles'),
+              onTap: () async {
+                await db.close();
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (BuildContext context) => DisponiblesPage())
                 );
               },
             ),
@@ -277,7 +289,7 @@ class _HimnosPageState extends State<HimnosPage> {
               builder: (BuildContext context) => QuickBuscador()
             ));
         },
-        child: Icon(Icons.keyboard),
+        child: Icon(Icons.dialpad),
       ),
     );
   }

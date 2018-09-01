@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -18,7 +15,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
   Database db;
   bool cargando;
   bool dragging;
-  double scollPosition;
+  double scrollPosition;
   ScrollController scrollController;
 
   @override
@@ -28,9 +25,9 @@ class _FavoritosPageState extends State<FavoritosPage> {
     scrollController = ScrollController(initialScrollOffset: 0.0);
     scrollController.addListener((){
       double maxScrollPosition = MediaQuery.of(context).size.height - 130.0;
-      !dragging && setState(() => scollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
+      !dragging && setState(() => scrollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
     });
-    scollPosition = 105.0 - 90.0;
+    scrollPosition = 105.0 - 90.0;
     dragging = false;
     cargando = true;
     initDB();
@@ -82,6 +79,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
                   context, 
                   MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)));
                 initDB();
+                scrollPosition = 105.0 - 90.0;
               },
               leading: Icon(Icons.star, color: Theme.of(context).accentColor,),
               title: Row(
@@ -114,7 +112,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
                   else 
                     position = details.globalPosition.dy - 90;
                   setState(() {
-                    scollPosition = position;
+                    scrollPosition = position;
                     dragging = true;
                   });
                   scrollController.jumpTo(((scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)))/56).floor()*56.0);
@@ -128,7 +126,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
                   else 
                     position = details.globalPosition.dy - 90;
                   setState(() {
-                    scollPosition = position;
+                    scrollPosition = position;
                     dragging = true;
                   });
                   scrollController.jumpTo(((scrollController.position.maxScrollExtent*((position-15)/(MediaQuery.of(context).size.height-130.0)))/56).floor()*56.0);
@@ -143,7 +141,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
                   width: 40.0,
                   child: CustomPaint(
                     painter: SideScroller(
-                      position: scollPosition,
+                      position: scrollPosition,
                       context: context,
                       dragging: dragging  
                     ),

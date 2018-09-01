@@ -47,12 +47,14 @@ class _QuickBuscadorState extends State<QuickBuscador> {
   }
 
   void onChanged(String query) async {
+    setState(() => cargando = true);
     if (query.isNotEmpty) {
       List<Map<String,dynamic>> himnoQuery = await db.rawQuery('select himnos.id, himnos.titulo from himnos where himnos.id = $query');
       if (himnoQuery.isEmpty)
         setState(() {
           estrofas = List<Parrafo>();
           himno = Himno(titulo: 'No Encontrado', numero: -1);
+          cargando = false;
         });
       else {
         List<Map<String,dynamic>> parrafos = await db.rawQuery('select * from parrafos where himno_id = $query');
@@ -66,11 +68,13 @@ class _QuickBuscadorState extends State<QuickBuscador> {
         setState(() {
           himno = Himno(titulo: himnoQuery[0]['titulo'], numero:himnoQuery[0]['id']);
           estrofas = Parrafo.fromJson(parrafos);
+          cargando = false;
         });
       }
     } else setState(() {
         estrofas = List<Parrafo>();
         himno = Himno(titulo: 'No Encontrado', numero: -1);
+        cargando = false;
       });
   }
 
@@ -121,13 +125,14 @@ class _QuickBuscadorState extends State<QuickBuscador> {
         ],
       ),
       body: 
-      (estrofas.isNotEmpty ? ListView.builder(
+      (!cargando ? 
+        estrofas.isNotEmpty ? ListView.builder(
         itemCount: estrofas.length,
         itemBuilder: (BuildContext context, int index) =>
           (estrofas[index].coro ? 
           Coro(coro: estrofas[index].parrafo, fontSize: fontSize,) :
           Estrofa(numero: estrofas[index].orden, estrofa: estrofas[index].parrafo,fontSize: fontSize,))
-      ) :
+      ) : Center(child: Text('Himno no encontrado', textAlign: TextAlign.center,),) :
       Center(child: CircularProgressIndicator(),)),
     );
   }

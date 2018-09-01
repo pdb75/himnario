@@ -182,7 +182,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       .then((response) => consolidateHttpClientResponseBytes(response))
       .then((bytes) async {
         totalDuration = (double.parse(UTF8.decode(bytes))*1000).ceil();
-        print(totalDuration);
       });
     for(int i = 0; i < audioVoces.length; ++i) {
       cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'))
@@ -257,6 +256,9 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     super.dispose();
+    db.close();
+    switchModeController.dispose();
+    Screen.keepOn(false);
     cliente = null;
     if(vozDisponible) {
       if(archivos[0] == null && !descargado)
@@ -268,9 +270,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             archivos[i].deleteSync();
       }
     }
-    switchModeController.dispose();
-    Screen.keepOn(false);
-    db.close();
   }
 
   void pauseVoces() {
@@ -380,7 +379,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         },
 
         onHorizontalDragEnd: (DragEndDetails details) {
-          print(fontSize);
           initfontSize = fontSize;
         },
         child: Stack(

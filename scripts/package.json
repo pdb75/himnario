@@ -1,0 +1,23 @@
+{
+  "name": "himnario",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "nodemon src/app.js --exec  \"node src/app.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "mediaserver": "^0.1.1",
+    "morgan": "^1.9.0",
+    "mp3-duration": "^1.1.0",
+    "nodemon": "^1.18.3",
+    "sequelize": "^4.38.0",
+    "sqlite3": "^4.0.2"
+  }
+}

@@ -1,6 +1,6 @@
 .DS_Store
 .dart_tool/
-
+scripts/node_modules
 .packages
 .pub/
 

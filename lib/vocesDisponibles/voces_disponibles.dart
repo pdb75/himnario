@@ -1,3 +1,5 @@
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -5,12 +7,12 @@ import 'package:sqflite/sqflite.dart';
 import '../models/himnos.dart';
 import '../himnoPage/himno.dart';
 
-class DescargadosPage extends StatefulWidget {
+class DisponiblesPage extends StatefulWidget {
   @override
-  _DescargadosPageState createState() => _DescargadosPageState();
+  _DisponiblesPageState createState() => _DisponiblesPageState();
 }
 
-class _DescargadosPageState extends State<DescargadosPage> {
+class _DisponiblesPageState extends State<DisponiblesPage> {
   List<Himno> himnos;
   Database db;
   bool cargando;
@@ -21,6 +23,7 @@ class _DescargadosPageState extends State<DescargadosPage> {
   @override
   void initState() {
     super.initState();
+    initDB();
     himnos = List<Himno>();
     scrollController = ScrollController(initialScrollOffset: 0.0);
     scrollController.addListener((){
@@ -30,25 +33,31 @@ class _DescargadosPageState extends State<DescargadosPage> {
     scrollPosition = 105.0 - 90.0;
     dragging = false;
     cargando = true;
-    initDB();
   }
 
   void initDB() async {
     setState(() => cargando = true);
     himnos = List<Himno>();
     String path = (await getApplicationDocumentsDirectory()).path;
+    http.Response res = await http.get('http://104.131.104.212:8085/disponibles');
     db = await openDatabase(path + '/himnos.db');
-    List<Map<String,dynamic>> data = await db.rawQuery('select * from himnos join descargados on descargados.himno_id = himnos.id order by himnos.id ASC');
+    List<Map<String,dynamic>> data = await db.rawQuery("select himnos.id, himnos.titulo from himnos where himnos.id in ${(res.body.replaceFirst('[', '(')).replaceFirst(']', ')')} group by himnos.id order by himnos.id ASC");
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
     List<int> favoritos = List<int>();
-    for(dynamic favorito in favoritosQuery)
+    for(dynamic favorito in favoritosQuery) {
       favoritos.add(favorito['himno_id']);
+    }
+    List<Map<String,dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
+    List<int> descargas = List<int>();
+    for(dynamic descarga in descargasQuery) {
+      descargas.add(descarga['himno_id']);
+    }
     for(dynamic himno in data) {
       himnos.add(Himno(
         numero: himno['id'],
         titulo: himno['titulo'],
-        descargado: true,
-        favorito: favoritos.contains(himno['id'])
+        descargado: descargas.contains(himno['id']),
+        favorito: favoritos.contains(himno['id']),
       ));
     }
     setState(() => cargando = false);
@@ -58,7 +67,7 @@ class _DescargadosPageState extends State<DescargadosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Himnos Descargados'),
+        title: Text('Voces Disponibles'),
       ),
       body: Stack(
         children: <Widget>[  
@@ -66,8 +75,6 @@ class _DescargadosPageState extends State<DescargadosPage> {
           Center(
             child: CircularProgressIndicator()
           ) :
-          himnos.isEmpty ? 
-          Center(child: Text('No has descargado ningún himno\n para escuchar la melodia sin conexión', textAlign: TextAlign.center,),) :
           ListView.builder(
             controller: scrollController,
             itemCount: himnos.length,
