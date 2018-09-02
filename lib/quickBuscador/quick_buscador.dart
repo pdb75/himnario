@@ -53,7 +53,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
       if (himnoQuery.isEmpty)
         setState(() {
           estrofas = List<Parrafo>();
-          himno = Himno(titulo: 'No Encontrado', numero: -1);
+          himno = Himno(titulo: 'No Encontrado', numero: -2);
           cargando = false;
         });
       else {
@@ -73,7 +73,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
       }
     } else setState(() {
         estrofas = List<Parrafo>();
-        himno = Himno(titulo: 'No Encontrado', numero: -1);
+        himno = Himno(titulo: 'Ingrese un nuúmero', numero: -1);
         cargando = false;
       });
   }
@@ -132,7 +132,8 @@ class _QuickBuscadorState extends State<QuickBuscador> {
           (estrofas[index].coro ? 
           Coro(coro: estrofas[index].parrafo, fontSize: fontSize,) :
           Estrofa(numero: estrofas[index].orden, estrofa: estrofas[index].parrafo,fontSize: fontSize,))
-      ) : Center(child: Text('Himno no encontrado', textAlign: TextAlign.center,),) :
+      ) : himno.numero == -2 ? Center(child: Text('Himno no encontrado', textAlign: TextAlign.center,),) 
+      : Center(child: Text('Ingrese el número del himno', textAlign: TextAlign.center,),) :
       Center(child: CircularProgressIndicator(),)),
     );
   }
