@@ -99,6 +99,12 @@ class _BuscadorState extends State<Buscador> {
   }
 
   @override
+  void dispose() async {
+    super.dispose();
+    await db.close();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

@@ -51,6 +51,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
         favorito: true
       ));
     }
+    await db.close();
     setState(() => cargando = false);
   }
 
@@ -74,7 +75,6 @@ class _FavoritosPageState extends State<FavoritosPage> {
             itemBuilder: (BuildContext context, int index) => 
             ListTile(
               onTap: () async {
-                await db.close();
                 await Navigator.push(
                   context, 
                   MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)));

@@ -126,6 +126,7 @@ class _HimnosPageState extends State<HimnosPage> {
         ));
       }
     }
+    await db.close();
 
     setState(() => cargando = false);
     return null;
@@ -134,7 +135,6 @@ class _HimnosPageState extends State<HimnosPage> {
   @override
   void dispose(){
     super.dispose();
-    db.close();
   }
 
 

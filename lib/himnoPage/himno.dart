@@ -82,6 +82,13 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     getHimno();
   }
 
+  Future<Database> initDB() async {
+    String databasesPath = (await getApplicationDocumentsDirectory()).path;
+    String path = databasesPath + "/himnos.db";
+    db = await openDatabase(path);
+    return db;
+  }
+
   void deleteVocesFiles() async {
     String path = (await getApplicationDocumentsDirectory()).path;
     for (int i = 0; i < audioVoces.length; ++i) {
@@ -169,7 +176,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           setState(() => vozDisponible = false);
       });
     } else initVocesDownloaded();
-
+    await db.close();
     return null;
   }
 
@@ -330,26 +337,34 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     });
   }
 
-  void toggleFavorito() async {
-    await db.transaction((action) async {
-      if(favorito) {
-        await action.rawDelete('delete from favoritos where himno_id = ${widget.numero}');
-      } else {
-        await action.rawInsert('insert into favoritos values (${widget.numero})');
-      }
-    });
-    setState(() => favorito = !favorito);
+  void toggleFavorito() {
+    initDB()
+      .then((db) async {
+        await db.transaction((action) async {
+          if(favorito) {
+            await action.rawDelete('delete from favoritos where himno_id = ${widget.numero}');
+          } else {
+            await action.rawInsert('insert into favoritos values (${widget.numero})');
+          }
+        });
+        await db.close();
+        setState(() => favorito = !favorito);
+      });
   }
 
-  void toggleDescargado() async {
-    await db.transaction((action) async {
-      if(descargado) {
-        await action.rawDelete('delete from descargados where himno_id = ${widget.numero}');
-      } else {
-        await action.rawInsert('insert into descargados values (${widget.numero}, $totalDuration)');
-      }
-    });
-    setState(() => descargado = !descargado);
+  void toggleDescargado() {
+    initDB()
+      .then((db) async {
+        await db.transaction((action) async {
+          if(descargado) {
+            await action.rawDelete('delete from descargados where himno_id = ${widget.numero}');
+          } else {
+            await action.rawInsert('insert into descargados values (${widget.numero}, $totalDuration)');
+          }
+        });
+        await db.close();
+        setState(() => descargado = !descargado);
+      });
   }
 
   @override

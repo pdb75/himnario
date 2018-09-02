@@ -80,6 +80,7 @@ class _TemaPageState extends State<TemaPage> {
         favorito: favoritos.contains(himno['id']),
       ));
     }
+    await db.close();
     setState(() => cargando = false);
     return null;
   }
@@ -87,7 +88,6 @@ class _TemaPageState extends State<TemaPage> {
   @override
   void dispose(){
     super.dispose();
-    db.close();
   }
 
 
@@ -119,7 +119,6 @@ class _TemaPageState extends State<TemaPage> {
               itemBuilder: (BuildContext context, int index) =>
                 ListTile(
                 onTap: () async {
-                  await db.close();
                   await Navigator.push(
                     context, 
                     MaterialPageRoute(builder: (BuildContext context) => HimnoPage(numero: himnos[index].numero, titulo: himnos[index].titulo,)));
