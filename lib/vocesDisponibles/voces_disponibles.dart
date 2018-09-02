@@ -14,8 +14,8 @@ class DisponiblesPage extends StatefulWidget {
 
 class _DisponiblesPageState extends State<DisponiblesPage> {
   List<Himno> himnos;
-  Database db;
   bool cargando;
+  Database db;
   bool dragging;
   double scrollPosition;
   ScrollController scrollController;
@@ -37,30 +37,33 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
 
   void initDB() async {
     setState(() => cargando = true);
-    himnos = List<Himno>();
     String path = (await getApplicationDocumentsDirectory()).path;
+    himnos = List<Himno>();
     http.Response res = await http.get('http://104.131.104.212:8085/disponibles');
-    db = await openDatabase(path + '/himnos.db');
-    List<Map<String,dynamic>> data = await db.rawQuery("select himnos.id, himnos.titulo from himnos where himnos.id in ${(res.body.replaceFirst('[', '(')).replaceFirst(']', ')')} group by himnos.id order by himnos.id ASC");
-    List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
-    List<int> favoritos = List<int>();
-    for(dynamic favorito in favoritosQuery) {
-      favoritos.add(favorito['himno_id']);
-    }
-    List<Map<String,dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
-    List<int> descargas = List<int>();
-    for(dynamic descarga in descargasQuery) {
-      descargas.add(descarga['himno_id']);
-    }
-    for(dynamic himno in data) {
-      himnos.add(Himno(
-        numero: himno['id'],
-        titulo: himno['titulo'],
-        descargado: descargas.contains(himno['id']),
-        favorito: favoritos.contains(himno['id']),
-      ));
-    }
-    setState(() => cargando = false);
+    openDatabase(path + '/himnos.db')
+      .then((dbOpened) async {
+        db = dbOpened;
+        List<Map<String,dynamic>> data = await dbOpened.rawQuery("select himnos.id, himnos.titulo from himnos where himnos.id in ${(res.body.replaceFirst('[', '(')).replaceFirst(']', ')')} group by himnos.id order by himnos.id ASC");
+        List<Map<String,dynamic>> favoritosQuery = await dbOpened.rawQuery('select * from favoritos');
+        List<int> favoritos = List<int>();
+        for(dynamic favorito in favoritosQuery) {
+          favoritos.add(favorito['himno_id']);
+        }
+        List<Map<String,dynamic>> descargasQuery = await dbOpened.rawQuery('select * from descargados');
+        List<int> descargas = List<int>();
+        for(dynamic descarga in descargasQuery) {
+          descargas.add(descarga['himno_id']);
+        }
+        for(dynamic himno in data) {
+          himnos.add(Himno(
+            numero: himno['id'],
+            titulo: himno['titulo'],
+            descargado: descargas.contains(himno['id']),
+            favorito: favoritos.contains(himno['id']),
+          ));
+        }
+        setState(() => cargando = false);
+      });
   }
 
   @override
