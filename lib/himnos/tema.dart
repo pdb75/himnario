@@ -186,7 +186,8 @@ class _TemaPageState extends State<TemaPage> {
                     painter: SideScroller(
                       position: scrollPosition,
                       context: context,
-                      dragging: dragging  
+                      dragging: dragging,
+                      // numero: dragging ? (scrollController.offset/56 + 1).toInt().toString() : ''
                     ),
                   ),
                 )
@@ -200,11 +201,14 @@ class _TemaPageState extends State<TemaPage> {
 }
 
 class SideScroller extends CustomPainter {
-  final double position;
+  double position;
   bool dragging;
+  BuildContext context;
+  String numero;
   Paint scrollBar;
 
-  SideScroller({this.position, BuildContext context, this.dragging}) {
+
+  SideScroller({this.position, BuildContext context, this.dragging, this.numero}) {
     scrollBar = Paint()
       ..color = dragging ? Theme.of(context).accentColor : Colors.grey
       ..strokeWidth = 10.0
@@ -214,6 +218,26 @@ class SideScroller extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawLine(Offset(size.width - 15, position), Offset(size.width - 15, position + 20), scrollBar);
+    // if (dragging) {
+    //   position =  position < 90.0 ? 90.0 : position;
+    //   for(int i = 0; i < numero.length; ++i)
+    //     canvas.drawCircle(Offset(size.width - 85 - 5*i, position - 40), 45.0, scrollBar);
+    //   canvas.drawRect(Rect.fromCircle(
+    //     center: Offset(size.width - 62, position - 17),
+    //     radius: 22.0
+    //   ), scrollBar);
+    //   TextPainter(
+    //     text: TextSpan(
+    //       text: numero,
+    //       style: TextStyle(
+    //         fontSize: 45.0,
+    //       )
+    //     ),
+    //     textDirection: TextDirection.ltr)
+    //   ..layout()
+    //   ..paint(canvas, Offset(size.width - 127 - 15*(numero.length-3), position - 65));
+    // }
+    
   }
 
   @override

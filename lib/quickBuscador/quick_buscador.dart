@@ -20,15 +20,13 @@ class _QuickBuscadorState extends State<QuickBuscador> {
   Himno himno;
   List<Parrafo> estrofas;
   int max;
-  double initfontSize;
   double fontSize;
 
   @override
   void initState() {
     super.initState();
     max = 0;
-    initfontSize = 16.0;
-    fontSize = initfontSize;
+    fontSize = 16.0;
     done = false;
     cargando = true;
     estrofas = List<Parrafo>();
@@ -47,6 +45,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
   }
 
   void onChanged(String query) async {
+    max = 0;
     setState(() => cargando = true);
     if (query.isNotEmpty) {
       List<Map<String,dynamic>> himnoQuery = await db.rawQuery('select himnos.id, himnos.titulo from himnos where himnos.id = $query');
@@ -63,17 +62,16 @@ class _QuickBuscadorState extends State<QuickBuscador> {
             if (linea.length > max) max = linea.length;
           }
         }
-        initfontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
-        fontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
         setState(() {
           himno = Himno(titulo: himnoQuery[0]['titulo'], numero:himnoQuery[0]['id']);
           estrofas = Parrafo.fromJson(parrafos);
           cargando = false;
+          fontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
         });
       }
     } else setState(() {
         estrofas = List<Parrafo>();
-        himno = Himno(titulo: 'Ingrese un nuúmero', numero: -1);
+        himno = Himno(titulo: 'Ingrese un número', numero: -1);
         cargando = false;
       });
   }
