@@ -5,11 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import './himnos/himnos.dart';
 
 void main() async {
-  MaterialPageRoute.debugEnableFadingRoutes = true;
   List<ThemeData> temasTema = [
       ThemeData(
         primarySwatch: Colors.deepPurple,
-        indicatorColor: Colors.white
+        indicatorColor: Colors.white,
       ),
       ThemeData(
         accentColor: Colors.deepPurpleAccent,
@@ -89,16 +88,28 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String color = prefs.getString('tema');
   String brightness = prefs.getString('brightness');
+  print(prefs.getString('fuente'));
+  // Get Tema
   for(ThemeData x in temasTema)
     if(x.primaryColor.toString() == color && x.brightness.toString() == brightness) {
-      tema = x;
+      tema = ThemeData(
+        accentColor: x.accentColor,
+        indicatorColor: x.indicatorColor,
+        primaryColorDark: x.primaryColorDark,
+        primaryColor: x.primaryColor,
+        brightness: x.brightness,
+        fontFamily: prefs.getString('fuente') ?? 'Roboto'
+      );
       break;
     }
   if (tema == null)
     tema = ThemeData(
       primarySwatch: Colors.deepPurple,
-      indicatorColor: Colors.white
+      indicatorColor: Colors.white,
+      fontFamily: prefs.getString('fuente') ?? 'Roboto'
     );
+
+
   runApp(MyApp(tema: tema));
 }
 class MyApp extends StatelessWidget {

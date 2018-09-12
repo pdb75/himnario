@@ -1,84 +1,80 @@
 import 'package:flutter/material.dart';
 
-class Estrofa extends StatelessWidget {
-  int numero;
-  String estrofa;
-  double fontSize;
+class HimnoText extends StatelessWidget {
 
-  Estrofa({this.numero, this.estrofa, this.fontSize});
+  List<Parrafo> estrofas;
+  double fontSize;
+  String alignment;
+
+  HimnoText({this.estrofas, this.fontSize, this.alignment = 'Izquierda'});
 
   @override
   Widget build(BuildContext context) {
-    int lineas = 1;
-    int ultimoIndex = 0;
-    while(estrofa.contains('\n', ultimoIndex)) {
-      ++lineas;
-      ultimoIndex = ultimoIndex + (estrofa.substring(ultimoIndex, estrofa.length)).indexOf('\n') + 1;
+    TextAlign align;
+    switch(alignment) {
+      case 'Izquierda': {
+        align = TextAlign.left;
+      } break;
+      case 'Centro': {
+        align = TextAlign.center;
+      } break;
+      case 'Derecha': {
+        align = TextAlign.right;
+      } break;
+      default: {
+        align = TextAlign.left;
+      } break;
     }
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(right: 10.0, bottom: lineas * 14.0),
-            child: Text(numero.toString(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.bold 
-              ),
+    List<TextSpan> parrafos = List<TextSpan>();
+    for(Parrafo parrafo in estrofas) {
+      if(parrafo.coro)
+        parrafos.addAll([
+          TextSpan(
+            text: 'Coro\n',
+            style: TextStyle(
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w300,
+              fontSize: fontSize
+            ),
+          ),
+          TextSpan(
+            text: parrafo.parrafo + '\n\n',
+            style: TextStyle(
+              fontStyle: FontStyle.italic,
+              fontSize: fontSize
+            )
+          )
+        ]);
+      else
+        parrafos.addAll([
+          TextSpan(
+            text: '${parrafo.orden}  ',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize
             )
           ),
-          Text(estrofa,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: fontSize
-          ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class Coro extends StatelessWidget {
-  String coro;
-  double fontSize;
-
-  Coro({this.coro, this.fontSize});
-
-  @override
-  Widget build(BuildContext context) {
-    int lineas = 1;
-    int ultimoIndex = 0;
-    while(coro.contains('\n', ultimoIndex)) {
-      ++lineas;
-      ultimoIndex = ultimoIndex + (coro.substring(ultimoIndex, coro.length)).indexOf('\n') + 1;
-    }
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(right: 10.0, bottom: lineas * 14.0),
-            child: Text('Coro:',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w300 
-              ),
+          TextSpan(
+            text: parrafo.parrafo + '\n\n',
+            style: TextStyle(
+              fontSize: fontSize
             )
-          ),
-          Text(coro,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-                fontStyle: FontStyle.italic,
-                fontSize: fontSize
-              ),
           )
-        ],
-      ),
+        ]);
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+      child: Center(
+        child: RichText(
+          textDirection: TextDirection.ltr,
+          textAlign: align,
+          text: TextSpan(
+            style: DefaultTextStyle.of(context).style,
+            children: parrafos
+          ),
+        )
+      )
     );
   }
 }

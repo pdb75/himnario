@@ -12,6 +12,7 @@ class BotonVoz extends StatelessWidget {
     return !activo ? OutlineButton(
       child: Text(voz,
         style: TextStyle(
+          fontFamily: Theme.of(context).textTheme.title.fontFamily,
           color: Theme.of(context).accentColor
         ),
       ),
@@ -21,6 +22,7 @@ class BotonVoz extends StatelessWidget {
       color: Theme.of(context).accentColor,
       child: Text(voz,
         style: TextStyle(
+          fontFamily: Theme.of(context).textTheme.title.fontFamily,
           color: Theme.of(context).indicatorColor
         ),
       ),

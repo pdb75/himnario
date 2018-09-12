@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import './components/boton_voz.dart';
 import './components/estructura_himno.dart';
@@ -51,6 +52,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   int max;
   Database db;
   HttpClient cliente;
+  SharedPreferences prefs;
 
   @override
   void initState() {
@@ -140,6 +142,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   }
 
   Future<Null> getHimno() async {
+    prefs = await SharedPreferences.getInstance();
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
     db = await openDatabase(path);
@@ -188,7 +191,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       .then((request) => request.close())
       .then((response) => consolidateHttpClientResponseBytes(response))
       .then((bytes) async {
-        totalDuration = (double.parse(UTF8.decode(bytes))*1000).ceil();
+        totalDuration = (double.parse(Utf8Decoder().convert(bytes))*1000).ceil();
       });
     for(int i = 0; i < audioVoces.length; ++i) {
       cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'))
@@ -369,6 +372,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    if(prefs != null)
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
@@ -389,7 +393,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         },
 
         onHorizontalDragUpdate: (DragUpdateDetails details) {
-          setState(() => fontSize = initfontSize + (details.globalPosition.dx - initposition)*0.1);
+          double newFontSize = initfontSize + (details.globalPosition.dx - initposition)*0.1;
+          setState(() => fontSize = newFontSize < 10.0 ? 10.0 : initfontSize + (details.globalPosition.dx - initposition)*0.1);
         },
 
         onHorizontalDragEnd: (DragEndDetails details) {
@@ -399,11 +404,13 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           children: <Widget>[
             (estrofas.isNotEmpty ? ListView.builder(
               padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
-              itemCount: estrofas.length,
+              itemCount: 1,
               itemBuilder: (BuildContext context, int index) =>
-                (estrofas[index].coro ? 
-                Coro(coro: estrofas[index].parrafo, fontSize: fontSize,) :
-                Estrofa(numero: estrofas[index].orden, estrofa: estrofas[index].parrafo,fontSize: fontSize,))
+                HimnoText(
+                  estrofas: estrofas,
+                  fontSize: fontSize,
+                  alignment: prefs.getString('alignment'),
+                )
             ) :
             Center(child: CircularProgressIndicator(),)),
             Align(
@@ -565,6 +572,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           )
         )
       ) : null
-    );
+    ); else return Scaffold();
   }
 }

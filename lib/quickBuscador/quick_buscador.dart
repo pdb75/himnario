@@ -4,6 +4,7 @@ import 'package:Himnario/himnoPage/components/estructura_himno.dart';
 import 'package:Himnario/models/himnos.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../himnoPage/himno.dart';
@@ -21,6 +22,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
   List<Parrafo> estrofas;
   int max;
   double fontSize;
+  SharedPreferences prefs;
 
   @override
   void initState() {
@@ -35,6 +37,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
   }
 
   Future<Null> initDB() async {
+    prefs = await SharedPreferences.getInstance();
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
     db = await openDatabase(path);
@@ -96,7 +99,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
             fillColor: Theme.of(context).canvasColor,
             suffixStyle: TextStyle(
               color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
-              fontFamily: 'Roboto',
+              fontFamily: Theme.of(context).textTheme.title.fontFamily,
               fontSize: 20.0,
               fontWeight: FontWeight.w500,
             ),
@@ -104,7 +107,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
           ),
           style: TextStyle(
             color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
-            fontFamily: 'Roboto',
+            fontFamily: Theme.of(context).textTheme.title.fontFamily,
             fontSize: 20.0,
             fontWeight: FontWeight.w500,
           ),
@@ -125,11 +128,13 @@ class _QuickBuscadorState extends State<QuickBuscador> {
       body: 
       (!cargando ? 
         estrofas.isNotEmpty ? ListView.builder(
-        itemCount: estrofas.length,
+        itemCount: 1,
         itemBuilder: (BuildContext context, int index) =>
-          (estrofas[index].coro ? 
-          Coro(coro: estrofas[index].parrafo, fontSize: fontSize,) :
-          Estrofa(numero: estrofas[index].orden, estrofa: estrofas[index].parrafo,fontSize: fontSize,))
+          HimnoText(
+            estrofas: estrofas,
+            fontSize: fontSize,
+            alignment: prefs.getString('alignment'),
+          )
       ) : himno.numero == -2 ? Center(child: Text('Himno no encontrado', textAlign: TextAlign.center,),) 
       : Center(child: Text('Ingrese el número del himno', textAlign: TextAlign.center,),) :
       Center(child: CircularProgressIndicator(),)),

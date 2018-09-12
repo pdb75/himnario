@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import './components/tema_page.dart';
+import './components/fuente_page.dart';
+import './components/alineacion_page.dart';
 
 class AjustesPage extends StatefulWidget {
   @override
@@ -24,11 +26,31 @@ class _AjustesPageState extends State<AjustesPage> {
         children: <Widget>[
           ListTile(
             leading: Icon(Icons.color_lens),
-            title: Text('Tema'),
+            title: Text('Colores'),
             onTap: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) => TemasPage(),
+                );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.text_fields),
+            title: Text('Fuente'),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => FuentesPage(),
+                );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.format_align_center),
+            title: Text('Alineación'),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => AlineacionesPage(),
                 );
             },
           ),

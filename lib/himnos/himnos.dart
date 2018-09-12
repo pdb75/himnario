@@ -44,7 +44,7 @@ class _HimnosPageState extends State<HimnosPage> {
     String version = prefs.getString('version');
     String actualVersion = (await PackageInfo.fromPlatform()).version;
     print('actualVersion: $actualVersion');
-    print('version: $version');
+    print('newVersion: $version');
     if (version == null || version != actualVersion) {
       await copiarBase(path, version == null, version == null ? 0.0 : double.parse(version));
       prefs.setString('version', actualVersion);
@@ -283,6 +283,8 @@ class _HimnosPageState extends State<HimnosPage> {
         ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          // MethodChannel('PRUEBA').invokeMethod('test')
+          //   .then((value) => print(value));
           Navigator.push(
             context, 
             MaterialPageRoute(
