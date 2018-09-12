@@ -62,6 +62,7 @@ class AlineacionesPageState extends State<AlineacionesPage> {
         )
       );
     }
+    
     return SimpleDialog(
       title: Text('Seleccionar Tema'),
       children: botones
