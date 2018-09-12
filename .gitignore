@@ -4,6 +4,7 @@ scripts/node_modules
 scripts/himnos
 .packages
 .pub/
+screenshots/
 
 build/
 
