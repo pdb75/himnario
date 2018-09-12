@@ -572,6 +572,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           )
         )
       ) : null
-    ); else return Scaffold();
+    ); else return Scaffold(appBar: AppBar(),);
   }
 }

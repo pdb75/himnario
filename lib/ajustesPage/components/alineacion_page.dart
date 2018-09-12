@@ -34,9 +34,10 @@ class AlineacionesPageState extends State<AlineacionesPage> {
     List<Widget> botones = List<Widget>();
     if(prefs != null)
     for(int i = 0; i < alignments.length; ++i) {
-      if (prefs.getString('alignment') == alignments[i][0]) {
+      if (prefs.getString('alignment') == alignments[i][0])
         value = i;
-      }
+      if(prefs.getString('alignment') == null && i == 0)
+        value = i;
       botones.add(
         InkWell(
           onTap: () {

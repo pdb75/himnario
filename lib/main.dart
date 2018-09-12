@@ -88,8 +88,7 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String color = prefs.getString('tema');
   String brightness = prefs.getString('brightness');
-  print(prefs.getString('fuente'));
-  // Get Tema
+  
   for(ThemeData x in temasTema)
     if(x.primaryColor.toString() == color && x.brightness.toString() == brightness) {
       tema = ThemeData(

@@ -44,7 +44,11 @@ class _ScrollerState extends State<Scroller> {
       children: <Widget>[
         widget.cargando ? 
           Center(child: CircularProgressIndicator(),)
-          : ListView.builder(
+          : widget.himnos.isEmpty ? Container(
+              child: Center(
+                child: Text(widget.mensaje, textAlign: TextAlign.center,)
+              ),
+            ) : ListView.builder(
             controller: scrollController,
               itemCount: widget.himnos.length,
               itemBuilder: (BuildContext context, int index) =>
@@ -135,11 +139,7 @@ class _ScrollerState extends State<Scroller> {
               ),
             )
           )
-        ) : Container(
-          child: Center(
-            child: Text(widget.mensaje, textAlign: TextAlign.center,)
-          ),
-        )
+        ) : Container()
       ],
     );
   }
