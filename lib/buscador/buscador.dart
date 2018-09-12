@@ -20,23 +20,12 @@ class Buscador extends StatefulWidget {
 class _BuscadorState extends State<Buscador> {
   List<Himno> himnos;
   bool cargando;
-  double scrollPosition;
-  bool dragging;
-  ScrollController scrollController;
   Database db; 
 
   @override
   void initState() {
     super.initState();
-    scrollController = ScrollController(initialScrollOffset: 0.0);
     cargando = true;
-    scrollPosition = 105.0 - 90.0;
-    scrollController.addListener((){
-      double maxScrollPosition = MediaQuery.of(context).size.height - 130.0;
-      !dragging && setState(() => scrollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
-    });
-    cargando = true;
-    dragging = false;
     himnos = List<Himno>();
     initDB();
   }

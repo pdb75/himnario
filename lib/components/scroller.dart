@@ -31,7 +31,8 @@ class _ScrollerState extends State<Scroller> {
     scrollController = ScrollController(initialScrollOffset: 0.0);
     scrollController.addListener((){
       double maxScrollPosition = MediaQuery.of(context).size.height - 130.0;
-      !dragging && setState(() => scrollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
+      if(!dragging)
+        setState(() => scrollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
     });
     scrollPosition = 105.0 - 90.0;
     dragging = false;
