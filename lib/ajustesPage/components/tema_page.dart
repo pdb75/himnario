@@ -153,7 +153,7 @@ class _TemasPageState extends State<TemasPage> {
       );
     }
     return SimpleDialog(
-      title: Text('Seleccionar Tema'),
+      title: Text('Seleccionar Colores'),
       children: botones
     );
   }

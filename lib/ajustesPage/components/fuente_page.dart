@@ -157,7 +157,7 @@ class _FuentesPageState extends State<FuentesPage> {
       );
     }
     return SimpleDialog(
-      title: Text('Seleccionar Tema'),
+      title: Text('Seleccionar Fuente'),
       children: botones
     );
   }
