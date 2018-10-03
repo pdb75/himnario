@@ -9,10 +9,10 @@ class Scroller extends StatefulWidget {
 
   Scroller({this.himnos, this.initDB, this.cargando, this.mensaje = ''});
 
-  List<Himno> himnos;
-  OnTap initDB;
-  bool cargando;
-  String mensaje;
+  final List<Himno> himnos;
+  final OnTap initDB;
+  final bool cargando;
+  final String mensaje;
 
   @override
   _ScrollerState createState() => _ScrollerState();

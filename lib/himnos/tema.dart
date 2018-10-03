@@ -9,11 +9,13 @@ import '../buscador/buscador.dart';
 import '../components/scroller.dart';
 
 class TemaPage extends StatefulWidget {
-  int id;
-  bool subtema;
-  String tema;
 
   TemaPage({this.id, this.subtema = false, this.tema});
+  
+  final int id;
+  final bool subtema;
+  final String tema;
+  
   @override
   _TemaPageState createState() => _TemaPageState();
 }

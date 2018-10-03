@@ -16,10 +16,11 @@ import './components/boton_voz.dart';
 import './components/estructura_himno.dart';
 
 class HimnoPage extends StatefulWidget {
-  int numero;
-  String titulo;
 
   HimnoPage({this.numero, this.titulo});
+  
+  final int numero;
+  final String titulo;
 
   @override
   _HimnoPageState createState() => _HimnoPageState();
