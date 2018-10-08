@@ -41,7 +41,7 @@ class _HimnosPageState extends State<HimnosPage> {
   Future<Null> checkUpdates(SharedPreferences prefs, Database db) async {
     String date = prefs.getString('latest');
     http.Response res = await http.post(
-      'http://10.0.2.2:8085/updates',
+      'http://104.131.104.212:8085/updates',
       headers: {'Content-Type': 'application/json'},
       body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'}))
     );

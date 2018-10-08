@@ -389,16 +389,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         title: Text('${widget.numero} - ${widget.titulo}'),
       ),
       body: GestureDetector(
-        onHorizontalDragDown: (DragDownDetails details) {
-          initposition = details.globalPosition.dx;
+        onScaleUpdate: (ScaleUpdateDetails details) {
+          double newFontSize = initfontSize*details.scale;
+          setState(() => fontSize = newFontSize < 10.0 ? 10.0 : newFontSize);
         },
-
-        onHorizontalDragUpdate: (DragUpdateDetails details) {
-          double newFontSize = initfontSize + (details.globalPosition.dx - initposition)*0.1;
-          setState(() => fontSize = newFontSize < 10.0 ? 10.0 : initfontSize + (details.globalPosition.dx - initposition)*0.1);
-        },
-
-        onHorizontalDragEnd: (DragEndDetails details) {
+        onScaleEnd: (ScaleEndDetails details) {
           initfontSize = fontSize;
         },
         child: Stack(
