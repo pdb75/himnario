@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info/package_info.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/himnos.dart';
 import './tema.dart';
@@ -36,6 +38,23 @@ class _HimnosPageState extends State<HimnosPage> {
     initDB();
   }
 
+  Future<Null> checkUpdates(SharedPreferences prefs, Database db) async {
+    String date = prefs.getString('latest');
+    http.Response res = await http.post(
+      'http://10.0.2.2:8085/updates',
+      headers: {'Content-Type': 'application/json'},
+      body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'}))
+    );
+    List<dynamic> latest = jsonDecode(res.body);
+    print(latest[0]['updatedAt']);
+    if (date == null || date != latest[0]['updatedAt']) {
+      for (dynamic himno in latest) {
+        await db.rawUpdate("update parrafos set parrafo = '${himno['parrafo']}', updatedAt = CURRENT_TIMESTAMP where id = ${himno['id']}");
+      }
+      prefs.setString('latest', latest[0]['updatedAt']);
+    }
+  }
+
   Future<Null> initDB() async {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
@@ -48,7 +67,8 @@ class _HimnosPageState extends State<HimnosPage> {
     if (version == null || version != actualVersion) {
       await copiarBase(path, version == null, version == null ? 0.0 : double.parse(version));
       prefs.setString('version', actualVersion);
-    } else db = await openReadOnlyDatabase(path);
+    } else db = await openDatabase(path);
+    await checkUpdates(prefs, db);
     await fetchCategorias();
     return null;
   }
