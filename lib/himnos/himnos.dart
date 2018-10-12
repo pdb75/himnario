@@ -46,13 +46,14 @@ class _HimnosPageState extends State<HimnosPage> {
       body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'}))
     );
     List<dynamic> latest = jsonDecode(res.body);
-    print(latest[0]['updatedAt']);
-    if (date == null || date != latest[0]['updatedAt']) {
-      for (dynamic himno in latest) {
-        await db.rawUpdate("update parrafos set parrafo = '${himno['parrafo']}', updatedAt = CURRENT_TIMESTAMP where id = ${himno['id']}");
+    print(latest.isEmpty);
+    if (latest.isNotEmpty)
+      if (date == null || date != latest[0]['updatedAt']) {
+        for (dynamic himno in latest) {
+          await db.rawUpdate("update parrafos set parrafo = '${himno['parrafo']}', updatedAt = CURRENT_TIMESTAMP where id = ${himno['id']}");
+        }
+        prefs.setString('latest', latest[0]['updatedAt']);
       }
-      prefs.setString('latest', latest[0]['updatedAt']);
-    }
   }
 
   Future<Null> initDB() async {
