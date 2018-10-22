@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:threading/threading.dart';
 
 import './components/boton_voz.dart';
 import './components/estructura_himno.dart';
@@ -246,10 +247,14 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   }
 
   void resumeVoces() {
-    audioVoces[0].resume();
-    audioVoces[1].resume();
-    audioVoces[2].resume();
-    audioVoces[3].resume();
+    Thread(() async => audioVoces[0].resume()).start();
+    Thread(() async => audioVoces[1].resume()).start();
+    Thread(() async => audioVoces[2].resume()).start();
+    Thread(() async => audioVoces[3].resume()).start();
+    // audioVoces[0].resume();
+    // audioVoces[1].resume();
+    // audioVoces[2].resume();
+    // audioVoces[3].resume();
     setState(() => start = true);
   }
 
