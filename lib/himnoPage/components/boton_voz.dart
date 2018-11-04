@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class BotonVoz extends StatelessWidget {
-  String voz;
+  
   bool activo = false;
-  Function onPressed;
-
+  
   BotonVoz({this.voz, this.activo, this.onPressed});
+  
+  final String voz;
+  final Function onPressed;
 
   @override
   Widget build(BuildContext context) {

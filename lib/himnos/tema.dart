@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/himnos.dart';
-import '../himnoPage/himno.dart';
 import '../buscador/buscador.dart';
 import '../components/scroller.dart';
 

@@ -147,7 +147,6 @@ class _HimnosPageState extends State<HimnosPage> {
         ));
       }
     }
-    await db.close();
 
     setState(() => cargando = false);
     return null;

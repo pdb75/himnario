@@ -115,7 +115,7 @@ class MyApp extends StatelessWidget {
 
   MyApp({this.tema});
 
-  ThemeData tema;
+  final ThemeData tema;
 
   @override
   Widget build(BuildContext context) {

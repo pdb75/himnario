@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 class HimnoText extends StatelessWidget {
 
-  List<Parrafo> estrofas;
-  double fontSize;
   String alignment;
 
   HimnoText({this.estrofas, this.fontSize, this.alignment = 'Izquierda'});
 
+  final List<Parrafo> estrofas;
+  final double fontSize;
+  
   @override
   Widget build(BuildContext context) {
     TextAlign align;
