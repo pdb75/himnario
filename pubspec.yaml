@@ -20,6 +20,7 @@ dependencies:
   shared_preferences:
   sqflite:
   screen:
+  http:
   url_launcher:
   threading: ^0.0.10
   package_info:
