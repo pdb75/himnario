@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Himnos y Cánticos del Evangelio</string>
+	<string>Himnos&#x2007;y&#x2007;Cánticos&#x2007;del&#x2007;Evangelio</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
