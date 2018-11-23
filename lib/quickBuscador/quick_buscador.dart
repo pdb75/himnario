@@ -127,15 +127,18 @@ class _QuickBuscadorState extends State<QuickBuscador> {
       ),
       body: 
       (!cargando ? 
-        estrofas.isNotEmpty ? ListView.builder(
-        itemCount: 1,
-        itemBuilder: (BuildContext context, int index) =>
-          HimnoText(
-            estrofas: estrofas,
-            fontSize: fontSize,
-            alignment: prefs.getString('alignment'),
-          )
-      ) : himno.numero == -2 ? Center(child: Text('Himno no encontrado', textAlign: TextAlign.center,),) 
+        estrofas.isNotEmpty ? GestureDetector(
+          onTap: () => setState(() => done = !done),
+          child: ListView.builder(
+            itemCount: 1,
+            itemBuilder: (BuildContext context, int index) =>
+              HimnoText(
+                estrofas: estrofas,
+                fontSize: fontSize,
+                alignment: prefs.getString('alignment'),
+              )
+          ),
+        ) : himno.numero == -2 ? Center(child: Text('Himno no encontrado', textAlign: TextAlign.center,),) 
       : Center(child: Text('Ingrese el número del himno', textAlign: TextAlign.center,),) :
       Center(child: CircularProgressIndicator(),)),
     );

@@ -92,7 +92,6 @@ class _HimnosPageState extends State<HimnosPage> {
         print('New Version db path');
         db = await openDatabase((await getApplicationDocumentsDirectory()).path + '/himnos.db');
       }
-
         for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
           favoritos.add(favorito['himno_id']);
       }
