@@ -236,7 +236,8 @@ class _HimnosPageState extends State<HimnosPage> {
               leading: Icon(Icons.feedback),
               title: Text('Feedback'),
               onTap: () {
-                launch('https://play.google.com/store/apps/details?id=com.br572.himnario');
+                String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'http://appstore.com/Printto';
+                launch(url);
               },
             ),
           ],
