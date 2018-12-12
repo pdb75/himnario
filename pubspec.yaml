@@ -19,7 +19,8 @@ dependencies:
   audioplayers:
   shared_preferences:
   sqflite:
-  screen:
+  screen: 
+    path: plugins/screen
   http:
   url_launcher:
   threading: ^0.0.10

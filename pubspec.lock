@@ -62,10 +62,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "56d562ae6c1bf20726774fffb1917ac6aad57f2c"
+      resolved-ref: "1b562774acedf8034c8f0a65394161fe48a0fb2d"
       url: "git://github.com/Norbert515/dynamic_theme.git"
     source: git
-    version: "0.0.1"
+    version: "1.0.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -135,9 +135,9 @@ packages:
   screen:
     dependency: "direct main"
     description:
-      name: screen
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "plugins\\screen"
+      relative: true
+    source: path
     version: "0.0.4"
   shared_preferences:
     dependency: "direct main"
@@ -164,7 +164,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.2+1"
+    version: "0.13.0"
   stack_trace:
     dependency: transitive
     description:
@@ -227,7 +227,7 @@ packages:
       name: url_launcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.1"
+    version: "4.0.2"
   uuid:
     dependency: transitive
     description:
