@@ -68,6 +68,7 @@ class _HimnosPageState extends State<HimnosPage> {
     if (version == null || version != actualVersion) {
       await copiarBase(path, version == null, version == null ? 0.0 : double.parse(version));
       prefs.setString('version', actualVersion);
+      prefs.setString('latest', null);
     } else db = await openDatabase(path);
     checkUpdates(prefs, db);
     await fetchCategorias();
