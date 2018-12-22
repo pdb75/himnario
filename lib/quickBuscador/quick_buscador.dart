@@ -32,7 +32,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
     done = false;
     cargando = true;
     estrofas = List<Parrafo>();
-    himno = Himno(titulo: '', numero: -1);
+    himno = Himno(titulo: 'Ingrese un número', numero: -1);
     initDB();
   }
 
@@ -97,13 +97,19 @@ class _QuickBuscadorState extends State<QuickBuscador> {
           decoration: InputDecoration(
             filled: true,
             fillColor: Theme.of(context).canvasColor,
-            suffixStyle: TextStyle(
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
-              fontFamily: Theme.of(context).textTheme.title.fontFamily,
-              fontSize: 20.0,
-              fontWeight: FontWeight.w500,
-            ),
-            suffixText: himno.titulo ?? ''
+            suffix: Container(
+              width: MediaQuery.of(context).size.width - 200,
+              child: Text(
+                himno.titulo ?? '',
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
+                  fontFamily: Theme.of(context).textTheme.title.fontFamily,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            )
           ),
           style: TextStyle(
             color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
@@ -129,17 +135,18 @@ class _QuickBuscadorState extends State<QuickBuscador> {
       (!cargando ? 
         estrofas.isNotEmpty ? GestureDetector(
           onTap: () => setState(() => done = !done),
-          child: ListView.builder(
-            itemCount: 1,
-            itemBuilder: (BuildContext context, int index) =>
+          child: Column(
+            children: <Widget>[
               HimnoText(
                 estrofas: estrofas,
                 fontSize: fontSize,
                 alignment: prefs.getString('alignment'),
               )
+            ],
           ),
         ) : himno.numero == -2 ? Center(child: Text('Himno no encontrado', textAlign: TextAlign.center,),) 
-      : Center(child: Text('Ingrese el número del himno', textAlign: TextAlign.center,),) :
+      : Center(child: Text('Ingrese el número del himno', textAlign: TextAlign.center,
+      textScaleFactor: 1.5,),) :
       Center(child: CircularProgressIndicator(),)),
     );
   }

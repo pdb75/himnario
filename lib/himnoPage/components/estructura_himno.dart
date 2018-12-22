@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class HimnoText extends StatelessWidget {
 
-  String alignment;
+  final String alignment;
 
   HimnoText({this.estrofas, this.fontSize, this.alignment = 'Izquierda'});
 

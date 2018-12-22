@@ -378,6 +378,185 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+
+    // print(MediaQuery.of(context).size.width);
+
+    bool smallDevice = MediaQuery.of(context).size.width < 400;
+    // bool smallDevice = false;
+
+    List<Widget> controlesLayout = !smallDevice ? [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          BotonVoz(
+            voz: 'Soprano',
+            activo: voces[0],
+            onPressed: () {
+              if(voces[0])
+                pauseSingleVoice(0);
+              else
+                resumeSingleVoice(0);
+            },
+          ),
+          BotonVoz(
+            voz: 'Tenor',
+            activo: voces[1],
+            onPressed: () {
+              if(voces[1])
+                pauseSingleVoice(1);
+              else
+                resumeSingleVoice(1);
+            },
+          ),
+          BotonVoz(
+            voz: 'Contra Alto',
+            activo: voces[2],
+            onPressed: () {
+              if(voces[2])
+                pauseSingleVoice(2);
+              else
+                resumeSingleVoice(2);
+            },
+          ),
+          BotonVoz(
+            voz: 'Bajo',
+            activo: voces[3],
+            onPressed: () {
+              if(voces[3])
+                pauseSingleVoice(3);
+              else
+                resumeSingleVoice(3);
+            },
+          ),
+        ],
+      )
+    ] : [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          BotonVoz(
+            voz: '   Soprano  ',
+            activo: voces[0],
+            onPressed: () {
+              if(voces[0])
+                pauseSingleVoice(0);
+              else
+                resumeSingleVoice(0);
+            },
+          ),
+          BotonVoz(
+            voz: '    Tenor    ',
+            activo: voces[1],
+            onPressed: () {
+              if(voces[1])
+                pauseSingleVoice(1);
+              else
+                resumeSingleVoice(1);
+            },
+          ),
+        ],
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          BotonVoz(
+            voz: 'Contra Alto',
+            activo: voces[2],
+            onPressed: () {
+              if(voces[2])
+                pauseSingleVoice(2);
+              else
+                resumeSingleVoice(2);
+            },
+          ),
+          BotonVoz(
+            voz: '     Bajo     ',
+            activo: voces[3],
+            onPressed: () {
+              if(voces[3])
+                pauseSingleVoice(3);
+              else
+                resumeSingleVoice(3);
+            },
+          ),
+        ],
+      ),
+    ];
+
+    List<Widget> buttonLayout = [
+      Slider(
+        onChangeStart: (double nextProgress) {
+          setState(() {
+            draggingProgress = nextProgress;
+            dragging = true;
+          });
+        },
+        onChanged: (double nextProgress) {
+          setState(() => draggingProgress = nextProgress);
+        },
+        onChangeEnd: (double nextProgress) {
+          setState(() {
+            currentProgress = nextProgress;
+            dragging = false;
+          });
+          vocesSeek(currentProgress);
+        },
+        value: dragging ? draggingProgress : currentProgress,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          RawMaterialButton(
+            shape: CircleBorder(),
+            child: IconButton(
+              onPressed: () {
+                double newProgress = currentProgress - 0.1;
+                if(newProgress <= 0.0)
+                  vocesSeek(0.0);
+                else vocesSeek(currentProgress - 0.1);
+              },
+              icon: Icon(Icons.fast_rewind),
+            ),
+            onPressed: () {},
+          ),
+          start ? RawMaterialButton(
+            shape: CircleBorder(),
+            child: IconButton(
+              onPressed: pauseVoces,
+              icon: Icon(Icons.pause),
+            ),
+            onPressed: () {},
+          ) : 
+          RawMaterialButton(
+            shape: CircleBorder(),
+            child: IconButton(
+              onPressed: !cargando ? () {
+                resumeVoces();
+              } : null,
+              icon: Icon(Icons.play_arrow),
+            ),
+            onPressed: () {},
+          ),
+          RawMaterialButton(
+            shape: CircleBorder(),
+            child: IconButton(
+              onPressed: () {
+                double newProgress = currentProgress + 0.1;
+                if(newProgress >= 1.0)
+                  vocesSeek(1.0);
+                else vocesSeek(currentProgress + 0.1);
+              },
+              icon: Icon(Icons.fast_forward)
+            ),
+            onPressed: () {},
+          ),
+        ]
+      )
+    ];
+
+    for (Widget widget in buttonLayout)
+      controlesLayout.add(widget);
+
     if(prefs != null)
     return Scaffold(
       appBar: AppBar(
@@ -391,7 +570,13 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
           )
         ],
-        title: Text('${widget.numero} - ${widget.titulo}'),
+        title: Tooltip(
+          message: '${widget.numero} - ${widget.titulo}',
+          child: Container(
+            width: double.infinity,
+            child: Text('${widget.numero} - ${widget.titulo}', textAlign: TextAlign.center,),
+          ),
+        )
       ),
       body: GestureDetector(
         onScaleUpdate: (ScaleUpdateDetails details) {
@@ -426,124 +611,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            BotonVoz(
-                              voz: 'Soprano',
-                              activo: voces[0],
-                              onPressed: () {
-                                if(voces[0])
-                                  pauseSingleVoice(0);
-                                else
-                                  resumeSingleVoice(0);
-                              },
-                            ),
-                            BotonVoz(
-                              voz: 'Tenor',
-                              activo: voces[1],
-                              onPressed: () {
-                                if(voces[1])
-                                  pauseSingleVoice(1);
-                                else
-                                  resumeSingleVoice(1);
-                              },
-                            ),
-                            BotonVoz(
-                              voz: 'Contra Alto',
-                              activo: voces[2],
-                              onPressed: () {
-                                if(voces[2])
-                                  pauseSingleVoice(2);
-                                else
-                                  resumeSingleVoice(2);
-                              },
-                            ),
-                            BotonVoz(
-                              voz: 'Bajo',
-                              activo: voces[3],
-                              onPressed: () {
-                                if(voces[3])
-                                  pauseSingleVoice(3);
-                                else
-                                  resumeSingleVoice(3);
-                              },
-                            ),
-                          ],
-                        ),
-                        Slider(
-                          onChangeStart: (double nextProgress) {
-                            setState(() {
-                              draggingProgress = nextProgress;
-                              dragging = true;
-                            });
-                          },
-                          onChanged: (double nextProgress) {
-                            setState(() => draggingProgress = nextProgress);
-                          },
-                          onChangeEnd: (double nextProgress) {
-                            setState(() {
-                              currentProgress = nextProgress;
-                              dragging = false;
-                            });
-                            vocesSeek(currentProgress);
-                          },
-                          value: dragging ? draggingProgress : currentProgress,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            RawMaterialButton(
-                              shape: CircleBorder(),
-                              child: IconButton(
-                                onPressed: () {
-                                  double newProgress = currentProgress - 0.1;
-                                  if(newProgress <= 0.0)
-                                    vocesSeek(0.0);
-                                  else vocesSeek(currentProgress - 0.1);
-                                },
-                                icon: Icon(Icons.fast_rewind),
-                              ),
-                              onPressed: () {},
-                            ),
-                            start ? RawMaterialButton(
-                              shape: CircleBorder(),
-                              child: IconButton(
-                                onPressed: pauseVoces,
-                                icon: Icon(Icons.pause),
-                              ),
-                              onPressed: () {},
-                            ) : 
-                            RawMaterialButton(
-                              shape: CircleBorder(),
-                              child: IconButton(
-                                onPressed: !cargando ? () {
-                                  resumeVoces();
-                                } : null,
-                                icon: Icon(Icons.play_arrow),
-                              ),
-                              onPressed: () {},
-                            ),
-                            RawMaterialButton(
-                              shape: CircleBorder(),
-                              child: IconButton(
-                                onPressed: () {
-                                  double newProgress = currentProgress + 0.1;
-                                  if(newProgress >= 1.0)
-                                    vocesSeek(1.0);
-                                  else vocesSeek(currentProgress + 0.1);
-                                },
-                                icon: Icon(Icons.fast_forward)
-                              ),
-                              onPressed: () {},
-                            ),
-                          ],
-                        )
-                      ],
+                      children: controlesLayout
                     )
                   ) : Container(
-                    height: 140.0,
+                    height: smallDevice ? 185.0 : 140.0,
                     child: Center(
                       child: CircularProgressIndicator(),
                     ),
@@ -555,7 +626,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         ),
       ),
       floatingActionButton: vozDisponible ? Padding(
-        padding: EdgeInsets.only(bottom: switchMode.value * 130),
+        padding: EdgeInsets.only(bottom: smallDevice ? switchMode.value * 175 : switchMode.value * 130),
         child: FloatingActionButton(
           backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
           onPressed: swithModes,

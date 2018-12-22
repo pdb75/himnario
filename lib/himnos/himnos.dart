@@ -244,7 +244,10 @@ class _HimnosPageState extends State<HimnosPage> {
         ),
       ),
       appBar: AppBar(
-        title: Text('Himnos del Evangelio'),
+        title: Container(
+          width: double.infinity,
+          child: Text('Himnos del Evangelio', textAlign: TextAlign.center,),
+        ),
         actions: <Widget>[
           IconButton(
             onPressed: () {

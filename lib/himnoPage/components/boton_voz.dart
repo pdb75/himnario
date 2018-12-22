@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class BotonVoz extends StatelessWidget {
   
-  bool activo = false;
+  final bool activo;
   
-  BotonVoz({this.voz, this.activo, this.onPressed});
+  BotonVoz({this.voz, this.activo = false, this.onPressed});
   
   final String voz;
   final Function onPressed;

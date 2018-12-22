@@ -87,7 +87,13 @@ class _TemaPageState extends State<TemaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.tema),
+        title: Tooltip(
+          message: widget.tema,
+          child: Container(
+            width: double.infinity,
+            child: Text(widget.tema, textAlign: TextAlign.center,),
+          ),
+        ),
         actions: <Widget>[
           IconButton(
             onPressed: () async {

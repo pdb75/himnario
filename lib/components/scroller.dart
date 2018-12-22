@@ -64,7 +64,13 @@ class _ScrollerState extends State<Scroller> {
                 leading: widget.himnos[index].favorito ? Icon(Icons.star, color: Theme.of(context).accentColor,) : null,
                 title: Row(
                   children: <Widget>[
-                    Text('${widget.himnos[index].numero} - ${widget.himnos[index].titulo}'),
+                    Container(
+                      width: widget.himnos[index].favorito ?  MediaQuery.of(context).size.width - 90 : MediaQuery.of(context).size.width - 50,
+                      child: Text(
+                        '${widget.himnos[index].numero} - ${widget.himnos[index].titulo}',
+                        softWrap: true,
+                      ),
+                    ),
                     widget.himnos[index].descargado ? Container(
                       width: 20.0,
                       height: 20.0,
@@ -72,7 +78,7 @@ class _ScrollerState extends State<Scroller> {
                         shape: BoxShape.circle,
                         color: Theme.of(context).accentColor,
                       ),
-                      margin: EdgeInsets.only(bottom: 20.0, left: 2.0),
+                      margin: EdgeInsets.only(bottom: 20.0, left: 2.0,),
                       child: Icon(Icons.get_app,size: 15.0, color: Theme.of(context).indicatorColor,)
                     ) : Icon(Icons.get_app, size: 0.0,),
                   ],
