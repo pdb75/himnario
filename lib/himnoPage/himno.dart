@@ -379,7 +379,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
 
-    // print(MediaQuery.of(context).size.width);
+    print(MediaQuery.of(context).size.width);
 
     bool smallDevice = MediaQuery.of(context).size.width < 400;
     // bool smallDevice = false;
@@ -574,7 +574,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           message: '${widget.numero} - ${widget.titulo}',
           child: Container(
             width: double.infinity,
-            child: Text('${widget.numero} - ${widget.titulo}', textAlign: TextAlign.center,),
+            child: Text('${widget.numero} - ${widget.titulo}'),
           ),
         )
       ),
