@@ -52,7 +52,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   double initposition;
   bool descargado;
   int max;
-  int doneCount;
   Database db;
   HttpClient cliente;
   SharedPreferences prefs;
@@ -81,7 +80,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     switchMode..addListener(() {
       setState(() {});
     });
-    doneCount = 0;
     voces = [true, true, true, true];
     estrofas = List<Parrafo>();
     currentProgress = 0.0;
@@ -205,7 +203,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           archivos[i] = File(path + '/${widget.numero}-${stringVoces[i]}.mp3');
           await archivos[i].writeAsBytes(bytes);
           done[i] = true;
-          setState(() => ++doneCount);
         });
     }
 
@@ -382,7 +379,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
 
-    // print(MediaQuery.of(context).size.width);
+    print(MediaQuery.of(context).size.width);
 
     bool smallDevice = MediaQuery.of(context).size.width < 400;
     // bool smallDevice = false;
@@ -619,10 +616,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                   ) : Container(
                     height: smallDevice ? 185.0 : 140.0,
                     child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: LinearProgressIndicator(value: 0.25*doneCount,),
-                      ),
+                      child: CircularProgressIndicator(),
                     ),
                   )
                 ),
