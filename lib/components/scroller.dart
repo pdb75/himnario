@@ -189,7 +189,6 @@ class SideScroller extends CustomPainter {
       ..layout()
       ..paint(canvas, Offset(size.width - 127 - 15*(numero.length-3), position - 65));
     }
-    
   }
 
   @override

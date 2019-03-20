@@ -205,7 +205,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           archivos[i] = File(path + '/${widget.numero}-${stringVoces[i]}.mp3');
           await archivos[i].writeAsBytes(bytes);
           done[i] = true;
-          setState(() => ++doneCount);
+          if (mounted)
+            setState(() => ++doneCount);
         });
     }
 
@@ -562,6 +563,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
     if(prefs != null)
     return Scaffold(
+      key: UniqueKey(),
       appBar: AppBar(
         actions: <Widget>[
           vozDisponible ? IconButton(
@@ -640,11 +642,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             children: <Widget>[
               Transform.scale(
                 scale: 1.0 - switchMode.value,
-                child: Icon(Icons.play_arrow, size: 40.0,),
+                child: Icon(Icons.play_arrow, size: 40.0),
               ),
               Transform.scale(
                 scale: 0.0 + switchMode.value,
-                child: Icon(Icons.redo, size: 40.0,),
+                child: Icon(Icons.redo, size: 40.0),
               ),
             ],
           )

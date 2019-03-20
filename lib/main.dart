@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 
 import './himnos/himnos.dart';
 
@@ -107,10 +110,31 @@ void main() async {
       indicatorColor: Colors.white,
       fontFamily: prefs.getString('fuente') ?? 'Roboto'
     );
+  
+  bool isInDebugMode = true;
 
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (isInDebugMode) {
+      // In development mode simply print to console.
+      FlutterError.dumpErrorToConsole(details);
+    } else {
+      // In production mode report to the application zone to report to
+      // Crashlytics.
+      Zone.current.handleUncaughtError(details.exception, details.stack);
+    }
+  };
 
-  runApp(MyApp(tema: tema));
+  await FlutterCrashlytics().initialize();
+
+  runZoned<Future<Null>>(() async {
+    runApp(MyApp(tema: tema,));
+  }, onError: (error, stackTrace) async {
+    // Whenever an error occurs, call the `reportCrash` function. This will send
+    // Dart errors to our dev console or Crashlytics depending on the environment.
+    await FlutterCrashlytics().reportCrash(error, stackTrace, forceCrash: false);
+  });
 }
+
 class MyApp extends StatelessWidget {
 
   MyApp({this.tema});
