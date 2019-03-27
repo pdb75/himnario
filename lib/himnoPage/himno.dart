@@ -12,6 +12,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import './components/bodyHimno.dart';
 import './components/boton_voz.dart';
 import './components/estructura_himno.dart';
 import './components/slider.dart';
@@ -31,7 +32,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   Animation<double> switchMode;
   AnimationController switchModeController;
   AnimationController cancionDuracion;
-  ScrollController scrollController;
   StreamSubscription positionSubscription;
   StreamSubscription completeSubscription;
   List<AudioPlayer> audioVoces;
@@ -48,7 +48,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   bool cargando;
   bool favorito;
   double initfontSize;
-  double fontSize;
   double initposition;
   bool descargado;
   int max;
@@ -73,7 +72,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     vozDisponible = false;
     favorito = false;
     initfontSize = 16.0;
-    fontSize = initfontSize;
     currentDuration = Duration();
     switchModeController = AnimationController(duration: Duration(milliseconds: 200), vsync: this);
     switchMode = CurvedAnimation(parent: switchModeController, curve: Curves.easeInOut);
@@ -157,8 +155,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       }
     }
     initfontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
-    fontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
-
 
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
     List<Map<String,dynamic>> descargadoQuery = await db.rawQuery('select * from descargados where himno_id = ${widget.numero}');
@@ -546,7 +542,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
     if(prefs != null)
     return Scaffold(
-      key: UniqueKey(),
       appBar: AppBar(
         actions: <Widget>[
           vozDisponible ? IconButton(
@@ -566,63 +561,45 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           ),
         )
       ),
-      body: GestureDetector(
-        key: UniqueKey(),
-        onScaleUpdate: (ScaleUpdateDetails details) {
-          double newFontSize = initfontSize*details.scale;
-          setState(() => fontSize = newFontSize < 10.0 ? 10.0 : newFontSize);
-        },
-        onScaleEnd: (ScaleEndDetails details) {
-          initfontSize = fontSize;
-        },
-        child: Stack(
-          children: <Widget>[
-            (estrofas.isNotEmpty ? ListView.builder(
-              key: UniqueKey(),
-              controller: scrollController,
-              physics: BouncingScrollPhysics(),
-              padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
-              itemCount: 1,
-              itemBuilder: (BuildContext context, int index) =>
-                HimnoText(
-                  estrofas: estrofas,
-                  fontSize: fontSize,
-                  alignment: prefs.getString('alignment'),
-                )
-            ) :
-            Center(child: CircularProgressIndicator(),)),
-            Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: FractionalTranslation(
-                translation: Offset(0.0, 1.0 - switchMode.value),
-                child: Card(
-                  margin: EdgeInsets.all(0.0),
-                  elevation: 10.0,
-                  child: !cargando ? Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: controlesLayout
-                    )
-                  ) : Container(
-                    height: smallDevice ? 185.0 : 140.0,
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: LinearProgressIndicator(value: 0.25*doneCount,),
-                      ),
-                    ),
+      body: Stack(
+        children: <Widget>[
+          BodyHimno(
+            alignment: prefs.getString('alignment'),
+            estrofas: estrofas,
+            initfontSize: initfontSize,
+          ),
+          Align(
+            alignment: FractionalOffset.bottomCenter,
+            child: FractionalTranslation(
+              translation: Offset(0.0, 1.0 - switchMode.value),
+              child: Card(
+                margin: EdgeInsets.all(0.0),
+                elevation: 10.0,
+                child: !cargando ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: controlesLayout
                   )
-                ),
-              )
+                ) : Container(
+                  height: smallDevice ? 185.0 : 140.0,
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      child: LinearProgressIndicator(value: 0.25*doneCount,),
+                    ),
+                  ),
+                )
+              ),
             )
-          ],
-        ),
+          )
+        ],
       ),
       floatingActionButton: vozDisponible ? Padding(
         padding: EdgeInsets.only(bottom: smallDevice ? switchMode.value * 175 : switchMode.value * 130),
         child: FloatingActionButton(
+          key: UniqueKey(),
           backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
           onPressed: swithModes,
           child: Stack(

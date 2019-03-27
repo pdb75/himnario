@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 class VoicesProgressBar extends StatefulWidget {
   final double currentProgress;
