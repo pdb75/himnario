@@ -74,11 +74,12 @@ class _ScrollerState extends State<Scroller> {
                     widget.himnos[index].descargado ? Container(
                       width: 20.0,
                       height: 20.0,
+                      transform: Matrix4.translationValues(-20.0, 0, 0),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Theme.of(context).accentColor,
                       ),
-                      margin: EdgeInsets.only(bottom: 20.0, left: 2.0,),
+                      margin: EdgeInsets.only(bottom: 20.0),
                       child: Icon(Icons.get_app,size: 15.0, color: Theme.of(context).indicatorColor,)
                     ) : Icon(Icons.get_app, size: 0.0,),
                   ],
