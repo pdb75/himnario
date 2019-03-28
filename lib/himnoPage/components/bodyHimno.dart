@@ -28,8 +28,9 @@ class _BodyHimnoState extends State<BodyHimno> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      key: Key('GestureDetector-Himno'),
       onScaleUpdate: (ScaleUpdateDetails details) {
-        double newFontSize = widget.initfontSize*details.scale;
+        double newFontSize = initfontSize*details.scale;
         setState(() => fontSize = newFontSize < 10.0 ? 10.0 : newFontSize);
       },
       onScaleEnd: (ScaleEndDetails details) {
@@ -37,17 +38,17 @@ class _BodyHimnoState extends State<BodyHimno> {
       },
       child: Container(
         child: (widget.estrofas.isNotEmpty ? ListView(
-            physics: BouncingScrollPhysics(),
-            // padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
-            children: <Widget>[
-              HimnoText(
-                estrofas: widget.estrofas,
-                fontSize: fontSize,
-                alignment: widget.alignment,
-              )
-            ],
-          ) :
-          Center(child: CircularProgressIndicator(),)),
+          physics: BouncingScrollPhysics(),
+          // padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
+          children: <Widget>[
+            HimnoText(
+              estrofas: widget.estrofas,
+              fontSize: fontSize,
+              alignment: widget.alignment,
+            )
+          ],
+        ) :
+        Center(child: CircularProgressIndicator(),)),
       )
     );
   }
