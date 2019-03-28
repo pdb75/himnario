@@ -92,7 +92,7 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String color = prefs.getString('tema');
   String brightness = prefs.getString('brightness');
-  
+
   for(ThemeData x in temasTema)
     if(x.primaryColor.toString() == color && x.brightness.toString() == brightness) {
       tema = ThemeData(
@@ -111,8 +111,8 @@ void main() async {
       indicatorColor: Colors.white,
       fontFamily: prefs.getString('fuente') ?? 'Roboto'
     );
-  
-  bool isInDebugMode = true;
+
+  bool isInDebugMode = false;
 
   FlutterError.onError = (FlutterErrorDetails details) {
     if (isInDebugMode) {
