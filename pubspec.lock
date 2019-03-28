@@ -149,7 +149,7 @@ packages:
   screen:
     dependency: "direct main"
     description:
-      path: "plugins\\screen"
+      path: "plugins/screen"
       relative: true
     source: path
     version: "0.0.4"
