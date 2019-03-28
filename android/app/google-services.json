@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "880423373610",
+    "firebase_url": "https://himnario-51069.firebaseio.com",
+    "project_id": "himnario-51069",
+    "storage_bucket": "himnario-51069.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:880423373610:android:358c44f63d82dc00",
+        "android_client_info": {
+          "package_name": "com.br572.himnario"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "880423373610-u50ivcugphh2i546oofli0jbttgn54ie.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_JEbWcd4MAqnKg9vuIUMmRiha9E9d0ng"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -11,10 +11,11 @@ import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:threading/threading.dart';
 
+import './components/bodyHimno.dart';
 import './components/boton_voz.dart';
 import './components/estructura_himno.dart';
+import './components/slider.dart';
 
 class HimnoPage extends StatefulWidget {
 
@@ -31,24 +32,22 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   Animation<double> switchMode;
   AnimationController switchModeController;
   AnimationController cancionDuracion;
+  StreamSubscription positionSubscription;
+  StreamSubscription completeSubscription;
   List<AudioPlayer> audioVoces;
   List<String> stringVoces;
-  List<bool> voces;
+  int currentVoice;
   List<Parrafo> estrofas;
   List<File> archivos;
-  bool dragging;
-  double draggingProgress;
   bool modoVoces;
   bool start;
   double currentProgress;
-  double nextProgress;
   Duration currentDuration;
   int totalDuration;
   bool vozDisponible;
   bool cargando;
   bool favorito;
   double initfontSize;
-  double fontSize;
   double initposition;
   bool descargado;
   int max;
@@ -65,16 +64,14 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     cliente = HttpClient();
     descargado = false;
     cargando = true;
-    archivos = List<File>(4);
-    stringVoces = ['Soprano', 'Tenor', 'ContraAlto', 'Bajo'];
-    audioVoces = [AudioPlayer(),AudioPlayer(),AudioPlayer(),AudioPlayer()];
+    archivos = List<File>(5);
+    stringVoces = ['Soprano', 'Tenor', 'ContraAlto', 'Bajo', 'Todos'];
+    audioVoces = [AudioPlayer(),AudioPlayer(),AudioPlayer(),AudioPlayer(),AudioPlayer()];
     modoVoces = false;
     start = false;
     vozDisponible = false;
-    dragging = false;
     favorito = false;
     initfontSize = 16.0;
-    fontSize = initfontSize;
     currentDuration = Duration();
     switchModeController = AnimationController(duration: Duration(milliseconds: 200), vsync: this);
     switchMode = CurvedAnimation(parent: switchModeController, curve: Curves.easeInOut);
@@ -82,9 +79,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       setState(() {});
     });
     doneCount = 0;
-    voces = [true, true, true, true];
+    currentVoice = 4;
     estrofas = List<Parrafo>();
     currentProgress = 0.0;
+    // scrollController = ScrollController()
+    //   ..addListener(() => positionSubscription.pause());
     getHimno();
   }
 
@@ -122,22 +121,19 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
         }
         await audioVoces[i].setReleaseMode(ReleaseMode.STOP);
-        await audioVoces[i].resume();
-        await audioVoces[i].stop();
       }
-      audioVoces[0].positionHandler = (Duration duration) {
+      positionSubscription = audioVoces[4].onAudioPositionChanged.listen((Duration duration) {
         setState(() {
           currentProgress = duration.inMilliseconds / totalDuration;
           currentDuration = duration;
         });
-      };
-      audioVoces[0].completionHandler = () {
+      });
+      completeSubscription = audioVoces[4].onPlayerCompletion.listen((_) {
         setState(() {
           start = false;
           currentProgress = 0.0;
         });
-      };
-
+      });
     if(cliente != null) {
       setState(() => cargando = false);
     } else if(archivos[0] == null && !descargado)
@@ -159,8 +155,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       }
     }
     initfontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
-    fontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
-
 
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
     List<Map<String,dynamic>> descargadoQuery = await db.rawQuery('select * from descargados where himno_id = ${widget.numero}');
@@ -190,7 +184,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   Future<Null> initVoces() async {
     setState(() => cargando = true);
     String path = (await getApplicationDocumentsDirectory()).path;
-    List<bool> done = [false, false, false, false];
+    List<bool> done = [false, false, false, false, false];
     cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/duracion'))
       .then((request) => request.close())
       .then((response) => consolidateHttpClientResponseBytes(response))
@@ -205,7 +199,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           archivos[i] = File(path + '/${widget.numero}-${stringVoces[i]}.mp3');
           await archivos[i].writeAsBytes(bytes);
           done[i] = true;
-          setState(() => ++doneCount);
+          if (mounted)
+            setState(() => ++doneCount);
         });
     }
 
@@ -220,21 +215,19 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
         }
         await audioVoces[i].setReleaseMode(ReleaseMode.STOP);
-        await audioVoces[i].resume();
-        await audioVoces[i].stop();
       }
-      audioVoces[0].positionHandler = (Duration duration) {
+      positionSubscription = audioVoces[4].onAudioPositionChanged.listen((Duration duration) {
         setState(() {
           currentProgress = duration.inMilliseconds / totalDuration;
           currentDuration = duration;
         });
-      };
-      audioVoces[0].completionHandler = () {
+      });
+      completeSubscription = audioVoces[4].onPlayerCompletion.listen((_) {
         setState(() {
           start = false;
           currentProgress = 0.0;
         });
-      };
+      });
 
     if(cliente != null) {
       setState(() => cargando = false);
@@ -250,14 +243,9 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   }
 
   void resumeVoces() {
-    Thread(() async => audioVoces[0].resume()).start();
-    Thread(() async => audioVoces[1].resume()).start();
-    Thread(() async => audioVoces[2].resume()).start();
-    Thread(() async => audioVoces[3].resume()).start();
-    // audioVoces[0].resume();
-    // audioVoces[1].resume();
-    // audioVoces[2].resume();
-    // audioVoces[3].resume();
+    print(currentVoice);
+    audioVoces[currentVoice].seek(Duration(milliseconds: (currentProgress * totalDuration).floor()));
+    audioVoces[currentVoice].resume();
     setState(() => start = true);
   }
 
@@ -298,23 +286,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   }
 
   void vocesSeek(double progress) async {
-    for (int i = 0; i < audioVoces.length; ++i) {
-      await audioVoces[i].pause();
-      await audioVoces[i].seek(Duration(milliseconds: (progress * totalDuration).floor()));
-    }
-    resumeVoces();
-  }
-
-  void onTapDown(TapDownDetails details) async {
-    if(details.globalPosition.dx < 15.0)
-      setState(() {currentProgress = 0.0;});
-    else if (details.globalPosition.dx >= 15.0 &&
-    details.globalPosition.dx < MediaQuery.of(context).size.width - 15.0)
-      setState(() {
-        currentProgress = (details.globalPosition.dx) / (MediaQuery.of(context).size.width); 
-      });
-    else setState(() {currentProgress = 1.0;});
-    vocesSeek(currentProgress);
+    setState(() => currentProgress = progress);
+    await audioVoces[currentVoice].pause();
+    await audioVoces[currentVoice].seek(Duration(milliseconds: (progress * totalDuration).floor()));
+    if (start)
+      resumeVoces();
   }
 
   void swithModes() async {
@@ -324,10 +300,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       setState(() {
         start = false;
         currentProgress = 0.0;
-        for (int i = 0; i < audioVoces.length; ++i) {
-          voces[i] = true;
-          audioVoces[i].stop();
-        }
+        audioVoces[currentVoice].stop();
+        currentVoice = 4;
       });
     }
     else {
@@ -335,18 +309,56 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     }
   }
 
-  void pauseSingleVoice(int index) {
-    audioVoces[index].setVolume(0.0);
-    setState(() {
-      voces[index] = false;
-    });
-  }
-
-  void resumeSingleVoice(int index) {
-    audioVoces[index].setVolume(1.0);
-    setState(() {
-      voces[index] = true;
-    });
+  void toggleVoice(int index) async {
+    cancelSubscription();
+    if (start) {
+      await audioVoces[currentVoice].pause();
+    }
+    if (currentVoice == 4) {
+      positionSubscription = audioVoces[index].onAudioPositionChanged.listen((Duration duration) {
+        setState(() {
+          currentProgress = duration.inMilliseconds / totalDuration;
+          currentDuration = duration;
+        });
+      });
+      completeSubscription = audioVoces[index].onPlayerCompletion.listen((_) {
+        setState(() {
+          start = false;
+          currentProgress = 0.0;
+        });
+      });
+    } else if (currentVoice == index) {
+      positionSubscription = audioVoces[4].onAudioPositionChanged.listen((Duration duration) {
+        setState(() {
+          currentProgress = duration.inMilliseconds / totalDuration;
+          currentDuration = duration;
+        });
+      });
+      completeSubscription = audioVoces[4].onPlayerCompletion.listen((_) {
+        setState(() {
+          start = false;
+          currentProgress = 0.0;
+        });
+      });
+    } else {
+      positionSubscription = audioVoces[index].onAudioPositionChanged.listen((Duration duration) {
+        setState(() {
+          currentProgress = duration.inMilliseconds / totalDuration;
+          currentDuration = duration;
+        });
+      });
+      completeSubscription = audioVoces[index].onPlayerCompletion.listen((_) {
+        setState(() {
+          start = false;
+          currentProgress = 0.0;
+        });
+      });
+    }
+    currentVoice = currentVoice == index ? 4 : index;
+    if (start) {
+      resumeVoces();
+    }
+    setState(() {});
   }
 
   void toggleFavorito() {
@@ -362,6 +374,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         await db.close();
         setState(() => favorito = !favorito);
       });
+  }
+
+  void cancelSubscription() {
+    positionSubscription.cancel();
+    completeSubscription.cancel();
   }
 
   void toggleDescargado() {
@@ -393,43 +410,23 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         children: <Widget>[
           BotonVoz(
             voz: 'Soprano',
-            activo: voces[0],
-            onPressed: () {
-              if(voces[0])
-                pauseSingleVoice(0);
-              else
-                resumeSingleVoice(0);
-            },
+            activo: currentVoice == 0 || currentVoice == 4,
+            onPressed: () => toggleVoice(0),
           ),
           BotonVoz(
             voz: 'Tenor',
-            activo: voces[1],
-            onPressed: () {
-              if(voces[1])
-                pauseSingleVoice(1);
-              else
-                resumeSingleVoice(1);
-            },
+            activo: currentVoice == 1 || currentVoice == 4,
+            onPressed: () => toggleVoice(1),
           ),
           BotonVoz(
             voz: 'Contra Alto',
-            activo: voces[2],
-            onPressed: () {
-              if(voces[2])
-                pauseSingleVoice(2);
-              else
-                resumeSingleVoice(2);
-            },
+            activo: currentVoice == 2 || currentVoice == 4,
+            onPressed: () => toggleVoice(2),
           ),
           BotonVoz(
             voz: 'Bajo',
-            activo: voces[3],
-            onPressed: () {
-              if(voces[3])
-                pauseSingleVoice(3);
-              else
-                resumeSingleVoice(3);
-            },
+            activo: currentVoice == 3 || currentVoice == 4,
+            onPressed: () => toggleVoice(3),
           ),
         ],
       )
@@ -439,23 +436,13 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         children: <Widget>[
           BotonVoz(
             voz: '   Soprano  ',
-            activo: voces[0],
-            onPressed: () {
-              if(voces[0])
-                pauseSingleVoice(0);
-              else
-                resumeSingleVoice(0);
-            },
+            activo: currentVoice == 0 || currentVoice == 4,
+            onPressed: () => toggleVoice(0),
           ),
           BotonVoz(
             voz: '    Tenor    ',
-            activo: voces[1],
-            onPressed: () {
-              if(voces[1])
-                pauseSingleVoice(1);
-              else
-                resumeSingleVoice(1);
-            },
+            activo: currentVoice == 1 || currentVoice == 4,
+            onPressed: () => toggleVoice(1),
           ),
         ],
       ),
@@ -464,47 +451,40 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         children: <Widget>[
           BotonVoz(
             voz: 'Contra Alto',
-            activo: voces[2],
-            onPressed: () {
-              if(voces[2])
-                pauseSingleVoice(2);
-              else
-                resumeSingleVoice(2);
-            },
+            activo: currentVoice == 2 || currentVoice == 4,
+            onPressed: () => toggleVoice(2),
           ),
           BotonVoz(
             voz: '     Bajo     ',
-            activo: voces[3],
-            onPressed: () {
-              if(voces[3])
-                pauseSingleVoice(3);
-              else
-                resumeSingleVoice(3);
-            },
+            activo: currentVoice == 3 || currentVoice == 4,
+            onPressed: () => toggleVoice(3),
           ),
         ],
       ),
     ];
 
     List<Widget> buttonLayout = [
-      Slider(
-        onChangeStart: (double nextProgress) {
-          setState(() {
-            draggingProgress = nextProgress;
-            dragging = true;
+      VoicesProgressBar(
+        currentProgress: currentProgress,
+        duration: totalDuration,
+        onDragStart: cancelSubscription,
+        onSelected: (double progress) {
+          positionSubscription = audioVoces[currentVoice].onAudioPositionChanged.listen((Duration duration) {
+            setState(() {
+              currentProgress = duration.inMilliseconds / totalDuration;
+              currentDuration = duration;
+            });
           });
-        },
-        onChanged: (double nextProgress) {
-          setState(() => draggingProgress = nextProgress);
-        },
-        onChangeEnd: (double nextProgress) {
-          setState(() {
-            currentProgress = nextProgress;
-            dragging = false;
+          completeSubscription = audioVoces[currentVoice].onPlayerCompletion.listen((_) {
+            setState(() {
+              start = false;
+              currentProgress = 0.0;
+            });
           });
-          vocesSeek(currentProgress);
+          print(progress);
+          setState(() => currentProgress = progress);
+          vocesSeek(progress);
         },
-        value: dragging ? draggingProgress : currentProgress,
       ),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -581,70 +561,56 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           ),
         )
       ),
-      body: GestureDetector(
-        onScaleUpdate: (ScaleUpdateDetails details) {
-          double newFontSize = initfontSize*details.scale;
-          setState(() => fontSize = newFontSize < 10.0 ? 10.0 : newFontSize);
-        },
-        onScaleEnd: (ScaleEndDetails details) {
-          initfontSize = fontSize;
-        },
-        child: Stack(
-          children: <Widget>[
-            (estrofas.isNotEmpty ? ListView.builder(
-              padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
-              itemCount: 1,
-              itemBuilder: (BuildContext context, int index) =>
-                HimnoText(
-                  estrofas: estrofas,
-                  fontSize: fontSize,
-                  alignment: prefs.getString('alignment'),
-                )
-            ) :
-            Center(child: CircularProgressIndicator(),)),
-            Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: FractionalTranslation(
-                translation: Offset(0.0, 1.0 - switchMode.value),
-                child: Card(
-                  margin: EdgeInsets.all(0.0),
-                  elevation: 10.0,
-                  child: !cargando ? Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: controlesLayout
-                    )
-                  ) : Container(
-                    height: smallDevice ? 185.0 : 140.0,
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: LinearProgressIndicator(value: 0.25*doneCount,),
-                      ),
-                    ),
+      body: Stack(
+        children: <Widget>[
+          BodyHimno(
+            alignment: prefs.getString('alignment'),
+            estrofas: estrofas,
+            initfontSize: initfontSize,
+          ),
+          Align(
+            alignment: FractionalOffset.bottomCenter,
+            child: FractionalTranslation(
+              translation: Offset(0.0, 1.0 - switchMode.value),
+              child: Card(
+                margin: EdgeInsets.all(0.0),
+                elevation: 10.0,
+                child: !cargando ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: controlesLayout
                   )
-                ),
-              )
+                ) : Container(
+                  height: smallDevice ? 185.0 : 140.0,
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      child: LinearProgressIndicator(value: 0.25*doneCount,),
+                    ),
+                  ),
+                )
+              ),
             )
-          ],
-        ),
+          )
+        ],
       ),
       floatingActionButton: vozDisponible ? Padding(
         padding: EdgeInsets.only(bottom: smallDevice ? switchMode.value * 175 : switchMode.value * 130),
         child: FloatingActionButton(
+          key: UniqueKey(),
           backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
           onPressed: swithModes,
           child: Stack(
             children: <Widget>[
               Transform.scale(
                 scale: 1.0 - switchMode.value,
-                child: Icon(Icons.play_arrow, size: 40.0,),
+                child: Icon(Icons.play_arrow, size: 40.0),
               ),
               Transform.scale(
                 scale: 0.0 + switchMode.value,
-                child: Icon(Icons.redo, size: 40.0,),
+                child: Icon(Icons.redo, size: 40.0),
               ),
             ],
           )
