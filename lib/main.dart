@@ -112,7 +112,7 @@ void main() async {
       fontFamily: prefs.getString('fuente') ?? 'Roboto'
     );
   
-  bool isInDebugMode = true;
+  bool isInDebugMode = false;
 
   FlutterError.onError = (FlutterErrorDetails details) {
     if (isInDebugMode) {

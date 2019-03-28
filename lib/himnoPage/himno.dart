@@ -468,6 +468,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         currentProgress: currentProgress,
         duration: totalDuration,
         onDragStart: cancelSubscription,
+        smalldevice: smallDevice,
         onSelected: (double progress) {
           positionSubscription = audioVoces[currentVoice].onAudioPositionChanged.listen((Duration duration) {
             setState(() {

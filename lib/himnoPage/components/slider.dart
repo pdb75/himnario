@@ -5,8 +5,9 @@ class VoicesProgressBar extends StatefulWidget {
   final int duration;
   final Function onSelected;
   final Function onDragStart;
+  final bool smalldevice;
 
-  VoicesProgressBar({this.currentProgress, this.duration, this.onSelected, this.onDragStart});
+  VoicesProgressBar({this.currentProgress, this.duration, this.onSelected, this.onDragStart, this.smalldevice});
 
   @override
   _VoicesProgressBarState createState() => _VoicesProgressBarState();
@@ -77,6 +78,7 @@ class _VoicesProgressBarState extends State<VoicesProgressBar> {
         painter: CustomSlider(
           progress: dragging ? draggingProgress : widget.currentProgress,
           dragging: dragging,
+          smalldevice: widget.smalldevice,
           duration: widget.duration,
           context: context
         ),
@@ -98,8 +100,9 @@ class CustomSlider extends CustomPainter {
   Paint geryColorPaint;
   TextPainter text;
   BuildContext context;
+  bool smalldevice;
   
-  CustomSlider({this.progress, this.context, this.dragging, this.duration}){
+  CustomSlider({this.progress, this.context, this.dragging, this.duration, this.smalldevice}){
     text = TextPainter(
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,
@@ -127,7 +130,10 @@ class CustomSlider extends CustomPainter {
     canvas.drawLine(Offset(0.0, position), Offset(currentProgress, position), primaryColorPaint);
     canvas.drawLine(Offset(currentProgress, position), Offset(size.width, position), geryColorPaint);
     if (dragging) {
-      currentProgress = progress >= 0.6 ? size.width*0.6 : currentProgress;
+      if (smalldevice)
+        currentProgress = progress >= 0.76 ? size.width*0.76 : currentProgress;
+      else
+        currentProgress = progress >= 0.6 ? size.width*0.6 : currentProgress;
       double height = 50.0;
       double radius = 70.0;
       canvas.drawLine(Offset(currentProgress, position+5.0), Offset(currentProgress, -height), Paint()
