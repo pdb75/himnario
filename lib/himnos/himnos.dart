@@ -237,9 +237,14 @@ class _HimnosPageState extends State<HimnosPage> {
               leading: Icon(Icons.feedback),
               title: Text('Feedback'),
               onTap: () {
-                String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'http://appstore.com/Printto';
+                String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8';
                 launch(url);
               },
+            ),
+            ListTile(
+              leading: Icon(Icons.info_outline),
+              title: Text('Políticas de privacidad'),
+              onTap: () => launch('https://sites.google.com/view/himnos-privacy-policy/')
             ),
           ],
         ),

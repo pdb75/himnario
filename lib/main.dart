@@ -111,11 +111,6 @@ void main() async {
       indicatorColor: Colors.white,
       fontFamily: prefs.getString('fuente') ?? 'Roboto'
     );
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> e9ee42e5125a0d3072cb9984c09897d3a0388c39
   bool isInDebugMode = false;
 
   FlutterError.onError = (FlutterErrorDetails details) {
