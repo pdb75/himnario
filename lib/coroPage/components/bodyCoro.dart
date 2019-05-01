@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 
-import './estructura_himno.dart';
+import './estructura_Coro.dart';
 import '../../models/himnos.dart';
 
-class BodyHimno extends StatefulWidget {
+class BodyCoro extends StatefulWidget {
 
   final String alignment;
   final double initfontSize;
   final List<Parrafo> estrofas;
+  final bool acordes;
+  final double animation;
 
-  BodyHimno({this.initfontSize, this.estrofas, this.alignment});
+  BodyCoro({this.initfontSize, this.estrofas, this.alignment, this.acordes, this.animation});
 
   @override
-  _BodyHimnoState createState() => _BodyHimnoState();
+  _BodyCoroState createState() => _BodyCoroState();
 }
 
-class _BodyHimnoState extends State<BodyHimno> {
+class _BodyCoroState extends State<BodyCoro> {
   double fontSize;
   double initfontSize;
 
@@ -29,7 +31,7 @@ class _BodyHimnoState extends State<BodyHimno> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      key: Key('GestureDetector-Himno'),
+      key: Key('GestureDetector-Coro'),
       onScaleUpdate: (ScaleUpdateDetails details) {
         double newFontSize = initfontSize*details.scale;
         setState(() => fontSize = newFontSize < 10.0 ? 10.0 : newFontSize);
@@ -42,10 +44,12 @@ class _BodyHimnoState extends State<BodyHimno> {
           physics: BouncingScrollPhysics(),
           // padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
           children: <Widget>[
-            HimnoText(
+            CoroText(
               estrofas: widget.estrofas,
               fontSize: fontSize,
               alignment: widget.alignment,
+              acordes: widget.acordes,
+              animation: widget.animation,
             )
           ],
         ) :

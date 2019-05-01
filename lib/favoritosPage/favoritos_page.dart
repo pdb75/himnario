@@ -50,6 +50,15 @@ class _FavoritosPageState extends State<FavoritosPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Favoritos'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(4.0),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            curve: Curves.easeInOutSine,
+            height: cargando ? 4.0 : 0.0,
+            child: LinearProgressIndicator(),
+          ),
+        ),
       ),
       body: Scroller(
         himnos: himnos,

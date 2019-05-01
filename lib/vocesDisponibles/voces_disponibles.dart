@@ -62,6 +62,15 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Voces Disponibles'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(4.0),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            curve: Curves.easeInOutSine,
+            height: cargando ? 4.0 : 0.0,
+            child: LinearProgressIndicator(),
+          ),
+        ),
       ),
       body: Scroller(
         himnos: himnos,

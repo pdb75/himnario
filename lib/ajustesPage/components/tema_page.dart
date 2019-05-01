@@ -27,7 +27,8 @@ class _TemasPageState extends State<TemasPage> {
       ThemeData(
         primarySwatch: Colors.deepPurple,
         indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
+        fontFamily: prefs.getString('fuente') ?? 'Roboto',
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.deepPurpleAccent,
@@ -40,7 +41,8 @@ class _TemasPageState extends State<TemasPage> {
       ThemeData(
         primarySwatch: Colors.blue,
         indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
+        fontFamily: prefs.getString('fuente') ?? 'Roboto',
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.blueAccent,
@@ -53,7 +55,8 @@ class _TemasPageState extends State<TemasPage> {
       ThemeData(
         primarySwatch: Colors.orange,
         indicatorColor: Colors.black,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
+        fontFamily: prefs.getString('fuente') ?? 'Roboto',
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.orangeAccent,
@@ -66,7 +69,8 @@ class _TemasPageState extends State<TemasPage> {
       ThemeData(
         primarySwatch: Colors.green,
         indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
+        fontFamily: prefs.getString('fuente') ?? 'Roboto',
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.greenAccent,
@@ -79,7 +83,8 @@ class _TemasPageState extends State<TemasPage> {
       ThemeData(
         primarySwatch: Colors.pink,
         indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
+        fontFamily: prefs.getString('fuente') ?? 'Roboto',
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.pinkAccent,
@@ -92,7 +97,8 @@ class _TemasPageState extends State<TemasPage> {
       ThemeData(
         primarySwatch: Colors.red,
         indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
+        fontFamily: prefs.getString('fuente') ?? 'Roboto',
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.redAccent,
@@ -105,7 +111,8 @@ class _TemasPageState extends State<TemasPage> {
       ThemeData(
         primarySwatch: Colors.brown,
         indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
+        fontFamily: prefs.getString('fuente') ?? 'Roboto',
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.brown,

@@ -13,6 +13,7 @@ void main() async {
       ThemeData(
         primarySwatch: Colors.deepPurple,
         indicatorColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.deepPurpleAccent,
@@ -24,6 +25,7 @@ void main() async {
       ThemeData(
         primarySwatch: Colors.blue,
         indicatorColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.blueAccent,
@@ -34,7 +36,8 @@ void main() async {
       ),
       ThemeData(
         primarySwatch: Colors.orange,
-        indicatorColor: Colors.black
+        indicatorColor: Colors.black,
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.orangeAccent,
@@ -46,6 +49,7 @@ void main() async {
       ThemeData(
         primarySwatch: Colors.green,
         indicatorColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.greenAccent,
@@ -56,7 +60,8 @@ void main() async {
       ),
       ThemeData(
         primarySwatch: Colors.pink,
-        indicatorColor: Colors.white
+        indicatorColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.pinkAccent,
@@ -67,7 +72,8 @@ void main() async {
       ),
       ThemeData(
         primarySwatch: Colors.red,
-        indicatorColor: Colors.white
+        indicatorColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.redAccent,
@@ -78,7 +84,8 @@ void main() async {
       ),
       ThemeData(
         primarySwatch: Colors.brown,
-        indicatorColor: Colors.white
+        indicatorColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white
       ),
       ThemeData(
         accentColor: Colors.brown,
@@ -111,7 +118,7 @@ void main() async {
       indicatorColor: Colors.white,
       fontFamily: prefs.getString('fuente') ?? 'Roboto'
     );
-  bool isInDebugMode = false;
+  bool isInDebugMode = true;
 
   FlutterError.onError = (FlutterErrorDetails details) {
     if (isInDebugMode) {
@@ -146,8 +153,9 @@ class MyApp extends StatelessWidget {
     return DynamicTheme(
       data: (Brightness brightness) => tema,
       themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
-        MaterialApp(
+      MaterialApp(
         debugShowCheckedModeBanner: false,
+        showSemanticsDebugger: false,
         title: 'Himnos y Cánticos del Evangelio',
         theme: theme,
         home: HimnosPage(),

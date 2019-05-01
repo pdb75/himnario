@@ -5,13 +5,21 @@ import 'package:sqflite/sqflite.dart';
 
 import '../models/himnos.dart';
 import '../components/scroller.dart';
+import '../components/corosScroller.dart';
+
+enum BuscadorType{
+  Himnos,
+  Coros,
+  Todos
+}
 
 class Buscador extends StatefulWidget {
 
-  Buscador({this.id, this.subtema = false});
+  Buscador({this.id, this.subtema = false, this.type = BuscadorType.Todos});
 
   final int id;
   final bool subtema;
+  final BuscadorType type;
 
   @override
   _BuscadorState createState() => _BuscadorState();
@@ -34,7 +42,7 @@ class _BuscadorState extends State<Buscador> {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
     db = await openReadOnlyDatabase(path);
-    List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos order by himnos.id ASC');
+    List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
     setState(() {
       himnos = Himno.fromJson(data);
       cargando = false;
@@ -44,6 +52,7 @@ class _BuscadorState extends State<Buscador> {
 
   Future<Null> fetchHimnos(String query) async {
     setState(() => cargando = true);
+    print(widget.type);
     List<Himno> himnostemp = List<Himno>();
     String queryTitulo = '';
     String queryParrafo = '';
@@ -63,7 +72,7 @@ class _BuscadorState extends State<Buscador> {
       else queryParrafo += " and REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(parrafo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
     }
     
-    List<Map<String,dynamic>> data = await db.rawQuery("select himnos.id, himnos.titulo from himnos join parrafos on parrafos.himno_id = himnos.id where $queryTitulo or $queryParrafo group by himnos.id order by himnos.id ASC");
+    List<Map<String,dynamic>> data = await db.rawQuery("select himnos.id, himnos.titulo from himnos join parrafos on parrafos.himno_id = himnos.id where${widget.type == BuscadorType.Coros ? ' himnos.id > 517 and' : widget.type == BuscadorType.Himnos ? ' himnos.id <= 517 and' : ''} ($queryTitulo or $queryParrafo) group by himnos.id order by himnos.id ASC");
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
     List<int> favoritos = List<int>();
     for(dynamic favorito in favoritosQuery) {
@@ -111,8 +120,22 @@ class _BuscadorState extends State<Buscador> {
             fillColor: Theme.of(context).canvasColor
           ),
         ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(4.0),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            curve: Curves.easeInOutSine,
+            height: cargando ? 4.0 : 0.0,
+            child: LinearProgressIndicator(),
+          ),
+        ),
       ),
-      body: Scroller(
+      body: widget.type == BuscadorType.Himnos ? Scroller(
+        cargando: cargando,
+        himnos: himnos,
+        initDB: initDB,
+        mensaje: 'No se han encontrado coincidencias',
+      ) : CorosScroller(
         cargando: cargando,
         himnos: himnos,
         initDB: initDB,

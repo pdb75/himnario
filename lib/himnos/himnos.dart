@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:Himnario/components/corosScroller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -26,39 +27,103 @@ class HimnosPage extends StatefulWidget {
 }
 
 class _HimnosPageState extends State<HimnosPage> {
+  final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
   List<Categoria> categorias;
+  List<Himno> coros;
+  List<bool> expanded;
+  String path;
   Database db;
+  PageController pageController;
+  int currentPage;
   bool cargando;
 
   @override
   void initState() {
     super.initState();
-    cargando = true;
+    cargando = false;
+    pageController = PageController(
+      initialPage: 0,
+      keepPage: true,
+    );
+    expanded = <bool>[false, false, false, false, false, false];
+    currentPage = 0;
     categorias = List<Categoria>();
+    coros = List<Himno>();
     initDB();
   }
 
   Future<Null> checkUpdates(SharedPreferences prefs, Database db) async {
-    String date = prefs.getString('latest');
-    http.Response res = await http.post(
-      'http://104.131.104.212:8085/updates',
-      headers: {'Content-Type': 'application/json'},
-      body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'}))
-    );
-    List<dynamic> latest = jsonDecode(res.body);
-    print(latest.isEmpty);
-    if (latest.isNotEmpty)
-      if (date == null || date != latest[0]['updatedAt']) {
-        for (dynamic himno in latest) {
-          await db.rawUpdate("update parrafos set parrafo = '${himno['parrafo']}', updatedAt = CURRENT_TIMESTAMP where id = ${himno['id']}");
-        }
-        prefs.setString('latest', latest[0]['updatedAt']);
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        String date = prefs.getString('latest');
+        http.Response res = await http.post(
+          'http://104.131.104.212:8085/updates',
+          headers: {'Content-Type': 'application/json'},
+          body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'}))
+        );
+        List<dynamic> latest = jsonDecode(res.body);
+        print(latest.isEmpty);
+        if (latest.isNotEmpty)
+          if (date == null || date != latest[0]['updatedAt']) {
+            setState(() => cargando = true);
+            print('descargando');
+            http.Response request = await http.get('http://104.131.104.212:8085/db');
+            // print(await http.get('http://104.131.104.212:8085/updates'));
+
+            // Favoritos
+            List<int> favoritos = List<int>();
+            // Descargados
+            List<List<int>> descargados = List<List<int>>();
+            // transpose
+            List<Himno> transposedHImnos = List<Himno>();
+
+            await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+            await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+
+            for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
+              favoritos.add(favorito['himno_id']);
+            }
+            for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+              descargados.add([descargado['himno_id'], descargado['duracion']]);
+            }
+            transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
+
+            await db.close();
+            db = null;
+
+            File(path).deleteSync();
+            File(path).writeAsBytesSync(request.bodyBytes);
+
+            db = await openDatabase(path);
+
+            await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+            await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+            for (int favorito in favoritos)
+              await db.rawInsert('insert into favoritos values ($favorito)');
+            for (List<int> descargado in descargados)
+              await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
+            for (Himno himno in transposedHImnos)
+              await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
+
+            prefs.setString('latest', latest[0]['updatedAt']);
+          }
+        setState(() => cargando = false);
+        print('termino de actualizar');
+        return null;
       }
+    } catch (e) {
+      setState(() => cargando = false);
+      print('not connected');
+      print(e);
+      return null;
+    }
   }
 
   Future<Null> initDB() async {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
-    String path = databasesPath + "/himnos.db";
+    path = databasesPath + "/himnos.db";
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String version = prefs.getString('version');
@@ -70,8 +135,9 @@ class _HimnosPageState extends State<HimnosPage> {
       prefs.setString('version', actualVersion);
       prefs.setString('latest', null);
     } else db = await openDatabase(path);
-    checkUpdates(prefs, db);
+    // if ((await (Connectivity().checkConnectivity()) == ConnectivityResult.none))
     await fetchCategorias();
+    checkUpdates(prefs, db);
     return null;
   }
 
@@ -85,35 +151,23 @@ class _HimnosPageState extends State<HimnosPage> {
     if (!fistRun) {
       print('abriendo base de datos');
       try {
-      if(version < 2.2) {
-        print('Old Version db path');
-        db = await openDatabase(await getDatabasesPath() + '/himnos.db');
-      }
-      else {
-        print('New Version db path');
-        db = await openDatabase((await getApplicationDocumentsDirectory()).path + '/himnos.db');
-      }
+        if(version < 2.2) {
+          print('Old Version db path');
+          db = await openDatabase(await getDatabasesPath() + '/himnos.db');
+        }
+        else {
+          print('New Version db path');
+          db = await openDatabase((await getApplicationDocumentsDirectory()).path + '/himnos.db');
+        }
         for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
           favoritos.add(favorito['himno_id']);
-      }
-      // solo en esta actualización
-      // List<String> voces = ['Soprano', 'Tenor', 'Bajo', 'ContraAlto'];
-      // String path = (await getApplicationDocumentsDirectory()).path;
-      // for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
-      //   for(int i = 0; i < voces.length; ++i) {
-      //     File archivo = File(path + '/${descargado['himno_id']}-${voces[i]}.mp3');
-      //     archivo.deleteSync();
-      //   }
-      // }
-      // await db.transaction((action) async {
-      //   await action.rawDelete('delete from descargados');
-      // });
-      try {
-        for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
-          descargados.add([descargado['himno_id'], descargado['duracion']]);
         }
-      } catch(e) {print(e);}
-      await db.close();
+        try {
+          for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+            descargados.add([descargado['himno_id'], descargado['duracion']]);
+          }
+        } catch(e) {print(e);}
+        await db.close();
       } catch(e) {print(e);}
     }
     ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
@@ -122,17 +176,22 @@ class _HimnosPageState extends State<HimnosPage> {
     await new File(dbPath).writeAsBytes(bytes);
     db = await openDatabase(dbPath);
     if (!fistRun) {
+      await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+      await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
       for (int favorito in favoritos)
         await db.rawInsert('insert into favoritos values ($favorito)');
       for (List<int> descargado in descargados)
         await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
+    } else {
+      await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+      await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
     }
     return null;
   }
 
   Future<Null> fetchCategorias() async {
 
-    setState(() => cargando = true);
+    db = await openDatabase(path);
 
     List<Map<String, dynamic>> temas = await db.rawQuery('select * from temas');
     categorias = Categoria.fromJson(temas);
@@ -148,7 +207,11 @@ class _HimnosPageState extends State<HimnosPage> {
       }
     }
 
-    setState(() => cargando = false);
+    List<Map<String, dynamic>> corosQuery = await db.rawQuery('select * from himnos where id > 517');
+    coros = Himno.fromJson(corosQuery);
+
+    setState(() {});
+
     return null;
   }
 
@@ -161,6 +224,7 @@ class _HimnosPageState extends State<HimnosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _globalKey,
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -249,71 +313,205 @@ class _HimnosPageState extends State<HimnosPage> {
           ],
         ),
       ),
-      appBar: AppBar(
+      appBar: 
+      // PreferredSize(
+      //   preferredSize: Size(MediaQuery.of(context).size.width, 60.0),
+      //   child: Container(
+      //     decoration: BoxDecoration(
+      //       color: Theme.of(context).primaryColor,
+      //       // borderRadius: BorderRadius.only(
+      //       //   bottomLeft: Radius.circular(5.0),
+      //       //   bottomRight: Radius.circular(5.0),
+      //       // )
+      //       // gradient: LinearGradient(
+      //       //   colors: [
+      //       //     Color.fromRGBO(255, 0, 212, 1.0),
+      //       //     Color.fromRGBO(222, 0, 150, 1.0),
+      //       //   ]
+      //       // )
+      //     ),
+      //     padding: MediaQuery.of(context).padding,
+      //     height: double.infinity,
+      //     width: double.infinity,
+      //     child: Row(
+      //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //       children: <Widget>[
+      //         IconButton(
+      //           onPressed: () {
+      //             print('opening drawer');
+      //             _globalKey.currentState.openDrawer();
+      //           },
+      //           icon: Icon(
+      //             Icons.menu,
+      //             color: Theme.of(context).buttonColor,
+      //           ),
+      //         ),
+      //         Text(
+      //           currentPage == 0 ? 'Himnos del Evangelio' : 'Coritos', 
+      //           textAlign: TextAlign.center,
+      //           style: Theme.of(context).textTheme.title.copyWith(
+      //             color: Theme.of(context).indicatorColor
+      //           ),
+      //         ),
+      //         IconButton(
+      //           onPressed: () {
+      //             Navigator.push(
+      //               context,
+      //               MaterialPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false,))
+      //             );
+      //           },
+      //           icon: Icon(
+      //             Icons.search,
+      //             color: Theme.of(context).buttonColor,
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ),
+      // ),
+      AppBar(
         title: Container(
           width: double.infinity,
-          child: Text('Himnos del Evangelio', textAlign: TextAlign.center,),
+          child: Text(currentPage == 0 ? 'Himnos del Evangelio' : 'Coros', textAlign: TextAlign.center,),
         ),
         actions: <Widget>[
           IconButton(
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false,))
+                MaterialPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros))
               );
             },
             icon: Icon(Icons.search),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(4.0),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            curve: Curves.easeInOutSine,
+            height: cargando || categorias.isEmpty ? 4.0 : 0.0,
+            child: LinearProgressIndicator(),
+          ),
+        ),
       ),
-      body: cargando ? 
-      Center(child: CircularProgressIndicator(),)
-      : ListView.builder(
-          itemCount: categorias.length + 1,
-          itemBuilder: (BuildContext context, int index) {
-            return index == 0 ? 
-            ListTile(
-              onTap: () {
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
-                  ));
-              },
-              title: Text('Todos'),
-            )
-            :
-            categorias[index-1].subCategorias.isEmpty ? ListTile(
-              onTap: () {
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
-                  ));
-              },
-              title: Text(categorias[index-1].categoria),
-            ) : 
-            ExpansionTile(
-              title: Text(categorias[index-1].categoria),
-              children: categorias[index-1].subCategorias.map((subCategoria) =>
-                ListTile(
-                  dense: true,
+      body: PageView(
+        controller: pageController,  
+        onPageChanged: (int index) => setState(() => currentPage = index),
+        children: <Widget>[
+          categorias.isNotEmpty ? ListView.builder(
+            padding: EdgeInsets.only(bottom: 80.0),
+            physics: BouncingScrollPhysics(),
+            itemCount: categorias.length + 1,
+            itemBuilder: (BuildContext context, int index) {
+              return index == 0 ? 
+              Card(
+                elevation: 4.0,
+                margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                child: ListTile(
                   onTap: () {
                     Navigator.push(
                       context, 
                       MaterialPageRoute(
-                        builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
+                        builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
                       ));
                   },
-                  title: Text(subCategoria.subCategoria),
-                )).toList()
-            );
-          }
-        ),
-      floatingActionButton: FloatingActionButton(
+                  title: Text('Todos'),
+                ),
+              )
+              :
+              categorias[index-1].subCategorias.isEmpty ? Card(
+                elevation: 4.0,
+                margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
+                      ));
+                  },
+                  title: Text(categorias[index-1].categoria),
+                )
+              ) : 
+              Card(
+                elevation: 4.0,
+                margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(categorias[index-1].categoria),
+                      trailing: Icon(expanded[index - 1] ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                      onTap: () {
+                        List<bool> aux = expanded;
+                        for (int i = 0; i < aux.length; ++i)
+                          if (i == index-1)
+                            aux[i] = !aux[i];
+                        setState(() => expanded = aux);
+                      }
+                    ),
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 400),
+                      curve: Curves.easeInOutSine,
+                      height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 48.0 : 0.0,
+                      child: AnimatedOpacity(
+                        opacity: expanded[index - 1] ? 1.0 : 0.0,
+                        duration: Duration(milliseconds: 400),
+                        curve: Curves.easeInOutSine,
+                        child: Column(
+                          children: categorias[index-1].subCategorias.map((subCategoria) =>
+                          ListTile(
+                            dense: true,
+                            onTap: () {
+                              Navigator.push(
+                                context, 
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
+                                ));
+                            },
+                            title: Text(subCategoria.subCategoria),
+                          )).toList()
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+          ) : Container(),
+          CorosScroller(
+            cargando: cargando,
+            himnos: coros,
+            initDB: fetchCategorias,
+            mensaje: '',
+          )
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentPage,
+        type: BottomNavigationBarType.shifting,
+        onTap: (int e) {
+          pageController.animateToPage(e, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+          setState(() => currentPage = e);
+        },
+        items: [
+          BottomNavigationBarItem(
+            backgroundColor: Theme.of(context).primaryColor,
+            icon: Icon(Icons.library_music),
+            title: Text('Himnos')
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: Theme.of(context).primaryColor,
+            icon: Icon(Icons.music_note),
+            title: Text('Coros')
+          ),
+        ],
+      ),
+      floatingActionButton: currentPage == 0 ? FloatingActionButton(
         onPressed: () {
-          // MethodChannel('PRUEBA').invokeMethod('test')
-          //   .then((value) => print(value));
           Navigator.push(
             context, 
             MaterialPageRoute(
@@ -321,7 +519,7 @@ class _HimnosPageState extends State<HimnosPage> {
             ));
         },
         child: Icon(Icons.dialpad),
-      ),
+      ) : null,
     );
   }
 }

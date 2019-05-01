@@ -14,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import './components/bodyHimno.dart';
 import './components/boton_voz.dart';
-import './components/estructura_himno.dart';
+import '../models/himnos.dart';
 import './components/slider.dart';
 
 class HimnoPage extends StatefulWidget {
@@ -29,7 +29,6 @@ class HimnoPage extends StatefulWidget {
 }
 
 class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
-  Animation<double> switchMode;
   AnimationController switchModeController;
   AnimationController cancionDuracion;
   StreamSubscription positionSubscription;
@@ -47,6 +46,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   bool vozDisponible;
   bool cargando;
   bool favorito;
+  bool acordes;
   double initfontSize;
   double initposition;
   bool descargado;
@@ -61,6 +61,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     max = 0;
     super.initState();
     Screen.keepOn(true);
+    acordes = false;
     cliente = HttpClient();
     descargado = false;
     cargando = true;
@@ -73,17 +74,16 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     favorito = false;
     initfontSize = 16.0;
     currentDuration = Duration();
-    switchModeController = AnimationController(duration: Duration(milliseconds: 200), vsync: this);
-    switchMode = CurvedAnimation(parent: switchModeController, curve: Curves.easeInOut);
-    switchMode..addListener(() {
+    switchModeController = AnimationController(
+      duration: Duration(milliseconds: 200), 
+      vsync: this
+    )..addListener(() {
       setState(() {});
     });
     doneCount = 0;
     currentVoice = 4;
     estrofas = List<Parrafo>();
     currentProgress = 0.0;
-    // scrollController = ScrollController()
-    //   ..addListener(() => positionSubscription.pause());
     getHimno();
   }
 
@@ -150,6 +150,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     List<Map<String,dynamic>> parrafos = await db.rawQuery('select * from parrafos where himno_id = ${widget.numero}');
 
     for (Map<String,dynamic> parrafo in parrafos) {
+      acordes = parrafo['acordes'] != null;
       for (String linea in parrafo['parrafo'].split('\n')) {
         if (linea.length > max) max = linea.length;
       }
@@ -295,8 +296,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
   void swithModes() async {
     modoVoces = !modoVoces;
-    if(switchMode.value == 1.0) {
-      await switchModeController.reverse();
+    if(switchModeController.value == 1.0) {
+      await switchModeController.animateTo(
+        0.0,
+        curve: Curves.fastOutSlowIn
+      );
       setState(() {
         start = false;
         currentProgress = 0.0;
@@ -305,7 +309,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       });
     }
     else {
-      await switchModeController.forward();
+      await switchModeController.animateTo(
+        1.0,
+        curve: Curves.fastOutSlowIn
+      );
     }
   }
 
@@ -399,10 +406,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
 
-    // print(MediaQuery.of(context).size.width);
-
     bool smallDevice = MediaQuery.of(context).size.width < 400;
-    // bool smallDevice = false;
 
     List<Widget> controlesLayout = !smallDevice ? [
       Row(
@@ -552,7 +556,31 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           IconButton(
             onPressed: toggleFavorito,
             icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
-          )
+          ),
+          // PopupMenuButton(
+          //   onSelected: (dynamic value) {
+          //     switch (value) {
+          //       case 0:
+          //         toggleDescargado();
+          //         break;
+          //       default:
+          //     }
+          //   },            
+          //   icon: Icon(Icons.more_vert),
+          //   itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+          //     PopupMenuItem(
+          //       value: 0,
+          //       enabled: vozDisponible,
+          //       child: Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //         children: <Widget>[
+          //           descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
+          //           Text(descargado ? 'Eliminar' : 'Descargar')
+          //         ],
+          //       ),
+          //     )
+          //   ],
+          // )
         ],
         title: Tooltip(
           message: '${widget.numero} - ${widget.titulo}',
@@ -560,7 +588,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             width: double.infinity,
             child: Text('${widget.numero} - ${widget.titulo}'),
           ),
-        )
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(4.0),
+          child: Container()
+        ),
       ),
       body: Stack(
         children: <Widget>[
@@ -572,7 +604,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           Align(
             alignment: FractionalOffset.bottomCenter,
             child: FractionalTranslation(
-              translation: Offset(0.0, 1.0 - switchMode.value),
+              translation: Offset(0.0, 1.0 - switchModeController.value),
               child: Card(
                 margin: EdgeInsets.all(0.0),
                 elevation: 10.0,
@@ -598,7 +630,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         ],
       ),
       floatingActionButton: vozDisponible ? Padding(
-        padding: EdgeInsets.only(bottom: smallDevice ? switchMode.value * 175 : switchMode.value * 130),
+        padding: EdgeInsets.only(bottom: smallDevice ? switchModeController.value * 175 : switchModeController.value * 130),
         child: FloatingActionButton(
           key: UniqueKey(),
           backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
@@ -606,11 +638,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           child: Stack(
             children: <Widget>[
               Transform.scale(
-                scale: 1.0 - switchMode.value,
+                scale: 1.0 - switchModeController.value,
                 child: Icon(Icons.play_arrow, size: 40.0),
               ),
               Transform.scale(
-                scale: 0.0 + switchMode.value,
+                scale: 0.0 + switchModeController.value,
                 child: Icon(Icons.redo, size: 40.0),
               ),
             ],

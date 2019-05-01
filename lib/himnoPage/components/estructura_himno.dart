@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/himnos.dart';
 
 class HimnoText extends StatelessWidget {
 
@@ -132,31 +133,5 @@ class HimnoText extends StatelessWidget {
         )
       )
     );
-  }
-}
-
-class Parrafo {
-  int numero;
-  int orden;
-  bool coro;
-  String parrafo;
-  String acordes;
-
-  Parrafo({this.numero, this.orden, this.coro, this.parrafo, this.acordes});
-
-  static List<Parrafo> fromJson(List<dynamic> res) {
-    List<Parrafo> parrafos = List<Parrafo>();
-    int numeroEstrofa = 0;
-    for (var x in res) {
-      if (x['coro'] == 0) ++numeroEstrofa;
-      parrafos.add(Parrafo(
-        numero: x['numero'],
-        orden: numeroEstrofa,
-        coro: x['coro'] == 1 ? true : false,
-        parrafo: x['parrafo'],
-        acordes: x['acrodes'],
-      ));
-    }
-    return parrafos;
   }
 }

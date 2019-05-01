@@ -52,7 +52,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
     setState(() => cargando = true);
     if (query.isNotEmpty) {
       List<Map<String,dynamic>> himnoQuery = await db.rawQuery('select himnos.id, himnos.titulo from himnos where himnos.id = $query');
-      if (himnoQuery.isEmpty)
+      if (himnoQuery.isEmpty || int.parse(query) > 517)
         setState(() {
           estrofas = List<Parrafo>();
           himno = Himno(titulo: 'No Encontrado', numero: -2);
@@ -122,6 +122,15 @@ class _QuickBuscadorState extends State<QuickBuscador> {
             } : null,
           onChanged: onChanged,
         ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(4.0),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            curve: Curves.easeInOutSine,
+            height: cargando ? 4.0 : 0.0,
+            child: LinearProgressIndicator(),
+          ),
+        ),
         actions: <Widget>[
           IconButton(
             onPressed: himno.numero != -1 ? () {
@@ -135,19 +144,24 @@ class _QuickBuscadorState extends State<QuickBuscador> {
       (!cargando ? 
         estrofas.isNotEmpty ? GestureDetector(
           onTap: () => setState(() => done = !done),
-          child: Column(
-            children: <Widget>[
-              HimnoText(
-                estrofas: estrofas,
-                fontSize: fontSize,
-                alignment: prefs.getString('alignment'),
-              )
-            ],
+          child: Container(
+            height: double.infinity,
+            width: double.infinity,
+            color: Colors.transparent,
+            child: Column(
+              children: <Widget>[
+                HimnoText(
+                  estrofas: estrofas,
+                  fontSize: fontSize,
+                  alignment: prefs.getString('alignment'),
+                )
+              ],
+            ),
           ),
         ) : himno.numero == -2 ? Center(child: Text('Himno no encontrado', textAlign: TextAlign.center,),) 
       : Center(child: Text('Ingrese el número del himno', textAlign: TextAlign.center,
       textScaleFactor: 1.5,),) :
-      Center(child: CircularProgressIndicator(),)),
+      Container()),
     );
   }
 }

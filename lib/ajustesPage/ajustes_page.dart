@@ -21,6 +21,10 @@ class _AjustesPageState extends State<AjustesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Ajustes'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(4.0),
+          child: Container()
+        ),
       ),
       body: ListView(
         children: <Widget>[

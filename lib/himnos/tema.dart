@@ -46,7 +46,7 @@ class _TemaPageState extends State<TemaPage> {
     himnos = List<Himno>();
     List<Map<String,dynamic>> data;
     if (widget.id == 0) {
-      data = await db.rawQuery('select himnos.id, himnos.titulo from himnos order by himnos.id ASC');
+      data = await db.rawQuery('select himnos.id, himnos.titulo from himnos where id <= 517 order by himnos.id ASC');
     } else {
       if(widget.subtema) {
         data = await db.rawQuery('select himnos.id, himnos.titulo from himnos join sub_tema_himnos on sub_tema_himnos.himno_id = himnos.id where sub_tema_himnos.sub_tema_id = ${widget.id} order by himnos.id ASC');
@@ -82,7 +82,6 @@ class _TemaPageState extends State<TemaPage> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,6 +91,15 @@ class _TemaPageState extends State<TemaPage> {
           child: Container(
             width: double.infinity,
             child: Text(widget.tema, textAlign: TextAlign.center,),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(4.0),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            curve: Curves.easeInOutSine,
+            height: cargando ? 4.0 : 0.0,
+            child: LinearProgressIndicator(),
           ),
         ),
         actions: <Widget>[
