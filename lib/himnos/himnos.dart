@@ -207,7 +207,7 @@ class _HimnosPageState extends State<HimnosPage> {
       }
     }
 
-    List<Map<String, dynamic>> corosQuery = await db.rawQuery('select * from himnos where id > 517');
+    List<Map<String, dynamic>> corosQuery = await db.rawQuery('select * from himnos where id > 517 order by titulo');
     coros = Himno.fromJson(corosQuery);
 
     setState(() {});
