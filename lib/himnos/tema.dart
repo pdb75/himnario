@@ -108,7 +108,7 @@ class _TemaPageState extends State<TemaPage> {
               await db.close();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (BuildContext context) => Buscador(id: widget.id, subtema:widget.subtema))
+                MaterialPageRoute(builder: (BuildContext context) => Buscador(id: widget.id, subtema:widget.subtema, type: BuscadorType.Himnos,))
               );
             },
             icon: Icon(Icons.search),

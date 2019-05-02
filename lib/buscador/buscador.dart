@@ -38,15 +38,17 @@ class _BuscadorState extends State<Buscador> {
     initDB();
   }
 
-  Future<Null> initDB() async {
+  Future<Null> initDB([bool refresh = true]) async {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
     db = await openReadOnlyDatabase(path);
-    List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
-    setState(() {
-      himnos = Himno.fromJson(data);
-      cargando = false;
-    });
+    if (refresh) {
+      List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
+      setState(() {
+        himnos = Himno.fromJson(data);
+        cargando = false;
+      });
+    }
     return null;
   }
 

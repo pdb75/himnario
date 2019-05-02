@@ -5,14 +5,12 @@ import '../models/himnos.dart';
 import '../himnoPage/himno.dart';
 import '../coroPage/coroPage.dart';
 
-typedef void OnTap();
-
 class Scroller extends StatefulWidget {
 
   Scroller({this.himnos, this.initDB, this.cargando, this.mensaje = ''});
 
   final List<Himno> himnos;
-  final OnTap initDB;
+  final Function initDB;
   final bool cargando;
   final String mensaje;
 
@@ -43,6 +41,8 @@ class _ScrollerState extends State<Scroller> {
 
   @override
   Widget build(BuildContext context) {
+    if (scrollPosition == double.infinity || scrollPosition == double.nan)
+      scrollPosition = 105.0 - 90.0;
     return Stack(
       children: <Widget>[
         widget.himnos.isEmpty ? Container(
@@ -58,7 +58,7 @@ class _ScrollerState extends State<Scroller> {
                 color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/widget.himnos.length) == index && dragging ? Theme.of(context).primaryColor : Theme.of(context).scaffoldBackgroundColor,
                 child: ListTile(
                   onTap: () async {
-                    // double aux = scrollController.offset;
+                    double aux = scrollController.offset;
                     print(widget.himnos[index].numero > 517);
                     await Navigator.push(
                       context, 
@@ -69,7 +69,7 @@ class _ScrollerState extends State<Scroller> {
                         titulo: widget.himnos[index].titulo,
                         transpose: widget.himnos[index].transpose,
                       )));
-                    widget.initDB();
+                    widget.initDB(false);
                     // scrollPosition = 105.0 - 90.0;
                   },
                   leading: widget.himnos[index].favorito ? Icon(Icons.star, color: Theme.of(context).accentColor,) : null,

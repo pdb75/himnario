@@ -3,14 +3,12 @@ import 'package:flutter/material.dart';
 import '../models/himnos.dart';
 import '../coroPage/coro.dart';
 
-typedef void OnTap();
-
 class CorosScroller extends StatefulWidget {
 
   CorosScroller({this.himnos, this.initDB, this.cargando, this.mensaje = ''});
 
   final List<Himno> himnos;
-  final OnTap initDB;
+  final Function initDB;
   final bool cargando;
   final String mensaje;
 
@@ -41,6 +39,8 @@ class _CorosScrollerState extends State<CorosScroller> {
 
   @override
   Widget build(BuildContext context) {
+    if (scrollPosition == double.infinity || scrollPosition == double.nan)
+      scrollPosition = 105.0 - 90.0;
     return Stack(
       children: <Widget>[
         widget.himnos.isEmpty ? Container(
@@ -67,7 +67,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                             )
                           )
                         );
-                        widget.initDB();
+                        widget.initDB(false);
                       },
                       leading: widget.himnos[index].favorito ? Icon(Icons.star, color: Theme.of(context).accentColor,) : null,
                       title: Row(
