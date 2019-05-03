@@ -189,7 +189,7 @@ class _HimnosPageState extends State<HimnosPage> {
     return null;
   }
 
-  Future<Null> fetchCategorias() async {
+  Future<Null> fetchCategorias([bool refresh = true]) async {
 
     db = await openDatabase(path);
 
