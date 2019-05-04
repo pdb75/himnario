@@ -59,10 +59,9 @@ class _ScrollerState extends State<Scroller> {
                 child: ListTile(
                   onTap: () async {
                     double aux = scrollController.offset;
-                    print(widget.himnos[index].numero > 517);
                     await Navigator.push(
                       context, 
-                      MaterialPageRoute(builder: (BuildContext context) => widget.himnos[index].numero < 517 ? 
+                      MaterialPageRoute(builder: (BuildContext context) => widget.himnos[index].numero <= 517 ? 
                       HimnoPage(numero: widget.himnos[index].numero, titulo: widget.himnos[index].titulo,) 
                       : CoroPage(
                         numero: widget.himnos[index].numero,

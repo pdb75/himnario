@@ -32,18 +32,18 @@ class _TemaPageState extends State<TemaPage> {
     initDB();
   }
 
-  Future<Null> initDB() async {
+  Future<Null> initDB([bool refresh = false]) async {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
     db = await openReadOnlyDatabase(path);
 
-    await fetchHimnos();
+    await fetchHimnos(refresh);
     return null;
   }
 
-  Future<Null> fetchHimnos() async {
+  Future<Null> fetchHimnos([bool refresh = false]) async {
     setState(() => cargando = true);
-    himnos = List<Himno>();
+    himnos = refresh ? himnos : List<Himno>();
     List<Map<String,dynamic>> data;
     if (widget.id == 0) {
       data = await db.rawQuery('select himnos.id, himnos.titulo from himnos where id <= 517 order by himnos.id ASC');
