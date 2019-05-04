@@ -153,11 +153,9 @@ class MyApp extends StatelessWidget {
     return DynamicTheme(
       data: (Brightness brightness) => tema,
       themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
-      MaterialApp(
+      CupertinoApp(
         debugShowCheckedModeBanner: false,
-        showSemanticsDebugger: false,
         title: 'Himnos y Cánticos del Evangelio',
-        theme: theme,
         home: HimnosPage(),
       )
     );

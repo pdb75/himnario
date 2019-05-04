@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:ui';
 import 'dart:convert';
 
 import 'package:Himnario/components/corosScroller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -223,281 +225,169 @@ class _HimnosPageState extends State<HimnosPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _globalKey,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).accentColor
+    return CupertinoTabScaffold(
+      tabBuilder: (BuildContext context, int index) {
+        if(index == 0) {
+          return 
+          // CupertinoTabView(
+          //   builder: (BuildContext context) => 
+            CupertinoPageScaffold(
+              navigationBar: CupertinoNavigationBar(
+                leading: CupertinoButton(
+                  onPressed: () {},
+                  padding: EdgeInsets.only(bottom: 4.0),
+                  child: Icon(Icons.menu, size: 30.0,),
+                ),
+                trailing: CupertinoButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros))
+                    );
+                  },
+                  padding: EdgeInsets.only(bottom: 4.0),
+                  child: Icon(CupertinoIcons.search, size: 30.0),
+                ),
+                middle: Text('Himnos del Evangelio'),
               ),
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Himnos y Cánticos del Evangelio',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                        color: Theme.of(context).indicatorColor,
-                        fontSize: 20.0
-                      )
-                    )
-                  ],
-                ),
-              )
-            ),
-            ListTile(
-              leading: Icon(Icons.favorite),
-              title: Text('Favoritos'),
-              onTap: () async {
-                await db.close();
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (BuildContext context) => FavoritosPage())
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.get_app),
-              title: Text('Himnos Descargados'),
-              onTap: () async {
-                await db.close();
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (BuildContext context) => DescargadosPage())
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.record_voice_over),
-              title: Text('Voces Disponibles'),
-              onTap: () async {
-                await db.close();
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (BuildContext context) => DisponiblesPage())
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Ajustes'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (BuildContext context) => AjustesPage())
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.feedback),
-              title: Text('Feedback'),
-              onTap: () {
-                String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8';
-                launch(url);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text('Políticas de privacidad'),
-              onTap: () => launch('https://sites.google.com/view/himnos-privacy-policy/')
-            ),
-          ],
-        ),
-      ),
-      appBar: 
-      // PreferredSize(
-      //   preferredSize: Size(MediaQuery.of(context).size.width, 60.0),
-      //   child: Container(
-      //     decoration: BoxDecoration(
-      //       color: Theme.of(context).primaryColor,
-      //       // borderRadius: BorderRadius.only(
-      //       //   bottomLeft: Radius.circular(5.0),
-      //       //   bottomRight: Radius.circular(5.0),
-      //       // )
-      //       // gradient: LinearGradient(
-      //       //   colors: [
-      //       //     Color.fromRGBO(255, 0, 212, 1.0),
-      //       //     Color.fromRGBO(222, 0, 150, 1.0),
-      //       //   ]
-      //       // )
-      //     ),
-      //     padding: MediaQuery.of(context).padding,
-      //     height: double.infinity,
-      //     width: double.infinity,
-      //     child: Row(
-      //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //       children: <Widget>[
-      //         IconButton(
-      //           onPressed: () {
-      //             print('opening drawer');
-      //             _globalKey.currentState.openDrawer();
-      //           },
-      //           icon: Icon(
-      //             Icons.menu,
-      //             color: Theme.of(context).buttonColor,
-      //           ),
-      //         ),
-      //         Text(
-      //           currentPage == 0 ? 'Himnos del Evangelio' : 'Coritos', 
-      //           textAlign: TextAlign.center,
-      //           style: Theme.of(context).textTheme.title.copyWith(
-      //             color: Theme.of(context).indicatorColor
-      //           ),
-      //         ),
-      //         IconButton(
-      //           onPressed: () {
-      //             Navigator.push(
-      //               context,
-      //               MaterialPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false,))
-      //             );
-      //           },
-      //           icon: Icon(
-      //             Icons.search,
-      //             color: Theme.of(context).buttonColor,
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      // ),
-      AppBar(
-        title: Container(
-          width: double.infinity,
-          child: Text(currentPage == 0 ? 'Himnos del Evangelio' : 'Coros', textAlign: TextAlign.center,),
-        ),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros))
-              );
-            },
-            icon: Icon(Icons.search),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 100),
-            curve: Curves.easeInOutSine,
-            height: cargando || categorias.isEmpty ? 4.0 : 0.0,
-            child: LinearProgressIndicator(),
-          ),
-        ),
-      ),
-      body: PageView(
-        controller: pageController,  
-        onPageChanged: (int index) => setState(() => currentPage = index),
-        children: <Widget>[
-          categorias.isNotEmpty ? ListView.builder(
-            padding: EdgeInsets.only(bottom: 80.0),
-            physics: BouncingScrollPhysics(),
-            itemCount: categorias.length + 1,
-            itemBuilder: (BuildContext context, int index) {
-              return index == 0 ? 
-              Card(
-                elevation: 4.0,
-                margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
-                      ));
-                  },
-                  title: Text('Todos'),
-                ),
-              )
-              :
-              categorias[index-1].subCategorias.isEmpty ? Card(
-                elevation: 4.0,
-                margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
-                      ));
-                  },
-                  title: Text(categorias[index-1].categoria),
-                )
-              ) : 
-              Card(
-                elevation: 4.0,
-                margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                child: Column(
-                  children: <Widget>[
-                    ListTile(
-                      title: Text(categorias[index-1].categoria),
-                      trailing: Icon(expanded[index - 1] ? Icons.arrow_drop_up : Icons.arrow_drop_down),
-                      onTap: () {
-                        List<bool> aux = expanded;
-                        for (int i = 0; i < aux.length; ++i)
-                          if (i == index-1)
-                            aux[i] = !aux[i];
-                        setState(() => expanded = aux);
-                      }
-                    ),
-                    AnimatedContainer(
-                      duration: Duration(milliseconds: 400),
-                      curve: Curves.easeInOutSine,
-                      height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 48.0 : 0.0,
-                      child: AnimatedOpacity(
-                        opacity: expanded[index - 1] ? 1.0 : 0.0,
-                        duration: Duration(milliseconds: 400),
-                        curve: Curves.easeInOutSine,
-                        child: Column(
-                          children: categorias[index-1].subCategorias.map((subCategoria) =>
-                          ListTile(
-                            dense: true,
+              child: Stack(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(top: 65.0),
+                    child: categorias.isNotEmpty ? ListView.builder(
+                      padding: EdgeInsets.only(bottom: 90.0),
+                      physics: BouncingScrollPhysics(),
+                      itemCount: categorias.length + 1,
+                      itemBuilder: (BuildContext context, int index) {
+                        return index == 0 ? 
+                        Card(
+                          elevation: 4.0,
+                          margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                          child: ListTile(
                             onTap: () {
                               Navigator.push(
                                 context, 
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
+                                CupertinoPageRoute(
+                                  builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
                                 ));
                             },
-                            title: Text(subCategoria.subCategoria),
-                          )).toList()
+                            title: Text('Todos'),
+                          ),
+                        )
+                        :
+                        categorias[index-1].subCategorias.isEmpty ? Card(
+                          elevation: 4.0,
+                          margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                          child: ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                context, 
+                                CupertinoPageRoute(
+                                  builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
+                                ));
+                            },
+                            title: Text(categorias[index-1].categoria),
+                          )
+                        ) : 
+                        Card(
+                          elevation: 4.0,
+                          margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                          child: Column(
+                            children: <Widget>[
+                              ListTile(
+                                title: Text(categorias[index-1].categoria),
+                                trailing: Icon(expanded[index - 1] ? CupertinoIcons.up_arrow : CupertinoIcons.down_arrow),
+                                onTap: () {
+                                  List<bool> aux = expanded;
+                                  for (int i = 0; i < aux.length; ++i)
+                                    if (i == index-1)
+                                      aux[i] = !aux[i];
+                                  setState(() => expanded = aux);
+                                }
+                              ),
+                              AnimatedContainer(
+                                duration: Duration(milliseconds: 400),
+                                curve: Curves.easeInOutSine,
+                                height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 48.0 : 0.0,
+                                child: AnimatedOpacity(
+                                  opacity: expanded[index - 1] ? 1.0 : 0.0,
+                                  duration: Duration(milliseconds: 400),
+                                  curve: Curves.easeInOutSine,
+                                  child: Column(
+                                    children: categorias[index-1].subCategorias.map((subCategoria) =>
+                                    ListTile(
+                                      dense: true,
+                                      onTap: () {
+                                        Navigator.push(
+                                          context, 
+                                          MaterialPageRoute(
+                                            builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
+                                          ));
+                                      },
+                                      title: Text(subCategoria.subCategoria),
+                                    )).toList()
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    ) : Container(),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.2),
                         ),
+                        margin: EdgeInsets.only(bottom: 500.0),
+                        width: double.infinity,
+                        height: 50.0,
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }
-          ) : Container(),
-          CorosScroller(
-            cargando: cargando,
-            himnos: coros,
-            initDB: fetchCategorias,
-            mensaje: '',
-          )
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentPage,
-        type: BottomNavigationBarType.shifting,
-        onTap: (int e) {
-          pageController.animateToPage(e, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
-          setState(() => currentPage = e);
-        },
-        items: [
+                    )
+                  ),
+                ],
+              )
+            // ),
+          );
+        }
+        else return CupertinoTabView(
+          builder: (BuildContext context) => CupertinoPageScaffold(
+             navigationBar: CupertinoNavigationBar(
+              leading: CupertinoButton(
+                onPressed: () {},
+                padding: EdgeInsets.only(bottom: 5.0),
+                child: Icon(Icons.menu),
+              ),
+              trailing: CupertinoButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros))
+                  );
+                },
+                padding: EdgeInsets.only(bottom: 5.0),
+                child: Icon(CupertinoIcons.search),
+              ),
+              middle: Text('Himnos del Evangelio'),
+            ),
+            child: CorosScroller(
+              cargando: cargando,
+              himnos: coros,
+              initDB: fetchCategorias,
+              mensaje: '',
+            ),
+          ),
+        );
+      },
+      tabBar: CupertinoTabBar(
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             backgroundColor: Theme.of(context).primaryColor,
             icon: Icon(Icons.library_music),
@@ -510,16 +400,304 @@ class _HimnosPageState extends State<HimnosPage> {
           ),
         ],
       ),
-      floatingActionButton: currentPage == 0 ? FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context, 
-            MaterialPageRoute(
-              builder: (BuildContext context) => QuickBuscador()
-            ));
-        },
-        child: Icon(Icons.dialpad),
-      ) : null,
     );
+    // return Scaffold(
+    //   key: _globalKey,
+    //   drawer: Drawer(
+    //     child: ListView(
+    //       padding: EdgeInsets.zero,
+    //       children: <Widget>[
+    //         DrawerHeader(
+    //           decoration: BoxDecoration(
+    //             color: Theme.of(context).accentColor
+    //           ),
+    //           child: Center(
+    //             child: Column(
+    //               crossAxisAlignment: CrossAxisAlignment.center,
+    //               mainAxisAlignment: MainAxisAlignment.center,
+    //               children: <Widget>[
+    //                 Text(
+    //                   'Himnos y Cánticos del Evangelio',
+    //                   textAlign: TextAlign.start,
+    //                   style: TextStyle(
+    //                     color: Theme.of(context).indicatorColor,
+    //                     fontSize: 20.0
+    //                   )
+    //                 )
+    //               ],
+    //             ),
+    //           )
+    //         ),
+    //         ListTile(
+    //           leading: Icon(Icons.favorite),
+    //           title: Text('Favoritos'),
+    //           onTap: () async {
+    //             await db.close();
+    //             Navigator.pop(context);
+    //             Navigator.push(
+    //               context,
+    //               MaterialPageRoute(builder: (BuildContext context) => FavoritosPage())
+    //             );
+    //           },
+    //         ),
+    //         ListTile(
+    //           leading: Icon(Icons.get_app),
+    //           title: Text('Himnos Descargados'),
+    //           onTap: () async {
+    //             await db.close();
+    //             Navigator.pop(context);
+    //             Navigator.push(
+    //               context,
+    //               MaterialPageRoute(builder: (BuildContext context) => DescargadosPage())
+    //             );
+    //           },
+    //         ),
+    //         ListTile(
+    //           leading: Icon(Icons.record_voice_over),
+    //           title: Text('Voces Disponibles'),
+    //           onTap: () async {
+    //             await db.close();
+    //             Navigator.pop(context);
+    //             Navigator.push(
+    //               context,
+    //               MaterialPageRoute(builder: (BuildContext context) => DisponiblesPage())
+    //             );
+    //           },
+    //         ),
+    //         ListTile(
+    //           leading: Icon(Icons.settings),
+    //           title: Text('Ajustes'),
+    //           onTap: () {
+    //             Navigator.pop(context);
+    //             Navigator.push(
+    //               context,
+    //               MaterialPageRoute(builder: (BuildContext context) => AjustesPage())
+    //             );
+    //           },
+    //         ),
+    //         ListTile(
+    //           leading: Icon(Icons.feedback),
+    //           title: Text('Feedback'),
+    //           onTap: () {
+    //             String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8';
+    //             launch(url);
+    //           },
+    //         ),
+    //         ListTile(
+    //           leading: Icon(Icons.info_outline),
+    //           title: Text('Políticas de privacidad'),
+    //           onTap: () => launch('https://sites.google.com/view/himnos-privacy-policy/')
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    //   appBar: 
+    //   // PreferredSize(
+    //   //   preferredSize: Size(MediaQuery.of(context).size.width, 60.0),
+    //   //   child: Container(
+    //   //     decoration: BoxDecoration(
+    //   //       color: Theme.of(context).primaryColor,
+    //   //       // borderRadius: BorderRadius.only(
+    //   //       //   bottomLeft: Radius.circular(5.0),
+    //   //       //   bottomRight: Radius.circular(5.0),
+    //   //       // )
+    //   //       // gradient: LinearGradient(
+    //   //       //   colors: [
+    //   //       //     Color.fromRGBO(255, 0, 212, 1.0),
+    //   //       //     Color.fromRGBO(222, 0, 150, 1.0),
+    //   //       //   ]
+    //   //       // )
+    //   //     ),
+    //   //     padding: MediaQuery.of(context).padding,
+    //   //     height: double.infinity,
+    //   //     width: double.infinity,
+    //   //     child: Row(
+    //   //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+    //   //       children: <Widget>[
+    //   //         IconButton(
+    //   //           onPressed: () {
+    //   //             print('opening drawer');
+    //   //             _globalKey.currentState.openDrawer();
+    //   //           },
+    //   //           icon: Icon(
+    //   //             Icons.menu,
+    //   //             color: Theme.of(context).buttonColor,
+    //   //           ),
+    //   //         ),
+    //   //         Text(
+    //   //           currentPage == 0 ? 'Himnos del Evangelio' : 'Coritos', 
+    //   //           textAlign: TextAlign.center,
+    //   //           style: Theme.of(context).textTheme.title.copyWith(
+    //   //             color: Theme.of(context).indicatorColor
+    //   //           ),
+    //   //         ),
+    //   //         IconButton(
+    //   //           onPressed: () {
+    //   //             Navigator.push(
+    //   //               context,
+    //   //               MaterialPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false,))
+    //   //             );
+    //   //           },
+    //   //           icon: Icon(
+    //   //             Icons.search,
+    //   //             color: Theme.of(context).buttonColor,
+    //   //           ),
+    //   //         ),
+    //   //       ],
+    //   //     ),
+    //   //   ),
+    //   // ),
+    //   AppBar(
+    //     title: Container(
+    //       width: double.infinity,
+    //       child: Text(currentPage == 0 ? 'Himnos del Evangelio' : 'Coros', textAlign: TextAlign.center,),
+    //     ),
+    //     actions: <Widget>[
+    //       IconButton(
+    //         onPressed: () {
+    //           Navigator.push(
+    //             context,
+    //             MaterialPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros))
+    //           );
+    //         },
+    //         icon: Icon(Icons.search),
+    //       ),
+    //     ],
+    //     bottom: PreferredSize(
+    //       preferredSize: Size.fromHeight(4.0),
+    //       child: AnimatedContainer(
+    //         duration: Duration(milliseconds: 100),
+    //         curve: Curves.easeInOutSine,
+    //         height: cargando || categorias.isEmpty ? 4.0 : 0.0,
+    //         child: LinearProgressIndicator(),
+    //       ),
+    //     ),
+    //   ),
+    //   body: PageView(
+    //     controller: pageController,  
+    //     onPageChanged: (int index) => setState(() => currentPage = index),
+    //     children: <Widget>[
+    //       categorias.isNotEmpty ? ListView.builder(
+    //         padding: EdgeInsets.only(bottom: 80.0),
+    //         physics: BouncingScrollPhysics(),
+    //         itemCount: categorias.length + 1,
+    //         itemBuilder: (BuildContext context, int index) {
+    //           return index == 0 ? 
+    //           Card(
+    //             elevation: 4.0,
+    //             margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
+    //             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+    //             child: ListTile(
+    //               onTap: () {
+    //                 Navigator.push(
+    //                   context, 
+    //                   MaterialPageRoute(
+    //                     builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
+    //                   ));
+    //               },
+    //               title: Text('Todos'),
+    //             ),
+    //           )
+    //           :
+    //           categorias[index-1].subCategorias.isEmpty ? Card(
+    //             elevation: 4.0,
+    //             margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+    //             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+    //             child: ListTile(
+    //               onTap: () {
+    //                 Navigator.push(
+    //                   context, 
+    //                   MaterialPageRoute(
+    //                     builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
+    //                   ));
+    //               },
+    //               title: Text(categorias[index-1].categoria),
+    //             )
+    //           ) : 
+    //           Card(
+    //             elevation: 4.0,
+    //             margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+    //             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+    //             child: Column(
+    //               children: <Widget>[
+    //                 ListTile(
+    //                   title: Text(categorias[index-1].categoria),
+    //                   trailing: Icon(expanded[index - 1] ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+    //                   onTap: () {
+    //                     List<bool> aux = expanded;
+    //                     for (int i = 0; i < aux.length; ++i)
+    //                       if (i == index-1)
+    //                         aux[i] = !aux[i];
+    //                     setState(() => expanded = aux);
+    //                   }
+    //                 ),
+    //                 AnimatedContainer(
+    //                   duration: Duration(milliseconds: 400),
+    //                   curve: Curves.easeInOutSine,
+    //                   height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 48.0 : 0.0,
+    //                   child: AnimatedOpacity(
+    //                     opacity: expanded[index - 1] ? 1.0 : 0.0,
+    //                     duration: Duration(milliseconds: 400),
+    //                     curve: Curves.easeInOutSine,
+    //                     child: Column(
+    //                       children: categorias[index-1].subCategorias.map((subCategoria) =>
+    //                       ListTile(
+    //                         dense: true,
+    //                         onTap: () {
+    //                           Navigator.push(
+    //                             context, 
+    //                             MaterialPageRoute(
+    //                               builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
+    //                             ));
+    //                         },
+    //                         title: Text(subCategoria.subCategoria),
+    //                       )).toList()
+    //                     ),
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           );
+    //         }
+    //       ) : Container(),
+    //       CorosScroller(
+    //         cargando: cargando,
+    //         himnos: coros,
+    //         initDB: fetchCategorias,
+    //         mensaje: '',
+    //       )
+    //     ],
+    //   ),
+    //   bottomNavigationBar: BottomNavigationBar(
+    //     currentIndex: currentPage,
+    //     type: BottomNavigationBarType.shifting,
+    //     onTap: (int e) {
+    //       pageController.animateToPage(e, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+    //       setState(() => currentPage = e);
+    //     },
+    //     items: [
+    //       BottomNavigationBarItem(
+    //         backgroundColor: Theme.of(context).primaryColor,
+    //         icon: Icon(Icons.library_music),
+    //         title: Text('Himnos')
+    //       ),
+    //       BottomNavigationBarItem(
+    //         backgroundColor: Theme.of(context).primaryColor,
+    //         icon: Icon(Icons.music_note),
+    //         title: Text('Coros')
+    //       ),
+    //     ],
+    //   ),
+    //   floatingActionButton: currentPage == 0 ? FloatingActionButton(
+    //     onPressed: () {
+    //       Navigator.push(
+    //         context, 
+    //         MaterialPageRoute(
+    //           builder: (BuildContext context) => QuickBuscador()
+    //         ));
+    //     },
+    //     child: Icon(Icons.dialpad),
+    //   ) : null,
+    // );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
@@ -106,33 +107,14 @@ class _BuscadorState extends State<Buscador> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: TextField(
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: CupertinoTextField(
           autofocus: true,
           onChanged: fetchHimnos,
-          style: TextStyle(
-            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
-            fontFamily: Theme.of(context).textTheme.title.fontFamily,
-            fontSize: 20.0,
-            fontWeight: FontWeight.w500,
-          ),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Theme.of(context).canvasColor
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 100),
-            curve: Curves.easeInOutSine,
-            height: cargando ? 4.0 : 0.0,
-            child: LinearProgressIndicator(),
-          ),
-        ),
+        )
       ),
-      body: widget.type == BuscadorType.Himnos ? Scroller(
+      child: widget.type == BuscadorType.Himnos ? Scroller(
         cargando: cargando,
         himnos: himnos,
         initDB: initDB,
@@ -142,7 +124,45 @@ class _BuscadorState extends State<Buscador> {
         himnos: himnos,
         initDB: initDB,
         mensaje: 'No se han encontrado coincidencias',
-      )
+      ),
     );
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     title: TextField(
+    //       autofocus: true,
+    //       onChanged: fetchHimnos,
+    //       style: TextStyle(
+    //         color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
+    //         fontFamily: Theme.of(context).textTheme.title.fontFamily,
+    //         fontSize: 20.0,
+    //         fontWeight: FontWeight.w500,
+    //       ),
+    //       decoration: InputDecoration(
+    //         filled: true,
+    //         fillColor: Theme.of(context).canvasColor
+    //       ),
+    //     ),
+    //     bottom: PreferredSize(
+    //       preferredSize: Size.fromHeight(4.0),
+    //       child: AnimatedContainer(
+    //         duration: Duration(milliseconds: 100),
+    //         curve: Curves.easeInOutSine,
+    //         height: cargando ? 4.0 : 0.0,
+    //         child: LinearProgressIndicator(),
+    //       ),
+    //     ),
+    //   ),
+    //   body: widget.type == BuscadorType.Himnos ? Scroller(
+    //     cargando: cargando,
+    //     himnos: himnos,
+    //     initDB: initDB,
+    //     mensaje: 'No se han encontrado coincidencias',
+    //   ) : CorosScroller(
+    //     cargando: cargando,
+    //     himnos: himnos,
+    //     initDB: initDB,
+    //     mensaje: 'No se han encontrado coincidencias',
+    //   )
+    // );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
@@ -32,18 +33,18 @@ class _TemaPageState extends State<TemaPage> {
     initDB();
   }
 
-  Future<Null> initDB() async {
+  Future<Null> initDB([bool refresh = false]) async {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
     db = await openReadOnlyDatabase(path);
 
-    await fetchHimnos();
+    await fetchHimnos(refresh);
     return null;
   }
 
-  Future<Null> fetchHimnos() async {
+  Future<Null> fetchHimnos([bool refresh = false]) async {
     setState(() => cargando = true);
-    himnos = List<Himno>();
+    himnos = refresh ? List<Himno>() : himnos;
     List<Map<String,dynamic>> data;
     if (widget.id == 0) {
       data = await db.rawQuery('select himnos.id, himnos.titulo from himnos where id <= 517 order by himnos.id ASC');
@@ -84,42 +85,52 @@ class _TemaPageState extends State<TemaPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Tooltip(
-          message: widget.tema,
-          child: Container(
-            width: double.infinity,
-            child: Text(widget.tema, textAlign: TextAlign.center,),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 100),
-            curve: Curves.easeInOutSine,
-            height: cargando ? 4.0 : 0.0,
-            child: LinearProgressIndicator(),
-          ),
-        ),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () async {
-              await db.close();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (BuildContext context) => Buscador(id: widget.id, subtema:widget.subtema, type: BuscadorType.Himnos,))
-              );
-            },
-            icon: Icon(Icons.search),
-          ),
-        ],
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(widget.tema),
       ),
-      body: Scroller(
+      child: Scroller(
         himnos: himnos,
         cargando: cargando,
         initDB: initDB
-      )
+      ),
     );
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     title: Tooltip(
+    //       message: widget.tema,
+    //       child: Container(
+    //         width: double.infinity,
+    //         child: Text(widget.tema, textAlign: TextAlign.center,),
+    //       ),
+    //     ),
+    //     bottom: PreferredSize(
+    //       preferredSize: Size.fromHeight(4.0),
+    //       child: AnimatedContainer(
+    //         duration: Duration(milliseconds: 100),
+    //         curve: Curves.easeInOutSine,
+    //         height: cargando ? 4.0 : 0.0,
+    //         child: LinearProgressIndicator(),
+    //       ),
+    //     ),
+    //     actions: <Widget>[
+    //       IconButton(
+    //         onPressed: () async {
+    //           await db.close();
+    //           Navigator.push(
+    //             context,
+    //             MaterialPageRoute(builder: (BuildContext context) => Buscador(id: widget.id, subtema:widget.subtema, type: BuscadorType.Himnos,))
+    //           );
+    //         },
+    //         icon: Icon(Icons.search),
+    //       ),
+    //     ],
+    //   ),
+    //   body: Scroller(
+    //     himnos: himnos,
+    //     cargando: cargando,
+    //     initDB: initDB
+    //   )
+    // );
   }
 }
