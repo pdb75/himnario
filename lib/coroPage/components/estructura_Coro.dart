@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../models/himnos.dart';
 
 class CoroText extends StatelessWidget {
@@ -52,7 +53,7 @@ class CoroText extends StatelessWidget {
                 height: Theme.of(context).textTheme.body1.height,
                 fontWeight: FontWeight.bold,
                 wordSpacing: (fontSize*(1.4/8.04)-(10.0*(1.4/8.04))+1.6),
-                color: Color.fromRGBO(Theme.of(context).accentColor.red, Theme.of(context).accentColor.green, Theme.of(context).accentColor.blue, animation),
+                color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
               )
             ) : TextSpan(),
             TextSpan(
@@ -74,7 +75,7 @@ class CoroText extends StatelessWidget {
                 wordSpacing: (fontSize*(1.4/8.04)-(10.0*(1.4/8.04))+1.6),
                 fontSize: animation*fontSize,
                 fontWeight: FontWeight.bold,
-                color: Color.fromRGBO(Theme.of(context).accentColor.red, Theme.of(context).accentColor.green, Theme.of(context).accentColor.blue, animation),
+                color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
               )
             ) : TextSpan(),
             TextSpan(

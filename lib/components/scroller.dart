@@ -59,6 +59,7 @@ class _ScrollerState extends State<Scroller> {
                 color: (scrollPosition - 72.0)~/((MediaQuery.of(context).size.height - 85.0 - 72.0 + 0.5)/widget.himnos.length) == index && dragging ? 
                 CupertinoTheme.of(context).primaryColor : 
                 CupertinoTheme.of(context).scaffoldBackgroundColor,
+                height: 55.0,
                 child: CupertinoButton(
                   onPressed: () async {
                     double aux = scrollController.offset;
@@ -156,7 +157,7 @@ class _ScrollerState extends State<Scroller> {
               double position;
               double bottomPadding = MediaQuery.of(context).size.height - 85.0;
               double topPadding = 72.0;
-              double tileSize = 52.0;
+              double tileSize = 55.0;
 
               if (details.globalPosition.dy > bottomPadding + 15.0) {
                 position = bottomPadding;
@@ -182,7 +183,7 @@ class _ScrollerState extends State<Scroller> {
               double position;
               double bottomPadding = MediaQuery.of(context).size.height - 85.0;
               double topPadding = 72.0;
-              double tileSize = 52.0;
+              double tileSize = 55.0;
 
               if (details.globalPosition.dy > bottomPadding + 15.0) {
                 position = bottomPadding;

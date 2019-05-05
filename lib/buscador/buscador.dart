@@ -44,9 +44,28 @@ class _BuscadorState extends State<Buscador> {
     String path = databasesPath + "/himnos.db";
     db = await openReadOnlyDatabase(path);
     if (refresh) {
+      List<Himno> himnostemp = List<Himno>();
       List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
+      List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
+      List<int> favoritos = List<int>();
+      for(dynamic favorito in favoritosQuery) {
+        favoritos.add(favorito['himno_id']);
+      }
+      List<Map<String,dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
+      List<int> descargas = List<int>();
+      for(dynamic descarga in descargasQuery) {
+        descargas.add(descarga['himno_id']);
+      }
+      for(dynamic himno in data) {
+        himnostemp.add(Himno(
+          numero: himno['id'],
+          titulo: himno['titulo'],
+          descargado: descargas.contains(himno['id']),
+          favorito: favoritos.contains(himno['id']),
+        ));
+      }
       setState(() {
-        himnos = Himno.fromJson(data);
+        himnos = himnostemp;
         cargando = false;
       });
     }
