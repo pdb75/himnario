@@ -23,7 +23,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
     initDB();
   }
 
-  void initDB() async {
+  void initDB([bool refresh = true]) async {
     setState(() => cargando = true);
     himnos = List<Himno>();
     String path = (await getApplicationDocumentsDirectory()).path;
