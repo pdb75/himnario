@@ -99,11 +99,13 @@ class _QuickBuscadorState extends State<QuickBuscador> {
             keyboardType: TextInputType.number,
             suffix: Container(
               width: MediaQuery.of(context).size.width - 200,
+              margin: EdgeInsets.only(right: 6.0),
               child: Text(
                 himno.titulo ?? '',
+                softWrap: false,
                 textAlign: TextAlign.end,
                 style: TextStyle(
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
+                  color: CupertinoTheme.of(context).textTheme.textStyle.color,
                   fontFamily: Theme.of(context).textTheme.title.fontFamily,
                   fontSize: 20.0,
                   fontWeight: FontWeight.w500,

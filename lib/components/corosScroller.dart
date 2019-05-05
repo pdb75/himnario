@@ -60,7 +60,9 @@ class _CorosScrollerState extends State<CorosScroller> {
               itemCount: widget.himnos.length,
               itemBuilder: (BuildContext context, int index) =>
               Container(
-                color: (scrollPosition - 72.0)~/((MediaQuery.of(context).size.height - 85.0 - 72.0 + 0.5)/widget.himnos.length) == index && dragging ? Theme.of(context).primaryColor : Theme.of(context).scaffoldBackgroundColor,
+                color: (scrollPosition - 72.0)~/((MediaQuery.of(context).size.height - 85.0 - 72.0 + 0.5)/widget.himnos.length) == index && dragging ? 
+                CupertinoTheme.of(context).primaryColor : 
+                CupertinoTheme.of(context).scaffoldBackgroundColor,
                 child: CupertinoButton(
                   onPressed: () async {
                     double aux = scrollController.offset;
@@ -78,8 +80,10 @@ class _CorosScrollerState extends State<CorosScroller> {
                   child: Text(
                     ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
                     softWrap: true,
-                    style: Theme.of(context).textTheme.subhead.copyWith(
-                      color: (scrollPosition - 72.0)~/((MediaQuery.of(context).size.height - 85.0 - 72.0 + 0.5)/widget.himnos.length) == index && dragging ? Colors.white : Theme.of(context).textTheme.subhead.color
+                    style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                      color: (scrollPosition - 72.0)~/((MediaQuery.of(context).size.height - 85.0 - 72.0 + 0.5)/widget.himnos.length) == index && dragging ? 
+                      Colors.white : 
+                      CupertinoTheme.of(context).textTheme.textStyle.color
                     ),
                   ),
                 ),
@@ -136,7 +140,7 @@ class _CorosScrollerState extends State<CorosScroller> {
               double position;
               double bottomPadding = MediaQuery.of(context).size.height - 85.0;
               double topPadding = 72.0;
-              double tileSize = 51.0;
+              double tileSize = 52.0;
 
               if (details.globalPosition.dy > bottomPadding + 15.0) {
                 position = bottomPadding;
@@ -162,7 +166,7 @@ class _CorosScrollerState extends State<CorosScroller> {
               double position;
               double bottomPadding = MediaQuery.of(context).size.height - 85.0;
               double topPadding = 72.0;
-              double tileSize = 51.0;
+              double tileSize = 52.0;
 
               if (details.globalPosition.dy > bottomPadding + 15.0) {
                 position = bottomPadding;
@@ -346,7 +350,7 @@ class SideScroller extends CustomPainter {
 
   SideScroller({this.position, BuildContext context, this.dragging, this.numero, this.himnos}) {
     scrollBar = Paint()
-      ..color = dragging ? Theme.of(context).accentColor : Colors.grey.withOpacity(0.5)
+      ..color = dragging ? CupertinoTheme.of(context).primaryColor : Colors.grey.withOpacity(0.5)
       ..strokeWidth = 5.0
       ..strokeCap = StrokeCap.round;
   }

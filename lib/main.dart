@@ -155,6 +155,13 @@ class MyApp extends StatelessWidget {
       themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
       CupertinoApp(
         debugShowCheckedModeBanner: false,
+        theme: CupertinoThemeData(
+          // accentColor: Colors.deepPurpleAccent,
+          // indicatorColor: Colors.white,
+          // primaryColorDark: Colors.deepPurple,
+          primaryColor: Colors.deepPurple,
+          // brightness: Brightness.dark
+        ),
         title: 'Himnos y Cánticos del Evangelio',
         home: HimnosPage(),
       )

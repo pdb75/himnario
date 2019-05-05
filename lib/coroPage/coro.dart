@@ -442,7 +442,7 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                 children: <Widget>[
                   CupertinoButton(
                     onPressed: toggleFavorito,
-                    padding: EdgeInsets.only(bottom: 4.0),
+                    padding: EdgeInsets.only(bottom: 2.0),
                     child: favorito ? Icon(Icons.star, size: 30.0,) : Icon(Icons.star_border, size: 30.0,),
                   ),
                   CupertinoButton(
@@ -500,7 +500,7 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                         )
                       );
                     },
-                    padding: EdgeInsets.only(bottom: 4.0),
+                    padding: EdgeInsets.only(bottom: 2.0),
                     child: Icon(Icons.more_vert, size: 30.0,),
                   ),
                 ],
