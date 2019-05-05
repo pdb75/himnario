@@ -37,6 +37,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
       himnos.add(Himno(
         numero: himno['id'],
         titulo: himno['titulo'],
+        transpose: himno['transpose'],
         descargado: descargados.contains(himno['id']),
         favorito: true
       ));

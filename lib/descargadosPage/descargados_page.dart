@@ -37,6 +37,7 @@ class _DescargadosPageState extends State<DescargadosPage> {
       himnos.add(Himno(
         numero: himno['id'],
         titulo: himno['titulo'],
+        transpose: himno['transpose'],
         descargado: true,
         favorito: favoritos.contains(himno['id'])
       ));
