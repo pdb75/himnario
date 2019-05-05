@@ -222,6 +222,79 @@ class _HimnosPageState extends State<HimnosPage> {
     return null;
   }
 
+  void showMenu() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        cancelButton: CupertinoActionSheetAction(
+          isDestructiveAction: true,
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('Cancelar'),
+        ),
+        actions: <Widget>[
+          CupertinoActionSheetAction(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await db.close();
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (BuildContext context) => FavoritosPage())
+              );
+            },
+            child: Text('Favoritos')
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await db.close();
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (BuildContext context) => DescargadosPage())
+              );
+            },
+            child: Text('Himnos Descargados')
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await db.close();
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (BuildContext context) => DisponiblesPage())
+              );
+            },
+            child: Text('Voces Disponibles')
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (BuildContext context) => AjustesPage())
+              );
+            },
+            child: Text('Ajustes')
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8';
+              launch(url);
+            },
+            child: Text('Feedback')
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              launch('https://sites.google.com/view/himnos-privacy-policy/');
+            },
+            child: Text('Politicas de privacidad')
+          ),
+        ],
+      )
+    );
+  }
+
   @override
   void dispose(){
     super.dispose();
@@ -240,9 +313,9 @@ class _HimnosPageState extends State<HimnosPage> {
               navigationBar: CupertinoNavigationBar(
                 transitionBetweenRoutes: false,
                 leading: CupertinoButton(
-                  onPressed: () {},
+                  onPressed: showMenu,
                   padding: EdgeInsets.only(bottom: 2.0),
-                  child: Icon(CupertinoIcons.settings, size: 30.0,),
+                  child: Icon(Icons.menu, size: 30.0,),
                 ),
                 trailing: CupertinoButton(
                   onPressed: () {
@@ -403,9 +476,9 @@ class _HimnosPageState extends State<HimnosPage> {
             navigationBar: CupertinoNavigationBar(
               transitionBetweenRoutes: false,
               leading: CupertinoButton(
-                onPressed: () {},
+                onPressed: showMenu,
                 padding: EdgeInsets.only(bottom: 2.0),
-                child: Icon(CupertinoIcons.settings, size: 30.0,),
+                child: Icon(Icons.menu, size: 30.0,),
               ),
               trailing: CupertinoButton(
                 onPressed: () {
@@ -469,18 +542,18 @@ class _HimnosPageState extends State<HimnosPage> {
     //             ),
     //           )
     //         ),
-    //         ListTile(
-    //           leading: Icon(Icons.favorite),
-    //           title: Text('Favoritos'),
-    //           onTap: () async {
-    //             await db.close();
-    //             Navigator.pop(context);
-    //             Navigator.push(
-    //               context,
-    //               MaterialPageRoute(builder: (BuildContext context) => FavoritosPage())
-    //             );
-    //           },
-    //         ),
+            // ListTile(
+            //   leading: Icon(Icons.favorite),
+            //   title: Text('Favoritos'),
+            //   onTap: () async {
+            //     await db.close();
+            //     Navigator.pop(context);
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (BuildContext context) => FavoritosPage())
+            //     );
+            //   },
+            // ),
     //         ListTile(
     //           leading: Icon(Icons.get_app),
     //           title: Text('Himnos Descargados'),
@@ -519,10 +592,10 @@ class _HimnosPageState extends State<HimnosPage> {
     //         ListTile(
     //           leading: Icon(Icons.feedback),
     //           title: Text('Feedback'),
-    //           onTap: () {
-    //             String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8';
-    //             launch(url);
-    //           },
+              // onTap: () {
+                // String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8';
+                // launch(url);
+              // },
     //         ),
     //         ListTile(
     //           leading: Icon(Icons.info_outline),

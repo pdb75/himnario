@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -23,7 +24,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
     initDB();
   }
 
-  void initDB() async {
+  void initDB([bool refresh = true]) async {
     setState(() => cargando = true);
     himnos = List<Himno>();
     String path = (await getApplicationDocumentsDirectory()).path;
@@ -48,20 +49,23 @@ class _FavoritosPageState extends State<FavoritosPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Favoritos'),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 100),
-            curve: Curves.easeInOutSine,
-            height: cargando ? 4.0 : 0.0,
-            child: LinearProgressIndicator(),
-          ),
-        ),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text('Favoritos'),
       ),
-      body: Scroller(
+      // appBar: AppBar(
+      //   title: Text('Favoritos'),
+      //   bottom: PreferredSize(
+      //     preferredSize: Size.fromHeight(4.0),
+      //     child: AnimatedContainer(
+      //       duration: Duration(milliseconds: 100),
+      //       curve: Curves.easeInOutSine,
+      //       height: cargando ? 4.0 : 0.0,
+      //       child: LinearProgressIndicator(),
+      //     ),
+      //   ),
+      // ),
+      child: Scroller(
         himnos: himnos,
         cargando: cargando,
         initDB: initDB,
