@@ -44,7 +44,7 @@ class _BuscadorState extends State<Buscador> {
     db = await openReadOnlyDatabase(path);
     if (refresh) {
       List<Himno> himnostemp = List<Himno>();
-      List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
+      List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo, himnos.transpose from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
       List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
       List<int> favoritos = List<int>();
       for(dynamic favorito in favoritosQuery) {
@@ -59,6 +59,7 @@ class _BuscadorState extends State<Buscador> {
         himnostemp.add(Himno(
           numero: himno['id'],
           titulo: himno['titulo'],
+          transpose: himno['transpose'],
           descargado: descargas.contains(himno['id']),
           favorito: favoritos.contains(himno['id']),
         ));
