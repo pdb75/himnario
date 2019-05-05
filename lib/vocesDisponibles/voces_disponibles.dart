@@ -25,7 +25,7 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
     cargando = true;
   }
 
-  void initDB() async {
+  void initDB([bool refresh = true]) async {
     setState(() => cargando = true);
     String path = (await getApplicationDocumentsDirectory()).path;
     himnos = List<Himno>();
