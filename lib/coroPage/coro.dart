@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
@@ -428,346 +429,408 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
 
-    // bool smallDevice = MediaQuery.of(context).size.width < 400;
-
-    // List<Widget> controlesLayout = !smallDevice ? [
-    //   Row(
-    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    //     children: <Widget>[
-    //       BotonVoz(
-    //         voz: 'Soprano',
-    //         activo: currentVoice == 0 || currentVoice == 4,
-    //         onPressed: () => toggleVoice(0),
-    //       ),
-    //       BotonVoz(
-    //         voz: 'Tenor',
-    //         activo: currentVoice == 1 || currentVoice == 4,
-    //         onPressed: () => toggleVoice(1),
-    //       ),
-    //       BotonVoz(
-    //         voz: 'Contra Alto',
-    //         activo: currentVoice == 2 || currentVoice == 4,
-    //         onPressed: () => toggleVoice(2),
-    //       ),
-    //       BotonVoz(
-    //         voz: 'Bajo',
-    //         activo: currentVoice == 3 || currentVoice == 4,
-    //         onPressed: () => toggleVoice(3),
-    //       ),
-    //     ],
-    //   )
-    // ] : [
-    //   Row(
-    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    //     children: <Widget>[
-    //       BotonVoz(
-    //         voz: '   Soprano  ',
-    //         activo: currentVoice == 0 || currentVoice == 4,
-    //         onPressed: () => toggleVoice(0),
-    //       ),
-    //       BotonVoz(
-    //         voz: '    Tenor    ',
-    //         activo: currentVoice == 1 || currentVoice == 4,
-    //         onPressed: () => toggleVoice(1),
-    //       ),
-    //     ],
-    //   ),
-    //   Row(
-    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    //     children: <Widget>[
-    //       BotonVoz(
-    //         voz: 'Contra Alto',
-    //         activo: currentVoice == 2 || currentVoice == 4,
-    //         onPressed: () => toggleVoice(2),
-    //       ),
-    //       BotonVoz(
-    //         voz: '     Bajo     ',
-    //         activo: currentVoice == 3 || currentVoice == 4,
-    //         onPressed: () => toggleVoice(3),
-    //       ),
-    //     ],
-    //   ),
-    // ];
-
-    // List<Widget> buttonLayout = [
-    //   VoicesProgressBar(
-    //     currentProgress: currentProgress,
-    //     duration: totalDuration,
-    //     onDragStart: cancelSubscription,
-    //     smalldevice: smallDevice,
-    //     onSelected: (double progress) {
-    //       positionSubscription = audioVoces[currentVoice].onAudioPositionChanged.listen((Duration duration) {
-    //         setState(() {
-    //           currentProgress = duration.inMilliseconds / totalDuration;
-    //           currentDuration = duration;
-    //         });
-    //       });
-    //       completeSubscription = audioVoces[currentVoice].onPlayerCompletion.listen((_) {
-    //         setState(() {
-    //           start = false;
-    //           currentProgress = 0.0;
-    //         });
-    //       });
-    //       print(progress);
-    //       setState(() => currentProgress = progress);
-    //       vocesSeek(progress);
-    //     },
-    //   ),
-    //   Row(
-    //     mainAxisAlignment: MainAxisAlignment.center,
-    //     children: <Widget>[
-    //       RawMaterialButton(
-    //         shape: CircleBorder(),
-    //         child: IconButton(
-    //           onPressed: () {
-    //             double newProgress = currentProgress - 0.1;
-    //             if(newProgress <= 0.0)
-    //               vocesSeek(0.0);
-    //             else vocesSeek(currentProgress - 0.1);
-    //           },
-    //           icon: Icon(Icons.fast_rewind),
-    //         ),
-    //         onPressed: () {},
-    //       ),
-    //       start ? RawMaterialButton(
-    //         shape: CircleBorder(),
-    //         child: IconButton(
-    //           onPressed: pauseVoces,
-    //           icon: Icon(Icons.pause),
-    //         ),
-    //         onPressed: () {},
-    //       ) : 
-    //       RawMaterialButton(
-    //         shape: CircleBorder(),
-    //         child: IconButton(
-    //           onPressed: !cargando ? () {
-    //             resumeVoces();
-    //           } : null,
-    //           icon: Icon(Icons.play_arrow),
-    //         ),
-    //         onPressed: () {},
-    //       ),
-    //       RawMaterialButton(
-    //         shape: CircleBorder(),
-    //         child: IconButton(
-    //           onPressed: () {
-    //             double newProgress = currentProgress + 0.1;
-    //             if(newProgress >= 1.0)
-    //               vocesSeek(1.0);
-    //             else vocesSeek(currentProgress + 0.1);
-    //           },
-    //           icon: Icon(Icons.fast_forward)
-    //         ),
-    //         onPressed: () {},
-    //       ),
-    //     ]
-    //   )
-    // ];
-
-    // for (Widget widget in buttonLayout)
-    //   controlesLayout.add(widget);
-
     if(prefs != null)
-    return Scaffold(
-      appBar: AppBar(
-        actions: <Widget>[
-          IconButton(
-            onPressed: toggleFavorito,
-            icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
+    return Stack(
+      children: <Widget>[
+        CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            middle: Text(widget.titulo),
+            trailing: Transform.translate(
+              offset: Offset(20.0, 0.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  CupertinoButton(
+                    onPressed: toggleFavorito,
+                    padding: EdgeInsets.only(bottom: 4.0),
+                    child: favorito ? Icon(Icons.star, size: 30.0,) : Icon(Icons.star_border, size: 30.0,),
+                  ),
+                  CupertinoButton(
+                    onPressed: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (BuildContext context) => CupertinoActionSheet(
+                          // title: Text('Menu'),
+                          cancelButton: CupertinoActionSheetAction(
+                            isDestructiveAction: true,
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text('Cancelar'),
+                          ),
+                          actions: <Widget>[
+                            CupertinoActionSheetAction(
+                              onPressed: () {
+                                setState(() => acordes = !acordes);
+                                if (fontController.value == 1.0) {
+                                  fontController.animateTo(
+                                    0.0,
+                                    curve: Curves.fastOutSlowIn
+                                  );
+                                  if (transposeMode)
+                                    setState(() => transposeMode = !transposeMode);
+                                }
+                                else fontController.animateTo(
+                                  1.0,
+                                  curve: Curves.linearToEaseOut
+                                );
+                                Navigator.of(context).pop();
+                              },
+                              child: Text((fontController.value == 1 ? 'Ocultar' : 'Mostrar') + ' Acordes'),
+                            ),
+                            CupertinoActionSheetAction(
+                              onPressed: () {
+                                if (!transposeMode) 
+                                  if (fontController.value == 0.1)
+                                  fontController.animateTo(
+                                    1.0,
+                                    curve: Curves.linearToEaseOut
+                                  );
+                                setState(() => transposeMode = !transposeMode);
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('Transponer'),
+                            ),
+                            CupertinoActionSheetAction(
+                              onPressed: () {
+                                applyTranspose(-transpose);
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('Tono Original'),
+                            ),
+                          ],
+                        )
+                      );
+                    },
+                    padding: EdgeInsets.only(bottom: 4.0),
+                    child: Icon(Icons.more_vert, size: 30.0,),
+                  ),
+                ],
+              ),
+            )
           ),
-          PopupMenuButton(
-            onSelected: (int e) {
-              switch (e) {
-                case 0:
-                  setState(() => acordes = !acordes);
-                  if (fontController.value == 1.0) {
-                    fontController.animateTo(
-                      0.0,
-                      curve: Curves.fastOutSlowIn
-                    );
-                    if (transposeMode)
-                      setState(() => transposeMode = !transposeMode);
-                  }
-                  else fontController.animateTo(
-                    1.0,
-                    curve: Curves.linearToEaseOut
-                  );
-                  break;
-                case 1:
-                  if (!transposeMode) 
-                    if (fontController.value == 0.1)
-                    fontController.animateTo(
-                      1.0,
-                      curve: Curves.linearToEaseOut
-                    );
-                  setState(() => transposeMode = !transposeMode);
-                  break;
-                case 2:
-                  applyTranspose(-transpose);
-                  break;
-                default:
-              }
+          // appBar: AppBar(
+          //   actions: <Widget>[
+          //     IconButton(
+          //       onPressed: toggleFavorito,
+          //       icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
+          //     ),
+          //     PopupMenuButton(
+          //       onSelected: (int e) {
+          //         switch (e) {
+          //           case 0:
+          //             setState(() => acordes = !acordes);
+          //             if (fontController.value == 1.0) {
+          //               fontController.animateTo(
+          //                 0.0,
+          //                 curve: Curves.fastOutSlowIn
+          //               );
+          //               if (transposeMode)
+          //                 setState(() => transposeMode = !transposeMode);
+          //             }
+          //             else fontController.animateTo(
+          //               1.0,
+          //               curve: Curves.linearToEaseOut
+          //             );
+          //             break;
+          //           case 1:
+          //             if (!transposeMode) 
+          //               if (fontController.value == 0.1)
+          //               fontController.animateTo(
+          //                 1.0,
+          //                 curve: Curves.linearToEaseOut
+          //               );
+          //             setState(() => transposeMode = !transposeMode);
+          //             break;
+          //           case 2:
+          //             applyTranspose(-transpose);
+          //             break;
+          //           default:
+          //         }
 
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-              PopupMenuItem(
-                value: 0,
-                enabled: acordesDisponible,
-                child: ListTile(
-                  leading: Icon(Icons.music_note),
-                  title: Text((fontController.value == 1 ? 'Ocultar' : 'Mostrar') + ' Acordes'),
-                )
-              ),
-              PopupMenuItem(
-                value: 1,
-                enabled: acordesDisponible,
-                child: ListTile(
-                  leading: Icon(Icons.unfold_more),
-                  title: Text('Transponer'),
-                )
-              ),
-              PopupMenuItem(
-                value: 2,
-                enabled: acordesDisponible,
-                child: ListTile(
-                  leading: Icon(Icons.undo),
-                  title: Text('Tono Original'),
-                )
-              ),
-            ],
-          )
-          // IconButton(
-          //   onPressed: () => applyTranspose(-1),
-          //   icon: Icon(Icons.arrow_drop_up),
-          // )
-          // PopupMenuButton(
-          //   onSelected: (dynamic value) {
-          //     switch (value) {
-          //       case 0:
-          //         toggleDescargado();
-          //         break;
-          //       default:
-          //     }
-          //   },            
-          //   icon: Icon(Icons.more_vert),
-          //   itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-          //     PopupMenuItem(
-          //       value: 0,
-          //       enabled: vozDisponible,
-          //       child: Row(
-          //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //         children: <Widget>[
-          //           descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
-          //           Text(descargado ? 'Eliminar' : 'Descargar')
-          //         ],
-          //       ),
+          //       },
+          //       itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+          //         PopupMenuItem(
+          //           value: 0,
+          //           enabled: acordesDisponible,
+          //           child: ListTile(
+          //             leading: Icon(Icons.music_note),
+          //             title: Text((fontController.value == 1 ? 'Ocultar' : 'Mostrar') + ' Acordes'),
+          //           )
+          //         ),
+          //         PopupMenuItem(
+          //           value: 1,
+          //           enabled: acordesDisponible,
+          //           child: ListTile(
+          //             leading: Icon(Icons.unfold_more),
+          //             title: Text('Transponer'),
+          //           )
+          //         ),
+          //         PopupMenuItem(
+          //           value: 2,
+          //           enabled: acordesDisponible,
+          //           child: ListTile(
+          //             leading: Icon(Icons.undo),
+          //             title: Text('Tono Original'),
+          //           )
+          //         ),
+          //       ],
           //     )
           //   ],
-          // )
-        ],
-        title: Tooltip(
-          message: widget.titulo,
-          child: Container(
-            width: double.infinity,
-            child: Text(widget.titulo),
-          ),
-        )
-      ),
-      body: Stack(
-        children: <Widget>[
-          BodyCoro(
-            alignment: prefs.getString('alignment'),
-            estrofas: estrofas,
-            initfontSize: initfontSize,
-            acordes: acordes,
-            animation: fontController.value,
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: AnimatedContainer(
-              duration: Duration(milliseconds: 200),
-              curve: Curves.fastOutSlowIn,
-              height: transposeMode ? 60 : 0.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    blurRadius: 20.0,
-                    // spreadRadius: 1.0,
-                    offset: Offset(0.0, 18.0)
-                  )
-                ],
-                color: Theme.of(context).scaffoldBackgroundColor
-              ),
-              child: ButtonBar(
-                alignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  FlatButton.icon(
-                    icon: Icon(Icons.arrow_drop_down),
-                    label: Text('Bajar Tono'),
-                    onPressed: () => applyTranspose(-1),
-                  ),
-                  FlatButton.icon(
-                    icon: Icon(Icons.arrow_drop_up),
-                    label: Text('Subir Tono'),
-                    onPressed: () => applyTranspose(1),
-                  ),
-                  OutlineButton(
-                    child: Text('Ok'),
-                    onPressed: () => setState(() => transposeMode = !transposeMode),
-                  )
-                ],
-              ),
-            ),
-          )
-          // Align(
-          //   alignment: FractionalOffset.bottomCenter,
-          //   child: FractionalTranslation(
-          //     translation: Offset(0.0, 1.0 - switchMode.value),
-          //     child: Card(
-          //       margin: EdgeInsets.all(0.0),
-          //       elevation: 10.0,
-          //       child: !cargando ? Padding(
-          //         padding: EdgeInsets.symmetric(vertical: 5.0),
-          //         child: Column(
-          //           mainAxisAlignment: MainAxisAlignment.start,
-          //           mainAxisSize: MainAxisSize.min,
-          //           children: controlesLayout
-          //         )
-          //       ) : Container(
-          //         height: smallDevice ? 185.0 : 140.0,
-          //         child: Center(
-          //           child: Padding(
-          //             padding: EdgeInsets.symmetric(horizontal: 20.0),
-          //             child: LinearProgressIndicator(value: 0.25*doneCount,),
-          //           ),
-          //         ),
-          //       )
+          //   title: Tooltip(
+          //     message: widget.titulo,
+          //     child: Container(
+          //       width: double.infinity,
+          //       child: Text(widget.titulo),
           //     ),
           //   )
-          // )
-        ],
-      ),
-      // floatingActionButton: vozDisponible ? Padding(
-      //   padding: EdgeInsets.only(bottom: smallDevice ? switchMode.value * 175 : switchMode.value * 130),
-      //   child: FloatingActionButton(
-      //     key: UniqueKey(),
-      //     backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
-      //     onPressed: swithModes,
-      //     child: Stack(
-      //       children: <Widget>[
-      //         Transform.scale(
-      //           scale: 1.0 - switchMode.value,
-      //           child: Icon(Icons.play_arrow, size: 40.0),
-      //         ),
-      //         Transform.scale(
-      //           scale: 0.0 + switchMode.value,
-      //           child: Icon(Icons.redo, size: 40.0),
-      //         ),
-      //       ],
-      //     )
-      //   )
-      // ) : null
-    ); else return Scaffold(appBar: AppBar(),);
+          // ),
+          child: Stack(
+            children: <Widget>[
+              BodyCoro(
+                alignment: prefs.getString('alignment'),
+                estrofas: estrofas,
+                initfontSize: initfontSize,
+                acordes: acordes,
+                animation: fontController.value,
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 200),
+                  curve: Curves.fastOutSlowIn,
+                  height: transposeMode ? 60 : 0.0,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                        blurRadius: 20.0,
+                        offset: Offset(0.0, 18.0)
+                      )
+                    ],
+                    color: Theme.of(context).scaffoldBackgroundColor
+                  ),
+                  child: ButtonBar(
+                    alignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      CupertinoButton(
+                        padding: EdgeInsets.only(bottom: 4.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.arrow_drop_down),
+                            Text('Bajar Tono')
+                          ],
+                        ),
+                        onPressed: () => applyTranspose(-1),
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.only(bottom: 4.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.arrow_drop_up),
+                            Text('Subir Tono')
+                          ],
+                        ),
+                        onPressed: () => applyTranspose(1),
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.only(bottom: 4.0),
+                        child: Text('Ok'),
+                        onPressed: () => setState(() => transposeMode = !transposeMode),
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+        // Positioned(
+        //   right: 0.0,
+        //   top: 68.0,
+        //   child: Container(
+        //     color: Theme.of(context).scaffoldBackgroundColor,
+        //     child: Column(
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: <Widget>[
+        //         CupertinoButton(
+        //           onPressed: () {
+        //             setState(() => acordes = !acordes);
+        //             if (fontController.value == 1.0) {
+        //               fontController.animateTo(
+        //                 0.0,
+        //                 curve: Curves.fastOutSlowIn
+        //               );
+        //               if (transposeMode)
+        //                 setState(() => transposeMode = !transposeMode);
+        //             }
+        //             else fontController.animateTo(
+        //               1.0,
+        //               curve: Curves.linearToEaseOut
+        //             );
+        //           },
+        //           child: Row(
+        //             children: [
+        //               Icon(Icons.music_note),
+        //               Text((fontController.value == 1 ? 'Ocultar' : 'Mostrar') + ' Acordes'),
+        //             ]
+        //           ),
+        //         ),
+        //         CupertinoButton(
+        //           onPressed: () {
+        //             if (!transposeMode) 
+        //               if (fontController.value == 0.1)
+        //               fontController.animateTo(
+        //                 1.0,
+        //                 curve: Curves.linearToEaseOut
+        //               );
+        //             setState(() => transposeMode = !transposeMode);
+        //           },
+        //           child: Row(
+        //             children: [
+        //               Icon(Icons.music_note),
+        //               Text((fontController.value == 1 ? 'Ocultar' : 'Mostrar') + ' Acordes'),
+        //             ]
+        //           ),
+        //         ),
+        //         CupertinoButton(
+        //           onPressed: () {},
+        //           child: Row(
+        //             children: [
+        //               Icon(Icons.music_note),
+        //               Text((fontController.value == 1 ? 'Ocultar' : 'Mostrar') + ' Acordes'),
+        //             ]
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // )
+      ]
+    ); else return CupertinoPageScaffold(navigationBar: CupertinoNavigationBar(), child: Container(),);
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     actions: <Widget>[
+    //       IconButton(
+    //         onPressed: toggleFavorito,
+    //         icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
+    //       ),
+    //       PopupMenuButton(
+    //         onSelected: (int e) {
+    //           switch (e) {
+    //             case 0:
+    //               setState(() => acordes = !acordes);
+    //               if (fontController.value == 1.0) {
+    //                 fontController.animateTo(
+    //                   0.0,
+    //                   curve: Curves.fastOutSlowIn
+    //                 );
+    //                 if (transposeMode)
+    //                   setState(() => transposeMode = !transposeMode);
+    //               }
+    //               else fontController.animateTo(
+    //                 1.0,
+    //                 curve: Curves.linearToEaseOut
+    //               );
+    //               break;
+    //             case 1:
+    //               if (!transposeMode) 
+    //                 if (fontController.value == 0.1)
+    //                 fontController.animateTo(
+    //                   1.0,
+    //                   curve: Curves.linearToEaseOut
+    //                 );
+    //               setState(() => transposeMode = !transposeMode);
+    //               break;
+    //             case 2:
+    //               applyTranspose(-transpose);
+    //               break;
+    //             default:
+    //           }
+
+    //         },
+    //         itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+    //           PopupMenuItem(
+    //             value: 0,
+    //             enabled: acordesDisponible,
+    //             child: ListTile(
+    //               leading: Icon(Icons.music_note),
+    //               title: Text((fontController.value == 1 ? 'Ocultar' : 'Mostrar') + ' Acordes'),
+    //             )
+    //           ),
+    //           PopupMenuItem(
+    //             value: 1,
+    //             enabled: acordesDisponible,
+    //             child: ListTile(
+    //               leading: Icon(Icons.unfold_more),
+    //               title: Text('Transponer'),
+    //             )
+    //           ),
+    //           PopupMenuItem(
+    //             value: 2,
+    //             enabled: acordesDisponible,
+    //             child: ListTile(
+    //               leading: Icon(Icons.undo),
+    //               title: Text('Tono Original'),
+    //             )
+    //           ),
+    //         ],
+    //       )
+    //     ],
+    //     title: Tooltip(
+    //       message: widget.titulo,
+    //       child: Container(
+    //         width: double.infinity,
+    //         child: Text(widget.titulo),
+    //       ),
+    //     )
+    //   ),
+    //   body: Stack(
+    //     children: <Widget>[
+    //       BodyCoro(
+    //         alignment: prefs.getString('alignment'),
+    //         estrofas: estrofas,
+    //         initfontSize: initfontSize,
+    //         acordes: acordes,
+    //         animation: fontController.value,
+    //       ),
+    //       Align(
+    //         alignment: Alignment.bottomCenter,
+    //         child: AnimatedContainer(
+    //           duration: Duration(milliseconds: 200),
+    //           curve: Curves.fastOutSlowIn,
+    //           height: transposeMode ? 60 : 0.0,
+    //           width: double.infinity,
+    //           decoration: BoxDecoration(
+    //             boxShadow: <BoxShadow>[
+    //               BoxShadow(
+    //                 blurRadius: 20.0,
+    //                 offset: Offset(0.0, 18.0)
+    //               )
+    //             ],
+    //             color: Theme.of(context).scaffoldBackgroundColor
+    //           ),
+    //           child: ButtonBar(
+    //             alignment: MainAxisAlignment.spaceEvenly,
+    //             children: <Widget>[
+    //               FlatButton.icon(
+    //                 icon: Icon(Icons.arrow_drop_down),
+    //                 label: Text('Bajar Tono'),
+    //                 onPressed: () => applyTranspose(-1),
+    //               ),
+    //               FlatButton.icon(
+    //                 icon: Icon(Icons.arrow_drop_up),
+    //                 label: Text('Subir Tono'),
+    //                 onPressed: () => applyTranspose(1),
+    //               ),
+    //               OutlineButton(
+    //                 child: Text('Ok'),
+    //                 onPressed: () => setState(() => transposeMode = !transposeMode),
+    //               )
+    //             ],
+    //           ),
+    //         ),
+    //       )
+    //     ],
+    //   ),
+    // ); else return Scaffold(appBar: AppBar(),);
   }
 }

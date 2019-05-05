@@ -233,16 +233,17 @@ class _HimnosPageState extends State<HimnosPage> {
           //   builder: (BuildContext context) => 
             CupertinoPageScaffold(
               navigationBar: CupertinoNavigationBar(
+                transitionBetweenRoutes: false,
                 leading: CupertinoButton(
                   onPressed: () {},
                   padding: EdgeInsets.only(bottom: 4.0),
-                  child: Icon(Icons.menu, size: 30.0,),
+                  child: Icon(CupertinoIcons.settings, size: 30.0,),
                 ),
                 trailing: CupertinoButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      CupertinoPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros))
+                      CupertinoPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: BuscadorType.Coros))
                     );
                   },
                   padding: EdgeInsets.only(bottom: 4.0),
@@ -263,7 +264,7 @@ class _HimnosPageState extends State<HimnosPage> {
                         Card(
                           elevation: 4.0,
                           margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(0.0))),
                           child: ListTile(
                             onTap: () {
                               Navigator.push(
@@ -279,7 +280,7 @@ class _HimnosPageState extends State<HimnosPage> {
                         categorias[index-1].subCategorias.isEmpty ? Card(
                           elevation: 4.0,
                           margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(0.0))),
                           child: ListTile(
                             onTap: () {
                               Navigator.push(
@@ -294,7 +295,7 @@ class _HimnosPageState extends State<HimnosPage> {
                         Card(
                           elevation: 4.0,
                           margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(0.0))),
                           child: Column(
                             children: <Widget>[
                               ListTile(
@@ -338,44 +339,56 @@ class _HimnosPageState extends State<HimnosPage> {
                       }
                     ) : Container(),
                   ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                  Positioned(
+                    right: 0.0,
+                    bottom: 50.0,
+                    child: CupertinoButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context, 
+                          CupertinoPageRoute(
+                            builder: (BuildContext context) => QuickBuscador()
+                          )
+                        );
+                      },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                          color: Theme.of(context).primaryColor,
                         ),
-                        margin: EdgeInsets.only(bottom: 500.0),
-                        width: double.infinity,
-                        height: 50.0,
+                        width: 60.0,
+                        height: 60.0,
+                        child: Icon(
+                          Icons.dialpad,
+                          color: Colors.white,
+                        ),
                       ),
-                    )
-                  ),
+                    ),
+                  )
                 ],
               )
             // ),
           );
         }
-        else return CupertinoTabView(
-          builder: (BuildContext context) => CupertinoPageScaffold(
-             navigationBar: CupertinoNavigationBar(
+        else return CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+              transitionBetweenRoutes: false,
               leading: CupertinoButton(
                 onPressed: () {},
-                padding: EdgeInsets.only(bottom: 5.0),
-                child: Icon(Icons.menu),
+                padding: EdgeInsets.only(bottom: 4.0),
+                child: Icon(CupertinoIcons.settings, size: 30.0,),
               ),
               trailing: CupertinoButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    CupertinoPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros))
+                    CupertinoPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: BuscadorType.Coros))
                   );
                 },
-                padding: EdgeInsets.only(bottom: 5.0),
-                child: Icon(CupertinoIcons.search),
+                padding: EdgeInsets.only(bottom: 4.0),
+                child: Icon(CupertinoIcons.search, size: 30.0),
               ),
-              middle: Text('Himnos del Evangelio'),
+              middle: Text('Coros'),
             ),
             child: CorosScroller(
               cargando: cargando,
@@ -383,8 +396,7 @@ class _HimnosPageState extends State<HimnosPage> {
               initDB: fetchCategorias,
               mensaje: '',
             ),
-          ),
-        );
+          );
       },
       tabBar: CupertinoTabBar(
         items: <BottomNavigationBarItem>[
