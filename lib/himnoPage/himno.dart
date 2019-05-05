@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
@@ -503,7 +504,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                   vocesSeek(0.0);
                 else vocesSeek(currentProgress - 0.1);
               },
-              icon: Icon(Icons.fast_rewind),
+              icon: Icon(
+                Icons.fast_rewind,
+                color: CupertinoTheme.of(context).textTheme.textStyle.color,
+              ),
             ),
             onPressed: () {},
           ),
@@ -511,7 +515,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             shape: CircleBorder(),
             child: IconButton(
               onPressed: pauseVoces,
-              icon: Icon(Icons.pause),
+              icon: Icon(
+                Icons.pause,
+                color: CupertinoTheme.of(context).textTheme.textStyle.color,
+              ),
             ),
             onPressed: () {},
           ) : 
@@ -521,7 +528,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               onPressed: !cargando ? () {
                 resumeVoces();
               } : null,
-              icon: Icon(Icons.play_arrow),
+              icon: Icon(
+                Icons.play_arrow,
+                color: CupertinoTheme.of(context).textTheme.textStyle.color,
+              ),
             ),
             onPressed: () {},
           ),
@@ -534,7 +544,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                   vocesSeek(1.0);
                 else vocesSeek(currentProgress + 0.1);
               },
-              icon: Icon(Icons.fast_forward)
+              icon: Icon(
+                Icons.fast_forward,
+                color: CupertinoTheme.of(context).textTheme.textStyle.color,
+              )
             ),
             onPressed: () {},
           ),
@@ -546,55 +559,104 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       controlesLayout.add(widget);
 
     if(prefs != null)
-    return Scaffold(
-      appBar: AppBar(
-        actions: <Widget>[
-          vozDisponible ? IconButton(
-            onPressed: toggleDescargado,
-            icon: descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
-          ) : Container(),
-          IconButton(
-            onPressed: toggleFavorito,
-            icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text('${widget.numero} - ${widget.titulo}'),
+        trailing: Transform.translate(
+          offset: Offset(20.0, 0.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              CupertinoButton(
+                onPressed: toggleFavorito,
+                padding: EdgeInsets.only(bottom: 2.0),
+                child: favorito ? Icon(Icons.star, size: 30.0,) : Icon(Icons.star_border, size: 30.0,),
+              ),
+              vozDisponible ? CupertinoButton(
+                onPressed: () {
+                  showCupertinoModalPopup(
+                    context: context,
+                    builder: (BuildContext context) => CupertinoActionSheet(
+                      cancelButton: CupertinoActionSheetAction(
+                        isDestructiveAction: true,
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text('Cancelar'),
+                      ),
+                      actions: <Widget>[
+                        CupertinoActionSheetAction(
+                          isDestructiveAction: descargado,
+                          onPressed: () {
+                            toggleDescargado();
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(descargado ? 'Eliminar' : 'Descargar'),
+                        ),
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            swithModes();
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(modoVoces ? 'Ocultar Voces' : 'Escuchar Voces'),
+                        ),
+                      ],
+                    )
+                  );
+                },
+                padding: EdgeInsets.only(bottom: 2.0),
+                child: Icon(Icons.more_vert, size: 30.0,),
+              ) : Container(),
+            ],
           ),
-          // PopupMenuButton(
-          //   onSelected: (dynamic value) {
-          //     switch (value) {
-          //       case 0:
-          //         toggleDescargado();
-          //         break;
-          //       default:
-          //     }
-          //   },            
-          //   icon: Icon(Icons.more_vert),
-          //   itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-          //     PopupMenuItem(
-          //       value: 0,
-          //       enabled: vozDisponible,
-          //       child: Row(
-          //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //         children: <Widget>[
-          //           descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
-          //           Text(descargado ? 'Eliminar' : 'Descargar')
-          //         ],
-          //       ),
-          //     )
-          //   ],
-          // )
-        ],
-        title: Tooltip(
-          message: '${widget.numero} - ${widget.titulo}',
-          child: Container(
-            width: double.infinity,
-            child: Text('${widget.numero} - ${widget.titulo}'),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: Container()
-        ),
+        )
       ),
-      body: Stack(
+      // appBar: AppBar(
+      //   actions: <Widget>[
+      //     vozDisponible ? IconButton(
+      //       onPressed: toggleDescargado,
+      //       icon: descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
+      //     ) : Container(),
+      //     IconButton(
+      //       onPressed: toggleFavorito,
+      //       icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
+      //     ),
+      //     // PopupMenuButton(
+      //     //   onSelected: (dynamic value) {
+      //     //     switch (value) {
+      //     //       case 0:
+      //     //         toggleDescargado();
+      //     //         break;
+      //     //       default:
+      //     //     }
+      //     //   },            
+      //     //   icon: Icon(Icons.more_vert),
+      //     //   itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+      //     //     PopupMenuItem(
+      //     //       value: 0,
+      //     //       enabled: vozDisponible,
+      //     //       child: Row(
+      //     //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //     //         children: <Widget>[
+      //     //           descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
+      //     //           Text(descargado ? 'Eliminar' : 'Descargar')
+      //     //         ],
+      //     //       ),
+      //     //     )
+      //     //   ],
+      //     // )
+      //   ],
+      //   title: Tooltip(
+      //     message: '${widget.numero} - ${widget.titulo}',
+      //     child: Container(
+      //       width: double.infinity,
+      //       child: Text('${widget.numero} - ${widget.titulo}'),
+      //     ),
+      //   ),
+      //   bottom: PreferredSize(
+      //     preferredSize: Size.fromHeight(4.0),
+      //     child: Container()
+      //   ),
+      // ),
+      child: Stack(
         children: <Widget>[
           BodyHimno(
             alignment: prefs.getString('alignment'),
@@ -607,6 +669,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               translation: Offset(0.0, 1.0 - switchModeController.value),
               child: Card(
                 margin: EdgeInsets.all(0.0),
+                color: CupertinoTheme.of(context).scaffoldBackgroundColor,
                 elevation: 10.0,
                 child: !cargando ? Padding(
                   padding: EdgeInsets.symmetric(vertical: 5.0),
@@ -620,7 +683,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                   child: Center(
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20.0),
-                      child: LinearProgressIndicator(value: 0.25*doneCount,),
+                      child: CupertinoActivityIndicator(
+                        animating: true,
+                        radius: 20.0,
+                      ),
                     ),
                   ),
                 )
@@ -629,26 +695,271 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           )
         ],
       ),
-      floatingActionButton: vozDisponible ? Padding(
-        padding: EdgeInsets.only(bottom: smallDevice ? switchModeController.value * 175 : switchModeController.value * 130),
-        child: FloatingActionButton(
-          key: UniqueKey(),
-          backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
-          onPressed: swithModes,
-          child: Stack(
-            children: <Widget>[
-              Transform.scale(
-                scale: 1.0 - switchModeController.value,
-                child: Icon(Icons.play_arrow, size: 40.0),
-              ),
-              Transform.scale(
-                scale: 0.0 + switchModeController.value,
-                child: Icon(Icons.redo, size: 40.0),
-              ),
-            ],
-          )
-        )
-      ) : null
-    ); else return Scaffold(appBar: AppBar(),);
+      // floatingActionButton: vozDisponible ? Padding(
+      //   padding: EdgeInsets.only(bottom: smallDevice ? switchModeController.value * 175 : switchModeController.value * 130),
+      //   child: FloatingActionButton(
+      //     key: UniqueKey(),
+      //     backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
+      //     onPressed: swithModes,
+      //     child: Stack(
+      //       children: <Widget>[
+      //         Transform.scale(
+      //           scale: 1.0 - switchModeController.value,
+      //           child: Icon(Icons.play_arrow, size: 40.0),
+      //         ),
+      //         Transform.scale(
+      //           scale: 0.0 + switchModeController.value,
+      //           child: Icon(Icons.redo, size: 40.0),
+      //         ),
+      //       ],
+      //     )
+      //   )
+      // ) : null
+    ); else return CupertinoPageScaffold(child: Container(),);
+
+    // bool smallDevice = MediaQuery.of(context).size.width < 400;
+
+    // List<Widget> controlesLayout = !smallDevice ? [
+    //   Row(
+    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    //     children: <Widget>[
+    //       BotonVoz(
+    //         voz: 'Soprano',
+    //         activo: currentVoice == 0 || currentVoice == 4,
+    //         onPressed: () => toggleVoice(0),
+    //       ),
+    //       BotonVoz(
+    //         voz: 'Tenor',
+    //         activo: currentVoice == 1 || currentVoice == 4,
+    //         onPressed: () => toggleVoice(1),
+    //       ),
+    //       BotonVoz(
+    //         voz: 'Contra Alto',
+    //         activo: currentVoice == 2 || currentVoice == 4,
+    //         onPressed: () => toggleVoice(2),
+    //       ),
+    //       BotonVoz(
+    //         voz: 'Bajo',
+    //         activo: currentVoice == 3 || currentVoice == 4,
+    //         onPressed: () => toggleVoice(3),
+    //       ),
+    //     ],
+    //   )
+    // ] : [
+    //   Row(
+    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    //     children: <Widget>[
+    //       BotonVoz(
+    //         voz: '   Soprano  ',
+    //         activo: currentVoice == 0 || currentVoice == 4,
+    //         onPressed: () => toggleVoice(0),
+    //       ),
+    //       BotonVoz(
+    //         voz: '    Tenor    ',
+    //         activo: currentVoice == 1 || currentVoice == 4,
+    //         onPressed: () => toggleVoice(1),
+    //       ),
+    //     ],
+    //   ),
+    //   Row(
+    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    //     children: <Widget>[
+    //       BotonVoz(
+    //         voz: 'Contra Alto',
+    //         activo: currentVoice == 2 || currentVoice == 4,
+    //         onPressed: () => toggleVoice(2),
+    //       ),
+    //       BotonVoz(
+    //         voz: '     Bajo     ',
+    //         activo: currentVoice == 3 || currentVoice == 4,
+    //         onPressed: () => toggleVoice(3),
+    //       ),
+    //     ],
+    //   ),
+    // ];
+
+    // List<Widget> buttonLayout = [
+    //   VoicesProgressBar(
+    //     currentProgress: currentProgress,
+    //     duration: totalDuration,
+    //     onDragStart: cancelSubscription,
+    //     smalldevice: smallDevice,
+    //     onSelected: (double progress) {
+    //       positionSubscription = audioVoces[currentVoice].onAudioPositionChanged.listen((Duration duration) {
+    //         setState(() {
+    //           currentProgress = duration.inMilliseconds / totalDuration;
+    //           currentDuration = duration;
+    //         });
+    //       });
+    //       completeSubscription = audioVoces[currentVoice].onPlayerCompletion.listen((_) {
+    //         setState(() {
+    //           start = false;
+    //           currentProgress = 0.0;
+    //         });
+    //       });
+    //       print(progress);
+    //       setState(() => currentProgress = progress);
+    //       vocesSeek(progress);
+    //     },
+    //   ),
+    //   Row(
+    //     mainAxisAlignment: MainAxisAlignment.center,
+    //     children: <Widget>[
+    //       RawMaterialButton(
+    //         shape: CircleBorder(),
+    //         child: IconButton(
+    //           onPressed: () {
+    //             double newProgress = currentProgress - 0.1;
+    //             if(newProgress <= 0.0)
+    //               vocesSeek(0.0);
+    //             else vocesSeek(currentProgress - 0.1);
+    //           },
+    //           icon: Icon(Icons.fast_rewind),
+    //         ),
+    //         onPressed: () {},
+    //       ),
+    //       start ? RawMaterialButton(
+    //         shape: CircleBorder(),
+    //         child: IconButton(
+    //           onPressed: pauseVoces,
+    //           icon: Icon(Icons.pause),
+    //         ),
+    //         onPressed: () {},
+    //       ) : 
+    //       RawMaterialButton(
+    //         shape: CircleBorder(),
+    //         child: IconButton(
+    //           onPressed: !cargando ? () {
+    //             resumeVoces();
+    //           } : null,
+    //           icon: Icon(Icons.play_arrow),
+    //         ),
+    //         onPressed: () {},
+    //       ),
+    //       RawMaterialButton(
+    //         shape: CircleBorder(),
+    //         child: IconButton(
+    //           onPressed: () {
+    //             double newProgress = currentProgress + 0.1;
+    //             if(newProgress >= 1.0)
+    //               vocesSeek(1.0);
+    //             else vocesSeek(currentProgress + 0.1);
+    //           },
+    //           icon: Icon(Icons.fast_forward)
+    //         ),
+    //         onPressed: () {},
+    //       ),
+    //     ]
+    //   )
+    // ];
+
+    // for (Widget widget in buttonLayout)
+    //   controlesLayout.add(widget);
+
+    // if(prefs != null)
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     actions: <Widget>[
+    //       vozDisponible ? IconButton(
+    //         onPressed: toggleDescargado,
+    //         icon: descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
+    //       ) : Container(),
+    //       IconButton(
+    //         onPressed: toggleFavorito,
+    //         icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
+    //       ),
+    //       // PopupMenuButton(
+    //       //   onSelected: (dynamic value) {
+    //       //     switch (value) {
+    //       //       case 0:
+    //       //         toggleDescargado();
+    //       //         break;
+    //       //       default:
+    //       //     }
+    //       //   },            
+    //       //   icon: Icon(Icons.more_vert),
+    //       //   itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+    //       //     PopupMenuItem(
+    //       //       value: 0,
+    //       //       enabled: vozDisponible,
+    //       //       child: Row(
+    //       //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+    //       //         children: <Widget>[
+    //       //           descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
+    //       //           Text(descargado ? 'Eliminar' : 'Descargar')
+    //       //         ],
+    //       //       ),
+    //       //     )
+    //       //   ],
+    //       // )
+    //     ],
+    //     title: Tooltip(
+    //       message: '${widget.numero} - ${widget.titulo}',
+    //       child: Container(
+    //         width: double.infinity,
+    //         child: Text('${widget.numero} - ${widget.titulo}'),
+    //       ),
+    //     ),
+    //     bottom: PreferredSize(
+    //       preferredSize: Size.fromHeight(4.0),
+    //       child: Container()
+    //     ),
+    //   ),
+    //   body: Stack(
+    //     children: <Widget>[
+    //       BodyHimno(
+    //         alignment: prefs.getString('alignment'),
+    //         estrofas: estrofas,
+    //         initfontSize: initfontSize,
+    //       ),
+    //       Align(
+    //         alignment: FractionalOffset.bottomCenter,
+    //         child: FractionalTranslation(
+    //           translation: Offset(0.0, 1.0 - switchModeController.value),
+    //           child: Card(
+    //             margin: EdgeInsets.all(0.0),
+    //             elevation: 10.0,
+    //             child: !cargando ? Padding(
+    //               padding: EdgeInsets.symmetric(vertical: 5.0),
+    //               child: Column(
+    //                 mainAxisAlignment: MainAxisAlignment.start,
+    //                 mainAxisSize: MainAxisSize.min,
+    //                 children: controlesLayout
+    //               )
+    //             ) : Container(
+    //               height: smallDevice ? 185.0 : 140.0,
+    //               child: Center(
+    //                 child: Padding(
+    //                   padding: EdgeInsets.symmetric(horizontal: 20.0),
+    //                   child: LinearProgressIndicator(value: 0.25*doneCount,),
+    //                 ),
+    //               ),
+    //             )
+    //           ),
+    //         )
+    //       )
+    //     ],
+    //   ),
+    //   floatingActionButton: vozDisponible ? Padding(
+    //     padding: EdgeInsets.only(bottom: smallDevice ? switchModeController.value * 175 : switchModeController.value * 130),
+    //     child: FloatingActionButton(
+    //       key: UniqueKey(),
+    //       backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
+    //       onPressed: swithModes,
+    //       child: Stack(
+    //         children: <Widget>[
+    //           Transform.scale(
+    //             scale: 1.0 - switchModeController.value,
+    //             child: Icon(Icons.play_arrow, size: 40.0),
+    //           ),
+    //           Transform.scale(
+    //             scale: 0.0 + switchModeController.value,
+    //             child: Icon(Icons.redo, size: 40.0),
+    //           ),
+    //         ],
+    //       )
+    //     )
+    //   ) : null
+    // ); else return Scaffold(appBar: AppBar(),);
   }
 }

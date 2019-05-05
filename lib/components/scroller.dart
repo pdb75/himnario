@@ -75,15 +75,32 @@ class _ScrollerState extends State<Scroller> {
                     widget.initDB(false);
                     // scrollPosition = 105.0 - 90.0;
                   },
-                  child: Text(
-                    ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
-                    softWrap: true,
-                    textAlign: TextAlign.start,
-                    style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                      color: (scrollPosition - 72.0)~/((MediaQuery.of(context).size.height - 85.0 - 72.0 + 0.5)/widget.himnos.length) == index && dragging ? 
-                      Colors.white : 
-                      CupertinoTheme.of(context).textTheme.textStyle.color
-                    ),
+                  child: Stack(
+                    children: <Widget>[
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
+                          softWrap: true,
+                          textAlign: TextAlign.start,
+                          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                            color: (scrollPosition - 72.0)~/((MediaQuery.of(context).size.height - 85.0 - 72.0 + 0.5)/widget.himnos.length) == index && dragging ? 
+                            Colors.white : 
+                            CupertinoTheme.of(context).textTheme.textStyle.color
+                          ),
+                        )
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            widget.himnos[index].favorito ? Icon(Icons.star, color: CupertinoTheme.of(context).textTheme.textStyle.color,) : Container(),
+                            widget.himnos[index].descargado ? Icon(Icons.get_app, color: CupertinoTheme.of(context).textTheme.textStyle.color,) : Container()
+                          ],
+                        ),
+                      )
+                    ],
                   ),
                 ),
                 // child: ListTile(

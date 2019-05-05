@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class VoicesProgressBar extends StatefulWidget {
   final double currentProgress;
@@ -109,14 +110,14 @@ class CustomSlider extends CustomPainter {
       text: TextSpan(
         text: '${(duration*progress/1000).floor()}s',
         style: TextStyle(
-          color: Theme.of(context).primaryColor,
+          color: CupertinoTheme.of(context).primaryColor,
           fontSize: 40.0,
           fontWeight: FontWeight.bold
         )
       )
     );
     primaryColorPaint = Paint()
-      ..color = Theme.of(context).primaryColor
+      ..color = CupertinoTheme.of(context).primaryColor
       ..strokeWidth = 10.0;
     geryColorPaint = Paint()
       ..color = Colors.grey
@@ -130,14 +131,11 @@ class CustomSlider extends CustomPainter {
     canvas.drawLine(Offset(0.0, position), Offset(currentProgress, position), primaryColorPaint);
     canvas.drawLine(Offset(currentProgress, position), Offset(size.width, position), geryColorPaint);
     if (dragging) {
-      if (smalldevice)
-        currentProgress = progress >= 0.76 ? size.width*0.76 : currentProgress;
-      else
-        currentProgress = progress >= 0.6 ? size.width*0.6 : currentProgress;
+      currentProgress = progress >= 0.76 ? size.width*0.76 : currentProgress;
       double height = 50.0;
       double radius = 70.0;
       canvas.drawLine(Offset(currentProgress, position+5.0), Offset(currentProgress, -height), Paint()
-      ..color = Theme.of(context).primaryColor
+      ..color = CupertinoTheme.of(context).primaryColor
       ..strokeWidth = 6.0);
       canvas.skew(-0.2, 0.0);
       canvas.drawOval(
@@ -151,7 +149,7 @@ class CustomSlider extends CustomPainter {
           Offset(currentProgress-radius*0.1, -(height-radius*0.35)), 
           Offset(currentProgress+radius*1.1, -(height+radius*0.65))
         ),
-        Paint()..color = Theme.of(context).indicatorColor);
+        Paint()..color = Colors.white);
       canvas.skew(0.2, 0.0);
       text.layout(maxWidth: 100.0, minWidth: 100.0);
       text.paint(canvas, Offset(currentProgress+radius*-0.05, -(height+radius*0.47)));

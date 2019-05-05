@@ -369,7 +369,7 @@ class _HimnosPageState extends State<HimnosPage> {
                           color: CupertinoTheme.of(context).primaryColor
                         ),
                         width: 100.0,
-                        height: 52.0,
+                        height: 54.0,
                         child: Padding(
                           padding: EdgeInsets.only(right: 50.0),
                           child: CupertinoButton(
