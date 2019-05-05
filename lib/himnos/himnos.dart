@@ -148,6 +148,8 @@ class _HimnosPageState extends State<HimnosPage> {
     List<int> favoritos = List<int>();
     // Descargados
     List<List<int>> descargados = List<List<int>>();
+    // transpose
+    List<Himno> transposedHImnos = List<Himno>();
     if (!fistRun) {
       print('abriendo base de datos');
       try {
@@ -167,6 +169,10 @@ class _HimnosPageState extends State<HimnosPage> {
             descargados.add([descargado['himno_id'], descargado['duracion']]);
           }
         } catch(e) {print(e);}
+        try {
+          if (version > 3.9)
+            transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
+        } catch (e) {print(e);}
         await db.close();
       } catch(e) {print(e);}
     }
@@ -182,6 +188,8 @@ class _HimnosPageState extends State<HimnosPage> {
         await db.rawInsert('insert into favoritos values ($favorito)');
       for (List<int> descargado in descargados)
         await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
+      for (Himno himno in transposedHImnos)
+        await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
     } else {
       await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
       await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
