@@ -72,31 +72,17 @@ class _ScrollerState extends State<Scroller> {
                     // scrollPosition = 105.0 - 90.0;
                   },
                   leading: widget.himnos[index].favorito ? Icon(Icons.star, color: Theme.of(context).accentColor,) : null,
-                  title: Row(
-                    children: <Widget>[
-                      Container(
-                        width: widget.himnos[index].favorito ?  MediaQuery.of(context).size.width - 90 : MediaQuery.of(context).size.width - 50,
-                        child: Text(
-                          ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
-                          softWrap: true,
-                          style: Theme.of(context).textTheme.subhead.copyWith(
-                            color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/widget.himnos.length) == index && dragging ? Colors.white : Theme.of(context).textTheme.subhead.color
-                          ),
-                        ),
+                  title: Container(
+                    width: widget.himnos[index].favorito ?  MediaQuery.of(context).size.width - 90 : MediaQuery.of(context).size.width - 50,
+                    child: Text(
+                      ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
+                      softWrap: true,
+                      style: Theme.of(context).textTheme.subhead.copyWith(
+                        color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/widget.himnos.length) == index && dragging ? Colors.white : Theme.of(context).textTheme.subhead.color
                       ),
-                      widget.himnos[index].descargado ? Container(
-                        width: 20.0,
-                        height: 20.0,
-                        transform: Matrix4.translationValues(-20.0, 0, 0),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).accentColor,
-                        ),
-                        margin: EdgeInsets.only(bottom: 20.0),
-                        child: Icon(Icons.get_app,size: 15.0, color: Theme.of(context).indicatorColor,)
-                      ) : Icon(Icons.get_app, size: 0.0,),
-                    ],
+                    ),
                   ),
+                  trailing: widget.himnos[index].descargado ? Icon(Icons.get_app, color: Theme.of(context).accentColor,) : null,
                 ),
               )
             ),
