@@ -265,16 +265,16 @@ class _HimnosPageState extends State<HimnosPage> {
             },
             child: Text('Voces Disponibles')
           ),
-          CupertinoActionSheetAction(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              Navigator.push(
-                context,
-                CupertinoPageRoute(builder: (BuildContext context) => AjustesPage())
-              );
-            },
-            child: Text('Ajustes')
-          ),
+          // CupertinoActionSheetAction(
+          //   onPressed: () async {
+          //     Navigator.of(context).pop();
+          //     Navigator.push(
+          //       context,
+          //       CupertinoPageRoute(builder: (BuildContext context) => AjustesPage())
+          //     );
+          //   },
+          //   child: Text('Ajustes')
+          // ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(context).pop();

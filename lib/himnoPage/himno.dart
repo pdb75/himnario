@@ -596,7 +596,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                             swithModes();
                             Navigator.of(context).pop();
                           },
-                          child: Text(modoVoces ? 'Ocultar Voces' : 'Escuchar Voces'),
+                          child: Text(modoVoces ? 'Ocultar Voces' : 'Mostrar Voces'),
                         ),
                       ],
                     )

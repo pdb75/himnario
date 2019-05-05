@@ -150,21 +150,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicTheme(
-      data: (Brightness brightness) => tema,
-      themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
-      CupertinoApp(
+    return CupertinoApp(
         debugShowCheckedModeBanner: false,
         theme: CupertinoThemeData(
-          // accentColor: Colors.deepPurpleAccent,
-          // indicatorColor: Colors.white,
-          // primaryColorDark: Colors.deepPurple,
-          primaryColor: Colors.deepPurple,
-          // brightness: Brightness.dark
-        ),
-        title: 'Himnos y Cánticos del Evangelio',
-        home: HimnosPage(),
-      )
+        primaryColor: Colors.black,
+        // brightness: Brightness.dark
+      ),
+      title: 'Himnos y Cánticos del Evangelio',
+      home: HimnosPage(),
     );
   }
 }

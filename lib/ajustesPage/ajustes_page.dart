@@ -1,3 +1,4 @@
+import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +14,7 @@ class AjustesPage extends StatefulWidget {
 
 class _AjustesPageState extends State<AjustesPage> {
   List<String> temasNombre;
-  List<ThemeData> temasTema;
+  List<CupertinoThemeData> temasTema;
   SharedPreferences prefs;
 
   @override
@@ -26,103 +27,54 @@ class _AjustesPageState extends State<AjustesPage> {
     prefs = await SharedPreferences.getInstance();
     temasNombre = ['Morado', 'Morado Dark', 'Azul', 'Azul Dark', 'Naranjo', 'Naranjo Dark', 'Verde', 'Verde Dark', 'Rosa', 'Rosa Dark', 'Rojo', 'Rojo Dark', 'Cafe', 'Cafe Dark'];
     temasTema = [
-      ThemeData(
-        primarySwatch: Colors.deepPurple,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
+      CupertinoThemeData(
+        primaryColor: Colors.deepPurple,
       ),
-      ThemeData(
-        accentColor: Colors.deepPurpleAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.deepPurple,
+      CupertinoThemeData(
         primaryColor: Colors.deepPurple,
         brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
       ),
-      ThemeData(
-        primarySwatch: Colors.blue,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
+      CupertinoThemeData(
+        primaryColor: Colors.blue,
       ),
-      ThemeData(
-        accentColor: Colors.blueAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.blue,
+      CupertinoThemeData(
         primaryColor: Colors.blue,
         brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
       ),
-      ThemeData(
-        primarySwatch: Colors.orange,
-        indicatorColor: Colors.black,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
+      CupertinoThemeData(
+        primaryColor: Colors.orange,
       ),
-      ThemeData(
-        accentColor: Colors.orangeAccent,
-        indicatorColor: Colors.black,
-        primaryColorDark: Colors.orange,
+      CupertinoThemeData(
         primaryColor: Colors.orange,
         brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
       ),
-      ThemeData(
-        primarySwatch: Colors.green,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
+      CupertinoThemeData(
+        primaryColor: Colors.green,
       ),
-      ThemeData(
-        accentColor: Colors.greenAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.green,
+      CupertinoThemeData(
         primaryColor: Colors.green,
         brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
       ),
-      ThemeData(
-        primarySwatch: Colors.pink,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
+      CupertinoThemeData(
+        primaryColor: Colors.pink,
       ),
-      ThemeData(
-        accentColor: Colors.pinkAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.pink,
+      CupertinoThemeData(
         primaryColor: Colors.pink,
         brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
       ),
-      ThemeData(
-        primarySwatch: Colors.red,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
+      CupertinoThemeData(
+        primaryColor: Colors.red,
       ),
-      ThemeData(
-        accentColor: Colors.redAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.red,
+      CupertinoThemeData(
         primaryColor: Colors.red,
         brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
       ),
-      ThemeData(
-        primarySwatch: Colors.brown,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
+      CupertinoThemeData(
+        primaryColor: Colors.brown,
       ),
-      ThemeData(
-        accentColor: Colors.brown,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.brown,
+      CupertinoThemeData(
         primaryColor: Colors.brown,
         brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
       )
     ];
     setState(() {});
@@ -148,12 +100,24 @@ class _AjustesPageState extends State<AjustesPage> {
               print(CupertinoTheme.of(context).textTheme.textStyle.fontFamily);
               showCupertinoModalPopup(
                 context: context,
-                builder: (BuildContext context) => CupertinoPicker.builder(
-                  backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-                  itemExtent: 20.0,
-                  onSelectedItemChanged: (int i) => print(i),
-                  childCount: temasTema.length,
-                  itemBuilder: (BuildContext context, int i) => Text(temasNombre[i]),
+                builder: (BuildContext context) => Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    height: 150.0,
+                    child: CupertinoPicker.builder(
+                      useMagnifier: true,
+                      magnification: 1.5,
+                      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+                      itemExtent: 30.0,
+                      onSelectedItemChanged: (int i) {
+                        prefs.setString('tema', temasTema[i].primaryColor.toString());
+                        prefs.setString('brightness', temasTema[i].brightness.toString());
+                        // DynamicTheme.of(context).setThemeData(temasTema[i]);
+                      },
+                      childCount: temasTema.length,
+                      itemBuilder: (BuildContext context, int i) => Text(temasNombre[i]),
+                    )
+                  )
                 )
               );
             },
