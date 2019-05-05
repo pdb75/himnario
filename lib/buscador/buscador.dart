@@ -133,6 +133,7 @@ class _BuscadorState extends State<Buscador> {
         middle: CupertinoTextField(
           autofocus: true,
           onChanged: fetchHimnos,
+          suffix: cargando ? CupertinoActivityIndicator() : null,
         )
       ),
       child: widget.type == BuscadorType.Himnos ? Scroller(

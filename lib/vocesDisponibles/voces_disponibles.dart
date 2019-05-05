@@ -1,6 +1,7 @@
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -59,20 +60,26 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Voces Disponibles'),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 100),
-            curve: Curves.easeInOutSine,
-            height: cargando ? 4.0 : 0.0,
-            child: LinearProgressIndicator(),
-          ),
-        ),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text('Voces Disponibles'),
       ),
-      body: Scroller(
+      // appBar: AppBar(
+      //   title: Text('Voces Disponibles'),
+      //   bottom: PreferredSize(
+      //     preferredSize: Size.fromHeight(4.0),
+      //     child: AnimatedContainer(
+      //       duration: Duration(milliseconds: 100),
+      //       curve: Curves.easeInOutSine,
+      //       height: cargando ? 4.0 : 0.0,
+      //       child: LinearProgressIndicator(),
+      //     ),
+      //   ),
+      // ),
+      child: cargando ? Center(
+        child: CupertinoActivityIndicator(),
+      )
+      : Scroller(
         himnos: himnos,
         cargando: cargando,
         initDB: initDB

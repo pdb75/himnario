@@ -17,7 +17,7 @@ class _FuentesPageState extends State<FuentesPage> {
   @override
   void initState() {
     super.initState();
-    fuentes = ['Josefin Sans', 'Lato', 'Merriweather', 'Montserrat', 'Open Sans', 'Poppins', 'Raleway', 'Roboto', 'Roboto Mono', 'Rubik', 'Source Sans Pro'];
+    fuentes = ['Josefin Sans', 'Lato', 'Merriweather', 'Montserrat', 'Open Sans', 'Poppins', 'Raleway', 'Roboto', 'Roboto Mono', 'Rubik', 'Source Sans Pro', '.SF Pro Text'];
     temasNombre = ['Morado', 'Morado Dark', 'Azul', 'Azul Dark', 'Naranjo', 'Naranjo Dark', 'Verde', 'Verde Dark', 'Rosa', 'Rosa Dark', 'Rojo', 'Rojo Dark', 'Cafe', 'Cafe Dark'];
     temasTema = [
       ThemeData(

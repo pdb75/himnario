@@ -108,7 +108,7 @@ void main() async {
         primaryColorDark: x.primaryColorDark,
         primaryColor: x.primaryColor,
         brightness: x.brightness,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
+        fontFamily: prefs.getString('fuente') ?? '.SF Pro Text'
       );
       break;
     }
@@ -116,7 +116,7 @@ void main() async {
     tema = ThemeData(
       primarySwatch: Colors.deepPurple,
       indicatorColor: Colors.white,
-      fontFamily: prefs.getString('fuente') ?? 'Roboto'
+      fontFamily: prefs.getString('fuente') ?? '.SF Pro Text'
     );
   bool isInDebugMode = true;
 
