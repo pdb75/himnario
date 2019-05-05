@@ -209,6 +209,11 @@ class _HimnosPageState extends State<HimnosPage> {
 
     List<Map<String, dynamic>> corosQuery = await db.rawQuery('select * from himnos where id > 517 order by titulo');
     coros = Himno.fromJson(corosQuery);
+    List<Map<String, dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id > 517');
+    List<dynamic> favoritosList = favoritosQuery.map((f) => f['himno_id']).toList();
+    for (Himno coro in coros) {
+      coro.favorito = favoritosList.contains(coro.numero);
+    }
 
     setState(() {});
 
