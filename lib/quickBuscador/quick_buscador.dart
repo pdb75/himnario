@@ -117,7 +117,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
             fontSize: 20.0,
             fontWeight: FontWeight.w500,
           ),
-          onSubmitted: himno.numero != -1 ? (String query) {
+          onSubmitted: himno.numero != -1 && himno.numero > 517 ? (String query) {
               setState(() => done = !done);
             } : null,
           onChanged: onChanged,
