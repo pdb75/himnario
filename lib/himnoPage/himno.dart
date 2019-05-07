@@ -407,7 +407,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
 
-    bool smallDevice = MediaQuery.of(context).size.width < 400;
+    bool smallDevice = true;
 
     List<Widget> controlesLayout = !smallDevice ? [
       Row(
@@ -561,6 +561,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     if(prefs != null)
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        transitionBetweenRoutes: true,
         middle: Text('${widget.numero} - ${widget.titulo}'),
         trailing: Transform.translate(
           offset: Offset(20.0, 0.0),

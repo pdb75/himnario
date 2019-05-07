@@ -169,9 +169,8 @@ class _QuickBuscadorState extends State<QuickBuscador> {
       //     )
       //   ],
       // ),
-      child: Padding(
-        padding: EdgeInsets.only(top: 65.0),
-        child:(!cargando ? 
+      child: SafeArea(
+        child: (!cargando ? 
           estrofas.isNotEmpty ? GestureDetector(
             onTap: () => setState(() => done = !done),
             child: Container(

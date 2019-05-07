@@ -140,11 +140,13 @@ class _BuscadorState extends State<Buscador> {
         cargando: cargando,
         himnos: himnos,
         initDB: initDB,
+        iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
         mensaje: 'No se han encontrado coincidencias',
       ) : CorosScroller(
         cargando: cargando,
         himnos: himnos,
         initDB: initDB,
+        iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
         mensaje: 'No se han encontrado coincidencias',
       ),
     );
