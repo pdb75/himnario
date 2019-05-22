@@ -108,6 +108,8 @@ class _HimnosPageState extends State<HimnosPage> {
               await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
 
             prefs.setString('latest', latest[0]['updatedAt']);
+
+            fetchCategorias();
           }
         setState(() => cargando = false);
         print('termino de actualizar');

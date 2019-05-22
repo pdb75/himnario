@@ -156,12 +156,14 @@ class _BuscadorState extends State<Buscador> {
       body: widget.type == BuscadorType.Himnos ? Scroller(
         cargando: cargando,
         himnos: himnos,
+        buscador: true,
         initDB: initDB,
         mensaje: 'No se han encontrado coincidencias',
       ) : CorosScroller(
         cargando: cargando,
         himnos: himnos,
         initDB: initDB,
+        buscador: true,
         mensaje: 'No se han encontrado coincidencias',
       )
     );

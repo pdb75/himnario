@@ -5,12 +5,13 @@ import '../coroPage/coro.dart';
 
 class CorosScroller extends StatefulWidget {
 
-  CorosScroller({this.himnos, this.initDB, this.cargando, this.mensaje = ''});
+  CorosScroller({this.himnos, this.initDB, this.cargando, this.mensaje = '', this.buscador = false});
 
   final List<Himno> himnos;
   final Function initDB;
   final bool cargando;
   final String mensaje;
+  final bool buscador;
 
   @override
   _CorosScrollerState createState() => _CorosScrollerState();
@@ -34,6 +35,14 @@ class _CorosScrollerState extends State<CorosScroller> {
     });
     scrollPosition = 105.0 - 90.0;
     dragging = false;
+  }
+
+  @override
+  void didUpdateWidget(CorosScroller oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.himnos != widget.himnos && widget.buscador) {
+      scrollPosition = 105.0 - 90.0;
+    }
   }
 
 
