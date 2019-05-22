@@ -6,7 +6,7 @@ import '../coroPage/coro.dart';
 
 class CorosScroller extends StatefulWidget {
 
-  CorosScroller({this.himnos, this.initDB, this.cargando, this.mensaje = '', this.iPhoneX = false, this.iPhoneXBottomPadding = 0.0});
+  CorosScroller({this.himnos, this.initDB, this.cargando, this.mensaje = '', this.iPhoneX = false, this.iPhoneXBottomPadding = 0.0, this.buscador = false});
 
   final List<Himno> himnos;
   final Function initDB;
@@ -14,6 +14,7 @@ class CorosScroller extends StatefulWidget {
   final String mensaje;
   final bool iPhoneX;
   final double iPhoneXBottomPadding;
+  final bool buscador;
 
   @override
   _CorosScrollerState createState() => _CorosScrollerState();
@@ -38,6 +39,14 @@ class _CorosScrollerState extends State<CorosScroller> {
     });
     scrollPosition = 72.0 + iPhoneXPadding;
     dragging = false;
+  }
+
+  @override
+  void didUpdateWidget(CorosScroller oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.himnos != widget.himnos && widget.buscador) {
+      scrollPosition = 105.0 - 90.0;
+    }
   }
 
 

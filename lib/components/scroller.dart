@@ -8,13 +8,14 @@ import '../coroPage/coroPage.dart';
 
 class Scroller extends StatefulWidget {
 
-  Scroller({this.himnos, this.initDB, this.cargando, this.mensaje = '', this.iPhoneX = false});
+  Scroller({this.himnos, this.initDB, this.cargando, this.mensaje = '', this.iPhoneX = false, this.buscador = false});
 
   final List<Himno> himnos;
   final Function initDB;
   final bool cargando;
   final String mensaje;
   final bool iPhoneX;
+  final bool buscador;
 
   @override
   _ScrollerState createState() => _ScrollerState();
@@ -40,6 +41,14 @@ class _ScrollerState extends State<Scroller> {
     });
     scrollPosition = 72.0 + iPhoneXPadding;
     dragging = false;
+  }
+
+  @override
+  void didUpdateWidget(Scroller oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.himnos != widget.himnos && widget.buscador) {
+      scrollPosition = 105.0 - 90.0;
+    }
   }
 
 

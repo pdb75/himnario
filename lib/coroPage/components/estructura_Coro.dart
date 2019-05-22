@@ -52,7 +52,7 @@ class CoroText extends StatelessWidget {
                 fontSize: animation*fontSize,
                 height: Theme.of(context).textTheme.body1.height,
                 fontWeight: FontWeight.bold,
-                wordSpacing: (fontSize*(1.4/8.04)-(10.0*(1.4/8.04))+1.6),
+                wordSpacing: 0.3,
                 color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
               )
             ) : TextSpan(),
@@ -72,7 +72,7 @@ class CoroText extends StatelessWidget {
             lineasAcordes.isNotEmpty && lineasAcordes[i] != ' ' ? TextSpan(
               text: lineasAcordes[i] + '\n',
               style: TextStyle(
-                wordSpacing: (fontSize*(1.4/8.04)-(10.0*(1.4/8.04))+1.6),
+                wordSpacing: 0.3,
                 fontSize: animation*fontSize,
                 fontWeight: FontWeight.bold,
                 color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
