@@ -57,7 +57,6 @@ class _CorosScrollerState extends State<CorosScroller> {
                 child: Text(widget.mensaje, textAlign: TextAlign.center,)
               ),
             ) : ListView.builder(
-            physics: BouncingScrollPhysics(),
             controller: scrollController,
               itemCount: widget.himnos.length,
               itemBuilder: (BuildContext context, int index) =>

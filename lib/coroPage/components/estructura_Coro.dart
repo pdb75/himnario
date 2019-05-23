@@ -10,6 +10,19 @@ class CoroText extends StatelessWidget {
   final double fontSize;
   final bool acordes;
   final double animation;
+  Map<String, double> fontFamilies = {
+    "Josefin Sans": -1.0,
+    "Lato": 1.0,
+    "Merriweather": 0.8,
+    "Montserrat": 0.5,
+    "Open Sans": 0.1,
+    "Poppins": 1.7,
+    "Raleway": 0.5,
+    "Roboto": 0.3,
+    "Roboto Mono": -4.5,
+    "Rubik": 1.2,
+    "Source Sans Pro": 0.7,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +64,7 @@ class CoroText extends StatelessWidget {
                 fontSize: animation*fontSize,
                 height: Theme.of(context).textTheme.body1.height,
                 fontWeight: FontWeight.bold,
-                wordSpacing: 0.3,
+                wordSpacing: fontFamilies[DefaultTextStyle.of(context).style.fontFamily],
                 color: Color.fromRGBO(Theme.of(context).accentColor.red, Theme.of(context).accentColor.green, Theme.of(context).accentColor.blue, animation),
               )
             ) : TextSpan(),
@@ -71,7 +84,7 @@ class CoroText extends StatelessWidget {
             lineasAcordes.isNotEmpty && lineasAcordes[i] != ' ' ? TextSpan(
               text: lineasAcordes[i] + '\n',
               style: TextStyle(
-                wordSpacing: 0.3,
+                wordSpacing: fontFamilies[DefaultTextStyle.of(context).style.fontFamily],
                 fontSize: animation*fontSize,
                 fontWeight: FontWeight.bold,
                 color: Color.fromRGBO(Theme.of(context).accentColor.red, Theme.of(context).accentColor.green, Theme.of(context).accentColor.blue, animation),

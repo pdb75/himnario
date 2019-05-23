@@ -1,15 +1,16 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:Himnario/components/corosScroller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info/package_info.dart';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/himnos.dart';
@@ -34,8 +35,10 @@ class _HimnosPageState extends State<HimnosPage> {
   String path;
   Database db;
   PageController pageController;
+  SharedPreferences prefs;
   int currentPage;
   bool cargando;
+  double downloadProgress;
 
   @override
   void initState() {
@@ -67,10 +70,31 @@ class _HimnosPageState extends State<HimnosPage> {
         print(latest.isEmpty);
         if (latest.isNotEmpty)
           if (date == null || date != latest[0]['updatedAt']) {
+            _globalKey.currentState.showSnackBar(SnackBar(
+              content: Row(
+                children: <Widget>[
+                  Icon(Icons.get_app),
+                  SizedBox(width: 15.0,),
+                  Text('Actualizando Base de Datos')
+                ],
+              ),
+              action: SnackBarAction(
+                label: 'Ok',
+                onPressed: () =>_globalKey.currentState.hideCurrentSnackBar(),
+              ),
+            ));
             setState(() => cargando = true);
             print('descargando');
-            http.Response request = await http.get('http://104.131.104.212:8085/db');
-            // print(await http.get('http://104.131.104.212:8085/updates'));
+            Response request = await Dio(BaseOptions(
+              baseUrl: "http://104.131.104.212:8085",
+              // connectTimeout: 5000,
+              // receiveTimeout: 3000,
+            )).get('/db',
+              options: Options(responseType: ResponseType.bytes),
+              onReceiveProgress: (int total, int sent) {
+                setState(() => downloadProgress = total/sent);
+              });
+            setState(() => downloadProgress = null);
 
             // Favoritos
             List<int> favoritos = List<int>();
@@ -78,6 +102,8 @@ class _HimnosPageState extends State<HimnosPage> {
             List<List<int>> descargados = List<List<int>>();
             // transpose
             List<Himno> transposedHImnos = List<Himno>();
+
+            db = db.isOpen ? db : await openDatabase(path);
 
             await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
             await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
@@ -94,7 +120,7 @@ class _HimnosPageState extends State<HimnosPage> {
             db = null;
 
             File(path).deleteSync();
-            File(path).writeAsBytesSync(request.bodyBytes);
+            File(path).writeAsBytesSync(request.data);
 
             db = await openDatabase(path);
 
@@ -108,6 +134,21 @@ class _HimnosPageState extends State<HimnosPage> {
               await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
 
             prefs.setString('latest', latest[0]['updatedAt']);
+
+            _globalKey.currentState.showSnackBar(SnackBar(
+              content: Row(
+                children: <Widget>[
+                  Icon(Icons.done),
+                  SizedBox(width: 15.0,),
+                  Text('Base de Datos Actualizada')
+                ],
+              ),
+              backgroundColor: Colors.green,
+              action: SnackBarAction(
+                label: 'Ok',
+                onPressed: () =>_globalKey.currentState.hideCurrentSnackBar(),
+              ),
+            ));
 
             fetchCategorias();
           }
@@ -127,7 +168,7 @@ class _HimnosPageState extends State<HimnosPage> {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     path = databasesPath + "/himnos.db";
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs = await SharedPreferences.getInstance();
     String version = prefs.getString('version');
     String actualVersion = (await PackageInfo.fromPlatform()).version;
     print('actualVersion: $actualVersion');
@@ -406,7 +447,9 @@ class _HimnosPageState extends State<HimnosPage> {
             duration: Duration(milliseconds: 100),
             curve: Curves.easeInOutSine,
             height: cargando || categorias.isEmpty ? 4.0 : 0.0,
-            child: LinearProgressIndicator(),
+            child: LinearProgressIndicator(
+              value: downloadProgress,
+            ),
           ),
         ),
       ),
@@ -414,95 +457,100 @@ class _HimnosPageState extends State<HimnosPage> {
         controller: pageController,  
         onPageChanged: (int index) => setState(() => currentPage = index),
         children: <Widget>[
-          categorias.isNotEmpty ? ListView.builder(
-            padding: EdgeInsets.only(bottom: 80.0),
-            physics: BouncingScrollPhysics(),
-            itemCount: categorias.length + 1,
-            itemBuilder: (BuildContext context, int index) {
-              return index == 0 ? 
-              Card(
-                elevation: 4.0,
-                margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
-                      ));
-                  },
-                  title: Text('Todos'),
-                ),
-              )
-              :
-              categorias[index-1].subCategorias.isEmpty ? Card(
-                elevation: 4.0,
-                margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
-                      ));
-                  },
-                  title: Text(categorias[index-1].categoria),
+          categorias.isNotEmpty ? RefreshIndicator(
+            onRefresh: () => checkUpdates(prefs, db),
+            child: ListView.builder(
+              padding: EdgeInsets.only(bottom: 80.0),
+              itemCount: categorias.length + 1,
+              itemBuilder: (BuildContext context, int index) {
+                return index == 0 ? 
+                Card(
+                  elevation: 4.0,
+                  margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
+                        ));
+                    },
+                    title: Text('Todos'),
+                  ),
                 )
-              ) : 
-              Card(
-                elevation: 4.0,
-                margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                child: Column(
-                  children: <Widget>[
-                    ListTile(
-                      title: Text(categorias[index-1].categoria),
-                      trailing: Icon(expanded[index - 1] ? Icons.arrow_drop_up : Icons.arrow_drop_down),
-                      onTap: () {
-                        List<bool> aux = expanded;
-                        for (int i = 0; i < aux.length; ++i)
-                          if (i == index-1)
-                            aux[i] = !aux[i];
-                        setState(() => expanded = aux);
-                      }
-                    ),
-                    AnimatedContainer(
-                      duration: Duration(milliseconds: 400),
-                      curve: Curves.easeInOutSine,
-                      height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 48.0 : 0.0,
-                      child: AnimatedOpacity(
-                        opacity: expanded[index - 1] ? 1.0 : 0.0,
+                :
+                categorias[index-1].subCategorias.isEmpty ? Card(
+                  elevation: 4.0,
+                  margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
+                        ));
+                    },
+                    title: Text(categorias[index-1].categoria),
+                  )
+                ) : 
+                Card(
+                  elevation: 4.0,
+                  margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  child: Column(
+                    children: <Widget>[
+                      ListTile(
+                        title: Text(categorias[index-1].categoria),
+                        trailing: Icon(expanded[index - 1] ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                        onTap: () {
+                          List<bool> aux = expanded;
+                          for (int i = 0; i < aux.length; ++i)
+                            if (i == index-1)
+                              aux[i] = !aux[i];
+                          setState(() => expanded = aux);
+                        }
+                      ),
+                      AnimatedContainer(
                         duration: Duration(milliseconds: 400),
                         curve: Curves.easeInOutSine,
-                        child: Column(
-                          children: categorias[index-1].subCategorias.map((subCategoria) =>
-                          ListTile(
-                            dense: true,
-                            onTap: () {
-                              Navigator.push(
-                                context, 
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
-                                ));
-                            },
-                            title: Text(subCategoria.subCategoria),
-                          )).toList()
+                        height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 48.0 : 0.0,
+                        child: AnimatedOpacity(
+                          opacity: expanded[index - 1] ? 1.0 : 0.0,
+                          duration: Duration(milliseconds: 400),
+                          curve: Curves.easeInOutSine,
+                          child: Column(
+                            children: categorias[index-1].subCategorias.map((subCategoria) =>
+                            ListTile(
+                              dense: true,
+                              onTap: () {
+                                Navigator.push(
+                                  context, 
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
+                                  ));
+                              },
+                              title: Text(subCategoria.subCategoria),
+                            )).toList()
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }
+                    ],
+                  ),
+                );
+              }
+            ),
           ) : Container(),
-          CorosScroller(
+         RefreshIndicator(
+           onRefresh: () => checkUpdates(prefs, db),
+           child:  CorosScroller(
             cargando: cargando,
             himnos: coros,
             initDB: fetchCategorias,
             mensaje: '',
-          )
+          ),
+         )
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

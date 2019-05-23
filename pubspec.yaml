@@ -25,6 +25,7 @@ dependencies:
   http:
   url_launcher:
   package_info:
+  dio:
   dynamic_theme:
     git:
       url: git://github.com/Norbert515/dynamic_theme.git
