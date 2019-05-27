@@ -146,6 +146,7 @@ class _HimnosPageState extends State<HimnosPage> {
               backgroundColor: Colors.green,
               action: SnackBarAction(
                 label: 'Ok',
+                textColor: Colors.white,
                 onPressed: () =>_globalKey.currentState.hideCurrentSnackBar(),
               ),
             ));
@@ -555,7 +556,10 @@ class _HimnosPageState extends State<HimnosPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentPage,
-        type: BottomNavigationBarType.shifting,
+        backgroundColor: Theme.of(context).primaryColor,
+        selectedItemColor: Theme.of(context).indicatorColor,
+        unselectedItemColor: Theme.of(context).indicatorColor.withOpacity(0.5),
+        type: BottomNavigationBarType.fixed,
         onTap: (int e) {
           pageController.animateToPage(e, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
           setState(() => currentPage = e);
