@@ -524,7 +524,6 @@ class _HimnosPageState extends State<HimnosPage> {
               ),
               middle: Text('Coros'),
             ),
-<<<<<<< HEAD
             child: Stack(
               children: <Widget>[
                 CorosScroller(
@@ -556,17 +555,6 @@ class _HimnosPageState extends State<HimnosPage> {
                 ),
               ],
             )
-=======
-            
-            child: CorosScroller(
-              cargando: cargando,
-              himnos: coros,
-              initDB: fetchCategorias,
-              iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
-              iPhoneXBottomPadding: 35.0,
-              mensaje: '',
-            ),
->>>>>>> ddfdae958dbe0df136c5bf62d776a4dbde543026
           );
       },
       tabBar: CupertinoTabBar(
