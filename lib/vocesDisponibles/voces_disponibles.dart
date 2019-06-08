@@ -82,7 +82,8 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
       : Scroller(
         himnos: himnos,
         cargando: cargando,
-        initDB: initDB
+        initDB: initDB,
+        iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
       )
     );
   }

@@ -69,6 +69,7 @@ class _DescargadosPageState extends State<DescargadosPage> {
         himnos: himnos,
         cargando: cargando,
         initDB: initDB,
+        iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
         mensaje: 'No has descargado ningún himno\n para escuchar la melodia sin conexión'
       )
     );

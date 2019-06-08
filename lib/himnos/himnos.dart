@@ -150,6 +150,8 @@ class _HimnosPageState extends State<HimnosPage> {
     List<int> favoritos = List<int>();
     // Descargados
     List<List<int>> descargados = List<List<int>>();
+    // transpose
+    List<Himno> transposedHImnos = List<Himno>();
     if (!fistRun) {
       print('abriendo base de datos');
       try {
@@ -169,6 +171,10 @@ class _HimnosPageState extends State<HimnosPage> {
             descargados.add([descargado['himno_id'], descargado['duracion']]);
           }
         } catch(e) {print(e);}
+        try {
+          if (version > 2.4)
+            transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
+        } catch (e) {print(e);}
         await db.close();
       } catch(e) {print(e);}
     }
@@ -184,6 +190,8 @@ class _HimnosPageState extends State<HimnosPage> {
         await db.rawInsert('insert into favoritos values ($favorito)');
       for (List<int> descargado in descargados)
         await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
+      for (Himno himno in transposedHImnos)
+        await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
     } else {
       await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
       await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
@@ -278,8 +286,7 @@ class _HimnosPageState extends State<HimnosPage> {
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(context).pop();
-              String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8';
-              launch(url);
+              launch('https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8');
             },
             child: Text('Feedback')
           ),
@@ -329,11 +336,11 @@ class _HimnosPageState extends State<HimnosPage> {
                 ),
                 middle: Text('Himnos del Evangelio'),
               ),
-              child: Stack(
+              child: SafeArea(
+                bottom: true,
+                child: Stack(
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(top: 65.0),
-                    child: categorias.isNotEmpty ? ListView.builder(
+                  categorias.isNotEmpty ? ListView.builder(
                       padding: EdgeInsets.only(bottom: 90.0),
                       physics: BouncingScrollPhysics(),
                       itemCount: categorias.length + 1,
@@ -422,12 +429,16 @@ class _HimnosPageState extends State<HimnosPage> {
                                           builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
                                         ));
                                     },
-                                    child: Text(
-                                      subCategoria.subCategoria, 
-                                      style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 15.0
-                                      )
+                                    child: Container(
+                                      width: double.infinity,
+                                      child: Text(
+                                        subCategoria.subCategoria,
+                                        textAlign: TextAlign.center,
+                                        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 15.0
+                                        )
+                                      ),
                                     ),
                                   )).toList()
                                 ),
@@ -437,10 +448,9 @@ class _HimnosPageState extends State<HimnosPage> {
                         );
                       }
                     ) : Container(),
-                  ),
                   Positioned(
                     right: -50.0,
-                    bottom: 60.0,
+                    bottom: 30.0,
                     child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
@@ -490,6 +500,7 @@ class _HimnosPageState extends State<HimnosPage> {
                   ),
                 ],
               )
+              )
             // ),
           );
         }
@@ -513,6 +524,7 @@ class _HimnosPageState extends State<HimnosPage> {
               ),
               middle: Text('Coros'),
             ),
+<<<<<<< HEAD
             child: Stack(
               children: <Widget>[
                 CorosScroller(
@@ -544,6 +556,17 @@ class _HimnosPageState extends State<HimnosPage> {
                 ),
               ],
             )
+=======
+            
+            child: CorosScroller(
+              cargando: cargando,
+              himnos: coros,
+              initDB: fetchCategorias,
+              iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
+              iPhoneXBottomPadding: 35.0,
+              mensaje: '',
+            ),
+>>>>>>> ddfdae958dbe0df136c5bf62d776a4dbde543026
           );
       },
       tabBar: CupertinoTabBar(

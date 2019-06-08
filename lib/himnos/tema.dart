@@ -44,7 +44,7 @@ class _TemaPageState extends State<TemaPage> {
 
   Future<Null> fetchHimnos([bool refresh = false]) async {
     setState(() => cargando = true);
-    himnos = List<Himno>();
+    himnos = refresh ? himnos : List<Himno>();
     List<Map<String,dynamic>> data;
     if (widget.id == 0) {
       data = await db.rawQuery('select himnos.id, himnos.titulo from himnos where id <= 517 order by himnos.id ASC');
@@ -92,7 +92,8 @@ class _TemaPageState extends State<TemaPage> {
       child: Scroller(
         himnos: himnos,
         cargando: cargando,
-        initDB: initDB
+        initDB: initDB,
+        iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
       ),
     );
     // return Scaffold(
