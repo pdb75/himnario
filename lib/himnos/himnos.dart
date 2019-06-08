@@ -466,7 +466,28 @@ class _HimnosPageState extends State<HimnosPage> {
                         )
                       ),
                     ),
-                  )
+                  ),
+                  Positioned(
+                    left: -50.0,
+                    bottom: 60.0,
+                    child: AnimatedContainer(
+                      transform: cargando ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
+                      curve: Curves.easeOutSine,
+                      duration: Duration(milliseconds: 1000),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5.0),
+                        color: CupertinoTheme.of(context).primaryColor
+                      ),
+                      width: 100.0,
+                      height: 54.0,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 50.0),
+                        child: CupertinoActivityIndicator(
+                          animating: true,
+                        )
+                      ),
+                    ),
+                  ),
                 ],
               )
             // ),
@@ -492,12 +513,37 @@ class _HimnosPageState extends State<HimnosPage> {
               ),
               middle: Text('Coros'),
             ),
-            child: CorosScroller(
-              cargando: cargando,
-              himnos: coros,
-              initDB: fetchCategorias,
-              mensaje: '',
-            ),
+            child: Stack(
+              children: <Widget>[
+                CorosScroller(
+                  cargando: cargando,
+                  himnos: coros,
+                  initDB: fetchCategorias,
+                  mensaje: '',
+                ),
+                Positioned(
+                  left: -50.0,
+                  bottom: 60.0,
+                  child: AnimatedContainer(
+                    transform: cargando ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
+                    curve: Curves.easeOutSine,
+                    duration: Duration(milliseconds: 1000),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5.0),
+                      color: CupertinoTheme.of(context).primaryColor
+                    ),
+                    width: 100.0,
+                    height: 54.0,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 50.0),
+                      child: CupertinoActivityIndicator(
+                        animating: true,
+                      )
+                    ),
+                  ),
+                ),
+              ],
+            )
           );
       },
       tabBar: CupertinoTabBar(
