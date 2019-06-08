@@ -47,7 +47,7 @@ class _ScrollerState extends State<Scroller> {
   void didUpdateWidget(Scroller oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.himnos != widget.himnos && widget.buscador) {
-      scrollPosition = 105.0 - 90.0;
+      scrollPosition = 72.0 + iPhoneXPadding;
     }
   }
 

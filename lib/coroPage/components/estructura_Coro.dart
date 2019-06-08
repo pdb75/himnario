@@ -46,7 +46,7 @@ class CoroText extends StatelessWidget {
         );
         for (int i = 0; i < lineasParrafos.length; ++i) {
           parrafos.addAll([
-            lineasAcordes.isNotEmpty && lineasAcordes[i] != ' ' ? TextSpan(
+            lineasAcordes.isNotEmpty && lineasAcordes[i] != '' ? TextSpan(
               text: lineasAcordes[i] + '\n',
               style: TextStyle(
                 fontSize: animation*fontSize,
@@ -69,7 +69,7 @@ class CoroText extends StatelessWidget {
       else {
         for (int i = 0; i < lineasParrafos.length; ++i) {
           parrafos.addAll([
-            lineasAcordes.isNotEmpty && lineasAcordes[i] != ' ' ? TextSpan(
+            lineasAcordes.isNotEmpty && lineasAcordes[i] != '' ? TextSpan(
               text: lineasAcordes[i] + '\n',
               style: TextStyle(
                 wordSpacing: 0.3,
