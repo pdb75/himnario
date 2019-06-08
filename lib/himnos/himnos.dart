@@ -286,13 +286,6 @@ class _HimnosPageState extends State<HimnosPage> {
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(context).pop();
-              launch('https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8');
-            },
-            child: Text('Feedback')
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(context).pop();
               launch('https://sites.google.com/view/himnos-privacy-policy/');
             },
             child: Text('Politicas de privacidad')
@@ -479,7 +472,7 @@ class _HimnosPageState extends State<HimnosPage> {
                   ),
                   Positioned(
                     left: -50.0,
-                    bottom: 60.0,
+                    bottom: 30.0,
                     child: AnimatedContainer(
                       transform: cargando ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
                       curve: Curves.easeOutSine,
@@ -534,7 +527,7 @@ class _HimnosPageState extends State<HimnosPage> {
                 ),
                 Positioned(
                   left: -50.0,
-                  bottom: 60.0,
+                  bottom: 30.0,
                   child: AnimatedContainer(
                     transform: cargando ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
                     curve: Curves.easeOutSine,
