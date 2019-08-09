@@ -5,7 +5,20 @@
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle/gradle-3.3" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/../plugins/screen/android" />
+            <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/audioplayers-0.10.1/android" />
+            <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_crashlytics-0.2.1+1/android" />
+            <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/package_info-0.4.0+5/android" />
+            <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.5.0+1/android" />
+            <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.5.3+4/android" />
+            <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-1.1.6+2/android" />
+            <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/url_launcher-5.1.0/android" />
+          </set>
+        </option>
         <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,7 +7,8 @@ import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 
-import './himnos/himnos.dart';
+import 'cupertino/himnos/himnos.dart';
+import 'material/himnos/himnos.dart';
 
 void main() async {
   List<ThemeData> temasTema = [
@@ -150,7 +152,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicTheme(
+    return Platform.isAndroid ? DynamicTheme(
       data: (Brightness brightness) => tema,
       themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
       MaterialApp(
@@ -160,6 +162,14 @@ class MyApp extends StatelessWidget {
         theme: theme,
         home: HimnosPage(),
       )
+    ) : CupertinoApp(
+        debugShowCheckedModeBanner: false,
+        theme: CupertinoThemeData(
+        primaryColor: Colors.black,
+        // brightness: Brightness.dark
+      ),
+      title: 'Himnos y Cánticos del Evangelio',
+      home: CupertinoHimnosPage(),
     );
   }
 }

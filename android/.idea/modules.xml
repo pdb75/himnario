@@ -3,6 +3,15 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/audioplayers-0.10.1/android/audioplayers.iml" filepath="C:/flutter/.pub-cache/hosted/pub.dartlang.org/audioplayers-0.10.1/android/audioplayers.iml" />
+      <module fileurl="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_crashlytics-0.2.1+1/android/flutter_crashlytics.iml" filepath="C:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_crashlytics-0.2.1+1/android/flutter_crashlytics.iml" />
+      <module fileurl="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/package_info-0.4.0+5/android/package_info.iml" filepath="C:/flutter/.pub-cache/hosted/pub.dartlang.org/package_info-0.4.0+5/android/package_info.iml" />
+      <module fileurl="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.5.0+1/android/path_provider.iml" filepath="C:/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.5.0+1/android/path_provider.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../plugins/screen/android/screen.iml" filepath="$PROJECT_DIR$/../plugins/screen/android/screen.iml" />
+      <module fileurl="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.5.3+4/android/shared_preferences.iml" filepath="C:/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.5.3+4/android/shared_preferences.iml" />
+      <module fileurl="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-1.1.6+2/android/sqflite.iml" filepath="C:/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-1.1.6+2/android/sqflite.iml" />
+      <module fileurl="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/url_launcher-5.1.0/android/url_launcher.iml" filepath="C:/flutter/.pub-cache/hosted/pub.dartlang.org/url_launcher-5.1.0/android/url_launcher.iml" />
     </modules>
   </component>
 </project>
