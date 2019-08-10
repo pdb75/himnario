@@ -217,7 +217,13 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                               onPressed: () {
                                 String currentNotation = prefs.getString('notation') ?? 'latina';
                                 prefs.setString('notation', currentNotation == 'latina' ? 'americana' : 'latina');
-                                setState(() { });
+                                if (!transposeMode) 
+                                  if (fontController.value == 0.1)
+                                  fontController.animateTo(
+                                    1.0,
+                                    curve: Curves.linearToEaseOut
+                                  );
+                                setState(() {});
                                 Navigator.of(context).pop();
                               },
                               child: Text('Notación ' + (prefs.getString('notation') == null || prefs.getString('notation') == 'latina' ? 'americana' : 'latina')),
