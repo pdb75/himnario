@@ -72,18 +72,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return !Platform.isAndroid ? DynamicTheme(
+    return Platform.isAndroid ? DynamicTheme(
       data: (Brightness brightness) => tema,
       themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
       MaterialApp(
-        debugShowCheckedModeBanner: false,
-        showSemanticsDebugger: false,
+        // debugShowCheckedModeBanner: false,
+        // showSemanticsDebugger: false,
         title: 'Himnos y Cánticos del Evangelio',
         theme: theme,
         home: HimnosPage(),
       )
     ) : CupertinoApp(
-        debugShowCheckedModeBanner: false,
+        // debugShowCheckedModeBanner: false,
         theme: CupertinoThemeData(
         primaryColor: Colors.black,
         // brightness: Brightness.dark

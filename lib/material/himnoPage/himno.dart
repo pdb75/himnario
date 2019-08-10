@@ -584,19 +584,19 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       ),
       body: Stack(
         children: <Widget>[
-          Center(
-            child: AnimatedOpacity(
-              duration: Duration(milliseconds: 500),
-              opacity: swipeAnimation ? 0.3 : 0.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Icon(Icons.arrow_left, size: 50.0),
-                  Icon(Icons.arrow_right, size: 50.0),
-                ],
-              ),
-            )
-          ),
+          // Center(
+          //   child: AnimatedOpacity(
+          //     duration: Duration(milliseconds: 500),
+          //     opacity: swipeAnimation ? 0.3 : 0.0,
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //       children: <Widget>[
+          //         Icon(Icons.arrow_left, size: 50.0),
+          //         Icon(Icons.arrow_right, size: 50.0),
+          //       ],
+          //     ),
+          //   )
+          // ),
           BodyHimno(
             alignment: prefs.getString('alignment'),
             estrofas: estrofas,

@@ -140,7 +140,7 @@ class _BuscadorState extends State<Buscador> {
           autofocus: true,
           onChanged: fetchHimnos,
           style: TextStyle(
-            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
+            color: Theme.of(context).textTheme.title.color,
             fontFamily: Theme.of(context).textTheme.title.fontFamily,
             fontSize: 20.0,
             fontWeight: FontWeight.w500,

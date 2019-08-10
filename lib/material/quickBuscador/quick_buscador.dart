@@ -103,7 +103,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
                 himno.titulo ?? '',
                 textAlign: TextAlign.end,
                 style: TextStyle(
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
+                  color: Theme.of(context).textTheme.title.color,
                   fontFamily: Theme.of(context).textTheme.title.fontFamily,
                   fontSize: 20.0,
                   fontWeight: FontWeight.w500,
@@ -112,7 +112,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
             )
           ),
           style: TextStyle(
-            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).accentColor,
+            color: Theme.of(context).textTheme.title.color,
             fontFamily: Theme.of(context).textTheme.title.fontFamily,
             fontSize: 20.0,
             fontWeight: FontWeight.w500,

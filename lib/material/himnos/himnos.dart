@@ -368,63 +368,7 @@ class _HimnosPageState extends State<HimnosPage> {
           ],
         ),
       ),
-      appBar: 
-      // PreferredSize(
-      //   preferredSize: Size(MediaQuery.of(context).size.width, 60.0),
-      //   child: Container(
-      //     decoration: BoxDecoration(
-      //       color: Theme.of(context).primaryColor,
-      //       // borderRadius: BorderRadius.only(
-      //       //   bottomLeft: Radius.circular(5.0),
-      //       //   bottomRight: Radius.circular(5.0),
-      //       // )
-      //       // gradient: LinearGradient(
-      //       //   colors: [
-      //       //     Color.fromRGBO(255, 0, 212, 1.0),
-      //       //     Color.fromRGBO(222, 0, 150, 1.0),
-      //       //   ]
-      //       // )
-      //     ),
-      //     padding: MediaQuery.of(context).padding,
-      //     height: double.infinity,
-      //     width: double.infinity,
-      //     child: Row(
-      //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //       children: <Widget>[
-      //         IconButton(
-      //           onPressed: () {
-      //             print('opening drawer');
-      //             _globalKey.currentState.openDrawer();
-      //           },
-      //           icon: Icon(
-      //             Icons.menu,
-      //             color: Theme.of(context).buttonColor,
-      //           ),
-      //         ),
-      //         Text(
-      //           currentPage == 0 ? 'Himnos del Evangelio' : 'Coritos', 
-      //           textAlign: TextAlign.center,
-      //           style: Theme.of(context).textTheme.title.copyWith(
-      //             color: Theme.of(context).indicatorColor
-      //           ),
-      //         ),
-      //         IconButton(
-      //           onPressed: () {
-      //             Navigator.push(
-      //               context,
-      //               MaterialPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false,))
-      //             );
-      //           },
-      //           icon: Icon(
-      //             Icons.search,
-      //             color: Theme.of(context).buttonColor,
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      // ),
-      AppBar(
+      appBar: AppBar(
         title: Container(
           width: double.infinity,
           child: Text(currentPage == 0 ? 'Himnos del Evangelio' : 'Coros', textAlign: TextAlign.center,),
