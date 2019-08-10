@@ -237,7 +237,11 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                 value: 3,
                 enabled: acordesDisponible,
                 child: ListTile(
-                  leading: Icon(Icons.undo),
+                  leading: Image.asset(
+                    'assets/notation.png',
+                    color: acordesDisponible ? Colors.grey[600] : Colors.grey[300],
+                    width: 20.0,
+                  ),
                   title: Text(
                     'Notación ' + (prefs.getString('notation') == null || prefs.getString('notation') == 'latina' ? 'americana' : 'latina'),
                     style: Theme.of(context).textTheme.subhead.copyWith(
