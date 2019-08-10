@@ -35,6 +35,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
   String path;
   Database db;
   PageController pageController;
+  SharedPreferences prefs;
   int currentPage;
   bool cargando;
 
@@ -126,7 +127,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     path = databasesPath + "/himnos.db";
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs = await SharedPreferences.getInstance();
     String version = prefs.getString('version');
     String actualVersion = (await PackageInfo.fromPlatform()).version;
     print('actualVersion: $actualVersion');
@@ -272,16 +273,6 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
             },
             child: Text('Voces Disponibles')
           ),
-          // CupertinoActionSheetAction(
-          //   onPressed: () async {
-          //     Navigator.of(context).pop();
-          //     Navigator.push(
-          //       context,
-          //       CupertinoPageRoute(builder: (BuildContext context) => AjustesPage())
-          //     );
-          //   },
-          //   child: Text('Ajustes')
-          // ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(context).pop();
@@ -306,8 +297,6 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
       tabBuilder: (BuildContext context, int index) {
         if(index == 0) {
           return 
-          // CupertinoTabView(
-          //   builder: (BuildContext context) => 
             CupertinoPageScaffold(
               navigationBar: CupertinoNavigationBar(
                 transitionBetweenRoutes: false,
@@ -332,114 +321,107 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                 bottom: true,
                 child: Stack(
                 children: <Widget>[
-                  categorias.isNotEmpty ? ListView.builder(
-                      padding: EdgeInsets.only(bottom: 90.0),
-                      physics: BouncingScrollPhysics(),
-                      itemCount: categorias.length + 1,
-                      itemBuilder: (BuildContext context, int index) {
-                        return index == 0 ? 
-                        CupertinoButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context, 
-                              CupertinoPageRoute(
-                                builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
-                              ));
-                          },
-                          child: Text('Todos', style: CupertinoTheme.of(context).textTheme.textStyle),
-                        )
-                        // Card(
-                        //   elevation: 4.0,
-                        //   margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
-                        //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(0.0))),
-                        //   color: CupertinoTheme.of(context).scaffoldBackgroundColor,
-                        //   child: CupertinoButton(
-                        //     onPressed: () {
-                        //       Navigator.push(
-                        //         context, 
-                        //         CupertinoPageRoute(
-                        //           builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
-                        //         ));
-                        //     },
-                        //     child: Text('Todos', style: CupertinoTheme.of(context).textTheme.textStyle),
-                        //   ),
-                        // )
-                        :
-                        categorias[index-1].subCategorias.isEmpty ? CupertinoButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context, 
-                              CupertinoPageRoute(
-                                builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
-                              ));
-                          },
-                          child: Text(categorias[index-1].categoria, style: CupertinoTheme.of(context).textTheme.textStyle),
-                        ) : 
-                        Column(
-                          children: <Widget>[
+                  categorias.isNotEmpty ? CustomScrollView(
+                    slivers: <Widget>[
+                      CupertinoSliverRefreshControl(
+                        onRefresh: () => checkUpdates(prefs, db),
+                      ),
+                      SliverPadding(
+                        padding: EdgeInsets.only(bottom: 90.0),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+                            return index == 0 ? 
                             CupertinoButton(
-                              child: Stack(
-                                // mainAxisSize: MainAxisSize.max,
-                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: Text(categorias[index-1].categoria, style: CupertinoTheme.of(context).textTheme.textStyle),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Icon(
-                                      expanded[index - 1] ? CupertinoIcons.up_arrow : CupertinoIcons.down_arrow,
-                                      color: CupertinoTheme.of(context).textTheme.textStyle.color,
-                                    ),
-                                  ),
-                                ],
-                              ),
                               onPressed: () {
-                                List<bool> aux = expanded;
-                                for (int i = 0; i < aux.length; ++i)
-                                  if (i == index-1)
-                                    aux[i] = !aux[i];
-                                setState(() => expanded = aux);
-                              }
-                            ),
-                            AnimatedContainer(
-                              duration: Duration(milliseconds: 400),
-                              curve: Curves.easeInOutSine,
-                              height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 50.0 : 0.0,
-                              child: AnimatedOpacity(
-                                opacity: expanded[index - 1] ? 1.0 : 0.0,
-                                duration: Duration(milliseconds: 400),
-                                curve: Curves.easeInOutSine,
-                                child: Column(
-                                  children: categorias[index-1].subCategorias.map((subCategoria) =>
-                                  CupertinoButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context, 
-                                        MaterialPageRoute(
-                                          builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
-                                        ));
-                                    },
-                                    child: Container(
-                                      width: double.infinity,
-                                      child: Text(
-                                        subCategoria.subCategoria,
-                                        textAlign: TextAlign.center,
-                                        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 15.0
-                                        )
+                                Navigator.push(
+                                  context, 
+                                  CupertinoPageRoute(
+                                    builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
+                                  ));
+                              },
+                              child: Text('Todos', style: CupertinoTheme.of(context).textTheme.textStyle),
+                            )
+                            :
+                            categorias[index-1].subCategorias.isEmpty ? CupertinoButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context, 
+                                  CupertinoPageRoute(
+                                    builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
+                                  ));
+                              },
+                              child: Text(categorias[index-1].categoria, style: CupertinoTheme.of(context).textTheme.textStyle),
+                            ) : 
+                            Column(
+                              children: <Widget>[
+                                CupertinoButton(
+                                  child: Stack(
+                                    // mainAxisSize: MainAxisSize.max,
+                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: Text(categorias[index-1].categoria, style: CupertinoTheme.of(context).textTheme.textStyle),
                                       ),
-                                    ),
-                                  )).toList()
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Icon(
+                                          expanded[index - 1] ? CupertinoIcons.up_arrow : CupertinoIcons.down_arrow,
+                                          color: CupertinoTheme.of(context).textTheme.textStyle.color,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    List<bool> aux = expanded;
+                                    for (int i = 0; i < aux.length; ++i)
+                                      if (i == index-1)
+                                        aux[i] = !aux[i];
+                                    setState(() => expanded = aux);
+                                  }
                                 ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-                    ) : Container(),
+                                AnimatedContainer(
+                                  duration: Duration(milliseconds: 400),
+                                  curve: Curves.easeInOutSine,
+                                  height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 50.0 : 0.0,
+                                  child: AnimatedOpacity(
+                                    opacity: expanded[index - 1] ? 1.0 : 0.0,
+                                    duration: Duration(milliseconds: 400),
+                                    curve: Curves.easeInOutSine,
+                                    child: Column(
+                                      children: categorias[index-1].subCategorias.map((subCategoria) =>
+                                      CupertinoButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context, 
+                                            MaterialPageRoute(
+                                              builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
+                                            ));
+                                        },
+                                        child: Container(
+                                          width: double.infinity,
+                                          child: Text(
+                                            subCategoria.subCategoria,
+                                            textAlign: TextAlign.center,
+                                            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 15.0
+                                            )
+                                          ),
+                                        ),
+                                      )).toList()
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                          childCount: categorias.length + 1,
+                          ),
+                        )
+                      )
+                    ],
+                  ) : Container(),
                   Positioned(
                     right: -50.0,
                     bottom: 30.0,
@@ -523,6 +505,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                   himnos: coros,
                   initDB: fetchCategorias,
                   mensaje: '',
+                  refresh: () => checkUpdates(prefs, db)
                 ),
                 Positioned(
                   left: -50.0,

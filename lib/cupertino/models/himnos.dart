@@ -123,6 +123,8 @@ abstract class Acordes {
   }
 
   static String toAmericano(String original) {
+    if(original == null || original == '')
+      return null;
     String aux = '';
     List<String> lineas = original.split('\n');
 

@@ -561,10 +561,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
-          vozDisponible ? IconButton(
-            onPressed: toggleDescargado,
+          IconButton(
+            onPressed: vozDisponible ? toggleDescargado : null,
             icon: descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
-          ) : Container(),
+          ),
           IconButton(
             onPressed: toggleFavorito,
             icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),

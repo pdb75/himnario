@@ -15,13 +15,11 @@ void main() async {
   ThemeData tema;
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String temaJson = prefs.getString('tema');
-  // String brightness = prefs.getString('brightness');
 
   if (temaJson == null)
     tema = ThemeData(
       primarySwatch: Colors.deepPurple,
       fontFamily: prefs.getString('fuente') ?? 'Roboto',
-      // brightness: brightness == Brightness.dark.toString() ? Brightness.dark : Brightness.light
     );
   else {
     Map<dynamic, dynamic> json = jsonDecode(temaJson);
@@ -38,7 +36,8 @@ void main() async {
         800:Color.fromRGBO(json['red'], json['green'], json['blue'], .9),
         900:Color.fromRGBO(json['red'], json['green'], json['blue'], 1),
       }
-    )
+    ),
+    fontFamily: prefs.getString('fuente') ?? 'Roboto',
   );
   }
   bool isInDebugMode = false;

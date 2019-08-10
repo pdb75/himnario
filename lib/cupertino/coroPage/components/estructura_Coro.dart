@@ -47,7 +47,7 @@ class CoroText extends StatelessWidget {
         );
         for (int i = 0; i < lineasParrafos.length; ++i) {
           parrafos.addAll([
-            lineasAcordes.isNotEmpty && lineasAcordes[i] != '' ? TextSpan(
+            lineasAcordes.isEmpty || i >= lineasAcordes.length || lineasAcordes[i] == '' ? TextSpan() : TextSpan(
               text: lineasAcordes[i] + '\n',
               style: TextStyle(
                 fontSize: animation*fontSize,
@@ -56,7 +56,7 @@ class CoroText extends StatelessWidget {
                 wordSpacing: 0.3,
                 color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
               )
-            ) : TextSpan(),
+            ),
             TextSpan(
               text: lineasParrafos[i] + (i == lineasParrafos.length - 1 ? '\n\n' : '\n'),
               style: TextStyle(
@@ -70,7 +70,7 @@ class CoroText extends StatelessWidget {
       else {
         for (int i = 0; i < lineasParrafos.length; ++i) {
           parrafos.addAll([
-            lineasAcordes.isNotEmpty && lineasAcordes[i] != '' ? TextSpan(
+            lineasAcordes.isEmpty || i >= lineasAcordes.length || lineasAcordes[i] == '' ? TextSpan() : TextSpan(
               text: lineasAcordes[i] + '\n',
               style: TextStyle(
                 wordSpacing: 0.3,
@@ -78,7 +78,7 @@ class CoroText extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
               )
-            ) : TextSpan(),
+            ),
             TextSpan(
               text: lineasParrafos[i] + (i == lineasParrafos.length - 1 ? '\n\n' : '\n'),
               style: TextStyle(
