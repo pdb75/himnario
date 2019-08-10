@@ -109,14 +109,14 @@ class CustomSlider extends CustomPainter {
       text: TextSpan(
         text: '${(duration*progress/1000).floor()}s',
         style: TextStyle(
-          color: Theme.of(context).primaryColor,
+          color: Colors.black,
           fontSize: 40.0,
           fontWeight: FontWeight.bold
         )
       )
     );
     primaryColorPaint = Paint()
-      ..color = Theme.of(context).primaryColor
+      ..color = Colors.black
       ..strokeWidth = 10.0;
     geryColorPaint = Paint()
       ..color = Colors.grey
@@ -137,7 +137,7 @@ class CustomSlider extends CustomPainter {
       double height = 50.0;
       double radius = 70.0;
       canvas.drawLine(Offset(currentProgress, position+5.0), Offset(currentProgress, -height), Paint()
-      ..color = Theme.of(context).primaryColor
+      ..color = Colors.black
       ..strokeWidth = 6.0);
       canvas.skew(-0.2, 0.0);
       canvas.drawOval(
