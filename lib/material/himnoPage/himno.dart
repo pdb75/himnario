@@ -645,7 +645,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               ),
               Transform.scale(
                 scale: 0.0 + switchModeController.value,
-                child: Icon(Icons.redo, size: 40.0),
+                child: Icon(Icons.redo, color: Colors.white, size: 40.0),
               ),
             ],
           )
