@@ -187,6 +187,12 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                 case 3:
                   String currentNotation = prefs.getString('notation') ?? 'latina';
                   prefs.setString('notation', currentNotation == 'latina' ? 'americana' : 'latina');
+                  if (!transposeMode) 
+                    if (fontController.value == 0.1)
+                    fontController.animateTo(
+                      1.0,
+                      curve: Curves.linearToEaseOut
+                    );
                   setState(() {});
                   break;
                 default:
