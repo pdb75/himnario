@@ -10,8 +10,9 @@ class BodyCoro extends StatefulWidget {
   final List<Parrafo> estrofas;
   final bool acordes;
   final double animation;
+  final String notation;
 
-  BodyCoro({this.initfontSize, this.estrofas, this.alignment, this.acordes, this.animation});
+  BodyCoro({this.initfontSize, this.estrofas, this.alignment, this.acordes, this.animation, this.notation});
 
   @override
   _BodyCoroState createState() => _BodyCoroState();
@@ -50,6 +51,7 @@ class _BodyCoroState extends State<BodyCoro> {
               alignment: widget.alignment,
               acordes: widget.acordes,
               animation: widget.animation,
+              notation: widget.notation,
             )
           ],
         ) :

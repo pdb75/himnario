@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -11,115 +12,35 @@ import 'cupertino/himnos/himnos.dart';
 import 'material/himnos/himnos.dart';
 
 void main() async {
-  List<ThemeData> temasTema = [
-      ThemeData(
-        primarySwatch: Colors.deepPurple,
-        indicatorColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.deepPurpleAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.deepPurple,
-        primaryColor: Colors.deepPurple,
-        brightness: Brightness.dark
-      ),
-      ThemeData(
-        primarySwatch: Colors.blue,
-        indicatorColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.blueAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.blue,
-        primaryColor: Colors.blue,
-        brightness: Brightness.dark
-      ),
-      ThemeData(
-        primarySwatch: Colors.orange,
-        indicatorColor: Colors.black,
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.orangeAccent,
-        indicatorColor: Colors.black,
-        primaryColorDark: Colors.orange,
-        primaryColor: Colors.orange,
-        brightness: Brightness.dark
-      ),
-      ThemeData(
-        primarySwatch: Colors.green,
-        indicatorColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.greenAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.green,
-        primaryColor: Colors.green,
-        brightness: Brightness.dark
-      ),
-      ThemeData(
-        primarySwatch: Colors.pink,
-        indicatorColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.pinkAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.pink,
-        primaryColor: Colors.pink,
-        brightness: Brightness.dark
-      ),
-      ThemeData(
-        primarySwatch: Colors.red,
-        indicatorColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.redAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.red,
-        primaryColor: Colors.red,
-        brightness: Brightness.dark
-      ),
-      ThemeData(
-        primarySwatch: Colors.brown,
-        indicatorColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.brown,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.brown,
-        primaryColor: Colors.brown,
-        brightness: Brightness.dark
-      )
-    ];
   ThemeData tema;
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String color = prefs.getString('tema');
-  String brightness = prefs.getString('brightness');
+  String temaJson = prefs.getString('tema');
+  // String brightness = prefs.getString('brightness');
 
-  for(ThemeData x in temasTema)
-    if(x.primaryColor.toString() == color && x.brightness.toString() == brightness) {
-      tema = ThemeData(
-        accentColor: x.accentColor,
-        indicatorColor: x.indicatorColor,
-        primaryColorDark: x.primaryColorDark,
-        primaryColor: x.primaryColor,
-        brightness: x.brightness,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
-      );
-      break;
-    }
-  if (tema == null)
+  if (temaJson == null)
     tema = ThemeData(
       primarySwatch: Colors.deepPurple,
-      indicatorColor: Colors.white,
-      fontFamily: prefs.getString('fuente') ?? 'Roboto'
+      fontFamily: prefs.getString('fuente') ?? 'Roboto',
+      // brightness: brightness == Brightness.dark.toString() ? Brightness.dark : Brightness.light
     );
+  else {
+    Map<dynamic, dynamic> json = jsonDecode(temaJson);
+    tema = ThemeData(
+      primarySwatch: MaterialColor(json['value'], {
+        50:Color.fromRGBO(json['red'], json['green'], json['blue'], .1),
+        100:Color.fromRGBO(json['red'], json['green'], json['blue'], .2),
+        200:Color.fromRGBO(json['red'], json['green'], json['blue'], .3),
+        300:Color.fromRGBO(json['red'], json['green'], json['blue'], .4),
+        400:Color.fromRGBO(json['red'], json['green'], json['blue'], .5),
+        500:Color.fromRGBO(json['red'], json['green'], json['blue'], .6),
+        600:Color.fromRGBO(json['red'], json['green'], json['blue'], .7),
+        700:Color.fromRGBO(json['red'], json['green'], json['blue'], .8),
+        800:Color.fromRGBO(json['red'], json['green'], json['blue'], .9),
+        900:Color.fromRGBO(json['red'], json['green'], json['blue'], 1),
+      }
+    )
+  );
+  }
   bool isInDebugMode = false;
 
   FlutterError.onError = (FlutterErrorDetails details) {

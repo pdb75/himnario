@@ -3,13 +3,14 @@ import '../../models/himnos.dart';
 
 class CoroText extends StatelessWidget {
 
-  CoroText({this.estrofas, this.fontSize, this.alignment = 'Izquierda', this.acordes, this.animation});
+  CoroText({this.estrofas, this.fontSize, this.alignment = 'Izquierda', this.acordes, this.animation, this.notation});
 
   final String alignment;
   final List<Parrafo> estrofas;
   final double fontSize;
   final bool acordes;
   final double animation;
+  final String notation;
   Map<String, double> fontFamilies = {
     "Josefin Sans": -1.0,
     "Lato": 1.0,
@@ -44,7 +45,7 @@ class CoroText extends StatelessWidget {
     List<TextSpan> parrafos = List<TextSpan>();
     for(Parrafo parrafo in estrofas) {
 
-      List<String> lineasAcordes = parrafo.acordes.isNotEmpty ? parrafo.acordes.split('\n') : List<String>();
+      List<String> lineasAcordes = parrafo.acordes.isNotEmpty ? notation == 'americana' ? Acordes.toAmericano(parrafo.acordes).split('\n') : parrafo.acordes.split('\n') : List<String>();
       List<String> lineasParrafos = parrafo.parrafo.split('\n');
 
       if(parrafo.coro) {
@@ -67,7 +68,7 @@ class CoroText extends StatelessWidget {
                 height: Theme.of(context).textTheme.body1.height,
                 fontWeight: FontWeight.bold,
                 wordSpacing: fontFamilies[DefaultTextStyle.of(context).style.fontFamily],
-                color: Color.fromRGBO(Theme.of(context).accentColor.red, Theme.of(context).accentColor.green, Theme.of(context).accentColor.blue, animation),
+                color: Color.fromRGBO(Theme.of(context).textTheme.body1.color.red, Theme.of(context).textTheme.body1.color.green, Theme.of(context).textTheme.body1.color.blue, animation),
               )
             ),
             TextSpan(
@@ -89,7 +90,7 @@ class CoroText extends StatelessWidget {
                 wordSpacing: fontFamilies[DefaultTextStyle.of(context).style.fontFamily],
                 fontSize: animation*fontSize,
                 fontWeight: FontWeight.bold,
-                color: Color.fromRGBO(Theme.of(context).accentColor.red, Theme.of(context).accentColor.green, Theme.of(context).accentColor.blue, animation),
+                color: Color.fromRGBO(Theme.of(context).textTheme.body1.color.red, Theme.of(context).textTheme.body1.color.green, Theme.of(context).textTheme.body1.color.blue, animation),
               )
             ),
             TextSpan(
@@ -102,44 +103,13 @@ class CoroText extends StatelessWidget {
         }
       }
     }
-    // for(Parrafo parrafo in estrofas) {
-    //   if(parrafo.coro)
-    //     parrafos.addAll([
-    //       TextSpan(
-    //         text: 'Coro\n',
-    //         style: TextStyle(
-    //           fontStyle: FontStyle.italic,
-    //           fontWeight: FontWeight.w300,
-    //           fontSize: fontSize
-    //         ),
-    //       ),
-    //       TextSpan(
-    //         text: parrafo.parrafo + '\n\n',
-    //         style: TextStyle(
-    //           fontStyle: FontStyle.italic,
-    //           fontSize: fontSize
-    //         )
-    //       )
-    //     ]);
-    //   else
-    //     parrafos.addAll([
-    //       TextSpan(
-    //         text: parrafo.parrafo + '\n\n',
-    //         style: TextStyle(
-    //           fontSize: fontSize
-    //         )
-    //       )
-    //     ]);
-    // }
-
+    
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
       child: Center(
         child: RichText(
           textDirection: TextDirection.ltr,
           textAlign: align,
-          // softWrap: false,
-          // overflow: TextOverflow.fade,
           text: TextSpan(
             style: DefaultTextStyle.of(context).style,
             children: parrafos

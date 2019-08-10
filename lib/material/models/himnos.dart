@@ -69,8 +69,9 @@ class Parrafo {
   bool coro;
   String parrafo;
   String acordes;
+  String acordesAmericano;
 
-  Parrafo({this.numero, this.orden, this.coro, this.parrafo, this.acordes});
+  Parrafo({this.numero, this.orden, this.coro, this.parrafo, this.acordes, this.acordesAmericano});
 
   static List<Parrafo> fromJson(List<dynamic> res) {
     List<Parrafo> parrafos = List<Parrafo>();
@@ -83,6 +84,7 @@ class Parrafo {
         coro: x['coro'] == 1 ? true : false,
         parrafo: x['parrafo'],
         acordes: x['acordes'],
+        acordesAmericano: Acordes.toAmericano(x['acordes'])
       ));
     }
     return parrafos;
@@ -90,7 +92,10 @@ class Parrafo {
 }
 
 abstract class Acordes {
-  static List<String> acordes = ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'];
+  static Map<String, List<String>> acordes = {
+    'latina' : ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'],
+    'americana' : ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+  };
 
   static List<String> transpose(int value, List<String> original) {
     if (value == 0) 
@@ -101,11 +106,10 @@ abstract class Acordes {
       int acordeStart = original[i].indexOf(RegExp(r'[A-Z]'));
       while (acordeStart != -1) {
         int acordeEnd = original[i].indexOf(' ', acordeStart) == -1 ? original[i].length : original[i].indexOf(' ', acordeStart);
-        for(int j = Acordes.acordes.length - 1; j >= 0; --j) {
-          if(original[i].substring(acordeStart, acordeEnd).indexOf(Acordes.acordes[j]) != -1) {
-            int index = j + value > Acordes.acordes.length - 1 ? value - (12 - j) : j + value;
-            // print('${Acordes.acordes[j]} -> ${Acordes.acordes[index]} -> ${j > value}');
-            original[i] = original[i].replaceFirst(Acordes.acordes[j], Acordes.acordes[index], acordeStart);
+        for(int j = Acordes.acordes['latina'].length - 1; j >= 0; --j) {
+          if(original[i].substring(acordeStart, acordeEnd).indexOf(Acordes.acordes['latina'][j]) != -1) {
+            int index = j + value > Acordes.acordes['latina'].length - 1 ? value - (12 - j) : j + value;
+            original[i] = original[i].replaceFirst(Acordes.acordes['latina'][j], Acordes.acordes['latina'][index], acordeStart);
             break;
           }
         }
@@ -116,5 +120,29 @@ abstract class Acordes {
     }
 
     return original;
+  }
+
+  static String toAmericano(String original) {
+    String aux = '';
+    List<String> lineas = original.split('\n');
+
+    for(int i = 0; i < lineas.length; ++i) {
+      int acordeStart = lineas[i].indexOf(RegExp(r'[A-Z]'));
+      while (acordeStart != -1) {
+        int acordeEnd = lineas[i].indexOf(' ', acordeStart) == -1 ? lineas[i].length : lineas[i].indexOf(' ', acordeStart);
+        for(int j = Acordes.acordes['latina'].length - 1; j >= 0; --j) {
+          if(lineas[i].substring(acordeStart, acordeEnd).indexOf(Acordes.acordes['latina'][j]) != -1) {
+            lineas[i] = lineas[i].replaceFirst(Acordes.acordes['latina'][j], Acordes.acordes['americana'][j], acordeStart);
+            break;
+          }
+        }
+        acordeEnd = lineas[i].indexOf(' ', acordeStart) == -1 ? lineas[i].length : lineas[i].indexOf(' ', acordeStart);
+        acordeStart = lineas[i].indexOf(RegExp(r'[A-Z]'), acordeEnd);
+      }
+    }
+
+    aux = lineas.join('\n');
+
+    return aux;
   }
 }

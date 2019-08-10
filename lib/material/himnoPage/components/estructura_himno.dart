@@ -28,61 +28,6 @@ class HimnoText extends StatelessWidget {
       } break;
     }
     List<TextSpan> parrafos = List<TextSpan>();
-    // for(Parrafo parrafo in estrofas) {
-    //   List<String> lineas_acordes = parrafo.acordes.split('\n');
-    //   List<String> lineas_parrafos = parrafo.parrafo.split('\n');
-    //   if(parrafo.coro) {
-    //     parrafos.add(
-    //       TextSpan(
-    //         text: 'Coro\n',
-    //         style: TextStyle(
-    //           fontStyle: FontStyle.italic,
-    //           fontWeight: FontWeight.w300,
-    //           fontSize: fontSize
-    //         ),
-    //       )
-    //     );
-    //     for (int i = 0; i < lineas_acordes.length; ++i) {
-    //       parrafos.addAll([
-    //         TextSpan(
-    //           text: lineas_acordes[i] + '\n',
-    //           style: TextStyle(
-    //             fontSize: fontSize,
-    //             fontWeight: FontWeight.bold,
-    //             color: Theme.of(context).accentColor
-    //           )
-    //         ),
-    //         TextSpan(
-    //           text: lineas_parrafos[i] + (i == lineas_acordes.length - 1 ? '\n\n' : '\n'),
-    //           style: TextStyle(
-    //             fontStyle: FontStyle.italic,
-    //             fontSize: fontSize
-    //           )
-    //         ),
-    //       ]);
-    //     }
-    //   }
-    //   else {
-    //     for (int i = 0; i < lineas_acordes.length; ++i) {
-    //       parrafos.addAll([
-    //         TextSpan(
-    //           text: lineas_acordes[i] + '\n',
-    //           style: TextStyle(
-    //             fontSize: fontSize,
-    //             fontWeight: FontWeight.bold,
-    //             color: Theme.of(context).accentColor
-    //           )
-    //         ),
-    //         TextSpan(
-    //           text: lineas_parrafos[i] + (i == lineas_acordes.length - 1 ? '\n\n' : '\n'),
-    //           style: TextStyle(
-    //             fontSize: fontSize
-    //           )
-    //         ),
-    //       ]);
-    //     }
-    //   }
-    // }
     for(Parrafo parrafo in estrofas) {
       if(parrafo.coro)
         parrafos.addAll([

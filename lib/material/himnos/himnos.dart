@@ -288,7 +288,7 @@ class _HimnosPageState extends State<HimnosPage> {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Theme.of(context).accentColor
+                color: Theme.of(context).primaryColor
               ),
               child: Center(
                 child: Column(
@@ -299,7 +299,7 @@ class _HimnosPageState extends State<HimnosPage> {
                       'Himnos y Cánticos del Evangelio',
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                        color: Theme.of(context).indicatorColor,
+                        color: Theme.of(context).primaryIconTheme.color,
                         fontSize: 20.0
                       )
                     )
@@ -557,7 +557,7 @@ class _HimnosPageState extends State<HimnosPage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentPage,
         backgroundColor: Theme.of(context).primaryColor,
-        selectedItemColor: Theme.of(context).indicatorColor,
+        // selectedItemColor: Theme.of(context).indicatorColor,
         unselectedItemColor: Theme.of(context).indicatorColor.withOpacity(0.5),
         type: BottomNavigationBarType.fixed,
         onTap: (int e) {
@@ -567,13 +567,17 @@ class _HimnosPageState extends State<HimnosPage> {
         items: [
           BottomNavigationBarItem(
             backgroundColor: Theme.of(context).primaryColor,
-            icon: Icon(Icons.library_music),
-            title: Text('Himnos')
+            icon: Icon(Icons.library_music, color: Theme.of(context).primaryIconTheme.color),
+            title: Text('Himnos', style: Theme.of(context).textTheme.button.copyWith(
+              color: Theme.of(context).primaryIconTheme.color
+            ))
           ),
           BottomNavigationBarItem(
             backgroundColor: Theme.of(context).primaryColor,
-            icon: Icon(Icons.music_note),
-            title: Text('Coros')
+            icon: Icon(Icons.music_note, color: Theme.of(context).primaryIconTheme.color),
+            title: Text('Coros', style: Theme.of(context).textTheme.button.copyWith(
+              color: Theme.of(context).primaryIconTheme.color
+            ))
           ),
         ],
       ),

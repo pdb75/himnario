@@ -86,7 +86,7 @@ class _ScrollerState extends State<Scroller> {
                       ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
                       softWrap: true,
                       style: Theme.of(context).textTheme.subhead.copyWith(
-                        color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/widget.himnos.length) == index && dragging ? Colors.white : Theme.of(context).textTheme.subhead.color
+                        color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/widget.himnos.length) == index && dragging ? Theme.of(context).primaryIconTheme.color : Theme.of(context).textTheme.subhead.color
                       ),
                     ),
                   ),
@@ -151,7 +151,8 @@ class _ScrollerState extends State<Scroller> {
                   position: scrollPosition,
                   context: context,
                   dragging: dragging,
-                  numero: dragging ? (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/widget.himnos.length) : -1
+                  numero: dragging ? (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/widget.himnos.length) : -1,
+                  textColor: Theme.of(context).primaryIconTheme.color
                 ),
               ),
             )
@@ -168,12 +169,13 @@ class SideScroller extends CustomPainter {
   BuildContext context;
   int numero;
   Paint scrollBar;
+  Color textColor;
   List<Himno> himnos;
 
 
-  SideScroller({this.position, BuildContext context, this.dragging, this.numero, this.himnos}) {
+  SideScroller({this.position, BuildContext context, this.dragging, this.numero, this.himnos, this.textColor}) {
     scrollBar = Paint()
-      ..color = dragging ? Theme.of(context).accentColor : Colors.grey
+      ..color = dragging ? Theme.of(context).primaryColor : Colors.grey
       ..strokeWidth = 10.0
       ..strokeCap = StrokeCap.round;
   }
@@ -195,6 +197,7 @@ class SideScroller extends CustomPainter {
           text: text,
           style: TextStyle(
             fontSize: 45.0,
+            color: textColor
           )
         ),
         textDirection: TextDirection.ltr)

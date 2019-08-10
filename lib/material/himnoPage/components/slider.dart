@@ -151,7 +151,7 @@ class CustomSlider extends CustomPainter {
           Offset(currentProgress-radius*0.1, -(height-radius*0.35)), 
           Offset(currentProgress+radius*1.1, -(height+radius*0.65))
         ),
-        Paint()..color = Theme.of(context).indicatorColor);
+        Paint()..color = Theme.of(context).primaryIconTheme.color);
       canvas.skew(0.2, 0.0);
       text.layout(maxWidth: 100.0, minWidth: 100.0);
       text.paint(canvas, Offset(currentProgress+radius*-0.05, -(height+radius*0.47)));

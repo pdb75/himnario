@@ -4,13 +4,14 @@ import '../../models/himnos.dart';
 
 class CoroText extends StatelessWidget {
 
-  CoroText({this.estrofas, this.fontSize, this.alignment = 'Izquierda', this.acordes, this.animation});
+  CoroText({this.estrofas, this.fontSize, this.alignment = 'Izquierda', this.acordes, this.animation, this.notation});
 
   final String alignment;
   final List<Parrafo> estrofas;
   final double fontSize;
   final bool acordes;
   final double animation;
+  final String notation;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class CoroText extends StatelessWidget {
     }
     List<TextSpan> parrafos = List<TextSpan>();
     for(Parrafo parrafo in estrofas) {
-      List<String> lineasAcordes = parrafo.acordes.isNotEmpty ? parrafo.acordes.split('\n') : List<String>();
+      List<String> lineasAcordes = parrafo.acordes.isNotEmpty ? notation == 'americana' ? Acordes.toAmericano(parrafo.acordes).split('\n') : parrafo.acordes.split('\n') : List<String>();
       List<String> lineasParrafos = parrafo.parrafo.split('\n');
       if(parrafo.coro) {
         parrafos.add(
