@@ -622,7 +622,13 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                   child: Center(
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20.0),
-                      child: LinearProgressIndicator(value: 0.25*doneCount,),
+                      child: LinearProgressIndicator(
+                        value: 0.25*doneCount,
+                        backgroundColor: Colors.grey[400],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor
+                        )
+                      ),
                     ),
                   ),
                 )
@@ -635,7 +641,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         padding: EdgeInsets.only(bottom: smallDevice ? switchModeController.value * 175 : switchModeController.value * 130),
         child: FloatingActionButton(
           key: UniqueKey(),
-          backgroundColor: modoVoces ? Colors.red : Theme.of(context).accentColor,
+          backgroundColor: modoVoces ? Colors.redAccent : Theme.of(context).accentColor,
           onPressed: swithModes,
           child: Stack(
             children: <Widget>[
