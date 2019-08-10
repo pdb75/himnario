@@ -10,6 +10,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info/package_info.dart';
 import 'package:dio/dio.dart';
+import 'package:launch_review/launch_review.dart'; 
 import 'package:http/http.dart' as http;
 
 import '../components/corosScroller.dart';
@@ -357,10 +358,7 @@ class _HimnosPageState extends State<HimnosPage> {
             ListTile(
               leading: Icon(Icons.feedback),
               title: Text('Feedback'),
-              onTap: () {
-                String url = Platform.isAndroid ? 'https://play.google.com/store/apps/details?id=com.br572.himnario' : 'https://itunes.apple.com/us/app/himnos-y-cánticos-de-evangelio/id1444422315?ls=1&mt=8';
-                launch(url);
-              },
+              onTap: () => LaunchReview.launch(),
             ),
             ListTile(
               leading: Icon(Icons.info_outline),

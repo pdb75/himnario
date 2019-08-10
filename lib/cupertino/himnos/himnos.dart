@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:launch_review/launch_review.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
@@ -272,6 +273,10 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
               );
             },
             child: Text('Voces Disponibles')
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () => LaunchReview.launch(),
+            child: Text('Feedback')
           ),
           CupertinoActionSheetAction(
             onPressed: () {
