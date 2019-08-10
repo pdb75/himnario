@@ -573,8 +573,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                 padding: EdgeInsets.only(bottom: 2.0),
                 child: favorito ? Icon(Icons.star, size: 30.0,) : Icon(Icons.star_border, size: 30.0,),
               ),
-              vozDisponible ? CupertinoButton(
-                onPressed: () {
+              CupertinoButton(
+                onPressed: vozDisponible ? () {
                   showCupertinoModalPopup(
                     context: context,
                     builder: (BuildContext context) => CupertinoActionSheet(
@@ -602,10 +602,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                       ],
                     )
                   );
-                },
+                } : null,
                 padding: EdgeInsets.only(bottom: 2.0),
                 child: Icon(Icons.more_vert, size: 30.0,),
-              ) : Container(),
+              ),
             ],
           ),
         )
