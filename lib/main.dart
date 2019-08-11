@@ -14,43 +14,44 @@ import 'material/himnos/himnos.dart';
 void main() async {
   ThemeData tema;
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String temaJson = prefs.getString('temaPrincipal');
-
-  if (temaJson == null)
-    tema = ThemeData(
-      primarySwatch: MaterialColor(Colors.black.value, {
-          50:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .1),
-          100:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .2),
-          200:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .3),
-          300:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .4),
-          400:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .5),
-          500:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .6),
-          600:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .7),
-          700:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .8),
-          800:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .9),
-          900:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, 1),
-        }
-      ),
-      fontFamily: prefs.getString('fuente') ?? 'Merriweather',
-    );
-  else {
-    Map<dynamic, dynamic> json = jsonDecode(temaJson);
-    tema = ThemeData(
-      primarySwatch: MaterialColor(json['value'], {
-        50:Color.fromRGBO(json['red'], json['green'], json['blue'], .1),
-        100:Color.fromRGBO(json['red'], json['green'], json['blue'], .2),
-        200:Color.fromRGBO(json['red'], json['green'], json['blue'], .3),
-        300:Color.fromRGBO(json['red'], json['green'], json['blue'], .4),
-        400:Color.fromRGBO(json['red'], json['green'], json['blue'], .5),
-        500:Color.fromRGBO(json['red'], json['green'], json['blue'], .6),
-        600:Color.fromRGBO(json['red'], json['green'], json['blue'], .7),
-        700:Color.fromRGBO(json['red'], json['green'], json['blue'], .8),
-        800:Color.fromRGBO(json['red'], json['green'], json['blue'], .9),
-        900:Color.fromRGBO(json['red'], json['green'], json['blue'], 1),
-      }
-    ),
-    fontFamily: prefs.getString('fuente') ?? 'Merriweather',
-  );
+  if (Platform.isAndroid) {
+    String temaJson = prefs.getString('temaPrincipal');
+    if (temaJson == null)
+      tema = ThemeData(
+        primarySwatch: MaterialColor(Colors.black.value, {
+            50:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .1),
+            100:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .2),
+            200:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .3),
+            300:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .4),
+            400:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .5),
+            500:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .6),
+            600:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .7),
+            700:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .8),
+            800:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .9),
+            900:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, 1),
+          }
+        ),
+        fontFamily: prefs.getString('fuente') ?? 'Merriweather',
+      );
+    else {
+      Map<dynamic, dynamic> json = jsonDecode(temaJson);
+      tema = ThemeData(
+        primarySwatch: MaterialColor(json['value'], {
+            50:Color.fromRGBO(json['red'], json['green'], json['blue'], .1),
+            100:Color.fromRGBO(json['red'], json['green'], json['blue'], .2),
+            200:Color.fromRGBO(json['red'], json['green'], json['blue'], .3),
+            300:Color.fromRGBO(json['red'], json['green'], json['blue'], .4),
+            400:Color.fromRGBO(json['red'], json['green'], json['blue'], .5),
+            500:Color.fromRGBO(json['red'], json['green'], json['blue'], .6),
+            600:Color.fromRGBO(json['red'], json['green'], json['blue'], .7),
+            700:Color.fromRGBO(json['red'], json['green'], json['blue'], .8),
+            800:Color.fromRGBO(json['red'], json['green'], json['blue'], .9),
+            900:Color.fromRGBO(json['red'], json['green'], json['blue'], 1),
+          }
+        ),
+        fontFamily: prefs.getString('fuente') ?? 'Merriweather',
+      );
+    } 
   }
   bool isInDebugMode = false;
 
