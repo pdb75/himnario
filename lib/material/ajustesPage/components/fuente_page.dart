@@ -34,11 +34,23 @@ class _FuentesPageState extends State<FuentesPage> {
               .then((prefs) {
                 prefs.setString('fuente', fuentes[i]);
                 ThemeData tema;
-                String temaJson = prefs.getString('tema');
+                String temaJson = prefs.getString('temaPrincipal');
 
                 if (temaJson == null)
                   tema = ThemeData(
-                    primarySwatch: Colors.deepPurple,
+                    primarySwatch: MaterialColor(Colors.black.value, {
+                        50:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .1),
+                        100:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .2),
+                        200:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .3),
+                        300:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .4),
+                        400:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .5),
+                        500:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .6),
+                        600:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .7),
+                        700:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .8),
+                        800:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .9),
+                        900:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, 1),
+                      }
+                    ),
                     fontFamily: fuentes[i],
                   );
                 else {
@@ -72,11 +84,23 @@ class _FuentesPageState extends State<FuentesPage> {
                     .then((prefs) {
                       prefs.setString('fuente', fuentes[i]);
                       ThemeData tema;
-                      String temaJson = prefs.getString('tema');
+                      String temaJson = prefs.getString('temaPrincipal');
 
                       if (temaJson == null)
                         tema = ThemeData(
-                          primarySwatch: Colors.deepPurple,
+                          primarySwatch: MaterialColor(Colors.black.value, {
+                              50:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .1),
+                              100:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .2),
+                              200:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .3),
+                              300:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .4),
+                              400:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .5),
+                              500:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .6),
+                              600:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .7),
+                              700:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .8),
+                              800:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .9),
+                              900:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, 1),
+                            }
+                          ),
                           fontFamily: fuentes[i],
                         );
                       else {

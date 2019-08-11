@@ -25,7 +25,7 @@ dependencies:
   http:
   flutter_colorpicker: ^0.2.6
   url_launcher:
-  image_picker: ^0.6.1+2
+  # image_picker: ^0.6.1+2
   launch_review: ^2.0.0
   package_info: ^0.4.0+5
   dio:
@@ -53,6 +53,7 @@ flutter:
   assets:
     - assets/himnos_coros.sqlite
     - assets/notation.png
+    - assets/logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

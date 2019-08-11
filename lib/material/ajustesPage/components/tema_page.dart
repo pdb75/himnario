@@ -70,12 +70,12 @@ class _TemasPageState extends State<TemasPage> {
               900:Color.fromRGBO(pickerColor.red, pickerColor.green, pickerColor.blue, 1),
             };
 
-            prefs.setString('tema', jsonEncode({'red': pickerColor.red,'green': pickerColor.green,'blue': pickerColor.blue,'value': pickerColor.value}));
+            prefs.setString('temaPrincipal', jsonEncode({'red': pickerColor.red,'green': pickerColor.green,'blue': pickerColor.blue,'value': pickerColor.value}));
             // prefs.setString('brightness', dark ? Brightness.dark.toString() : Brightness.light.toString());
 
             DynamicTheme.of(context).setThemeData(ThemeData(
               primarySwatch: MaterialColor(pickerColor.value, swatch),
-              fontFamily: prefs.getString('fuente') ?? 'Roboto',
+              fontFamily: prefs.getString('fuente') ?? 'Merriweather',
               // brightness: dark ? Brightness.dark : Brightness.light
             ));
             setState(() {});

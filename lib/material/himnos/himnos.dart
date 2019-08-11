@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
 
+import 'package:Himnario/material/aboutPage/aboutPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -365,6 +366,7 @@ class _HimnosPageState extends State<HimnosPage> {
               title: Text('Políticas de privacidad'),
               onTap: () => launch('https://sites.google.com/view/himnos-privacy-policy/')
             ),
+            // ListTile(s
           ],
         ),
       ),

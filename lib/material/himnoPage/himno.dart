@@ -57,6 +57,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   HttpClient cliente;
   SharedPreferences prefs;
 
+  String tema;
+  int temaId;
+  String subTema;
+
   @override
   void initState() {
     max = 0;
@@ -86,6 +90,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     currentVoice = 4;
     estrofas = List<Parrafo>();
     currentProgress = 0.0;
+    tema = subTema = '';
     getHimno();
   }
 
@@ -170,12 +175,16 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
     List<Map<String,dynamic>> descargadoQuery = await db.rawQuery('select * from descargados where himno_id = ${widget.numero}');
-
+    List<Map<String,dynamic>> temaQuery = await db.rawQuery('select temas.tema, temas.id from tema_himnos join temas on temas.id = tema_himnos.tema_id where tema_himnos.himno_id = ${widget.numero}');
+    List<dynamic> subTemaQuery = await db.rawQuery('select sub_temas.id, sub_temas.sub_tema from sub_tema_himnos join sub_temas on sub_temas.id = sub_tema_himnos.sub_tema_id where sub_tema_himnos.himno_id = ${widget.numero}');
     setState(() {
       favorito = favoritosQuery.isNotEmpty;
       descargado = descargadoQuery.isNotEmpty;
       totalDuration = descargadoQuery.isNotEmpty ? descargadoQuery[0]['duracion'] : 0;
       estrofas = Parrafo.fromJson(parrafos);
+      tema = temaQuery[0]['tema'];
+      subTema = subTemaQuery.isNotEmpty ? subTemaQuery[0]['sub_tema'] : '';
+      temaId = subTemaQuery.isNotEmpty ? subTemaQuery[0]['id'] : temaQuery[0]['id'];
     });
 
     if (descargadoQuery.isEmpty) {
@@ -584,24 +593,14 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       ),
       body: Stack(
         children: <Widget>[
-          // Center(
-          //   child: AnimatedOpacity(
-          //     duration: Duration(milliseconds: 500),
-          //     opacity: swipeAnimation ? 0.3 : 0.0,
-          //     child: Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //       children: <Widget>[
-          //         Icon(Icons.arrow_left, size: 50.0),
-          //         Icon(Icons.arrow_right, size: 50.0),
-          //       ],
-          //     ),
-          //   )
-          // ),
           BodyHimno(
             alignment: prefs.getString('alignment'),
             estrofas: estrofas,
             initfontSize: initfontSize,
             switchValue: switchModeController.value,
+            tema: tema,
+            subTema: subTema,
+            temaId: temaId
           ),
           Align(
             alignment: FractionalOffset.bottomCenter,

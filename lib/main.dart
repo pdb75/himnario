@@ -14,12 +14,24 @@ import 'material/himnos/himnos.dart';
 void main() async {
   ThemeData tema;
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String temaJson = prefs.getString('tema');
+  String temaJson = prefs.getString('temaPrincipal');
 
   if (temaJson == null)
     tema = ThemeData(
-      primarySwatch: Colors.deepPurple,
-      fontFamily: prefs.getString('fuente') ?? 'Roboto',
+      primarySwatch: MaterialColor(Colors.black.value, {
+          50:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .1),
+          100:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .2),
+          200:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .3),
+          300:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .4),
+          400:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .5),
+          500:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .6),
+          600:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .7),
+          700:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .8),
+          800:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .9),
+          900:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, 1),
+        }
+      ),
+      fontFamily: prefs.getString('fuente') ?? 'Merriweather',
     );
   else {
     Map<dynamic, dynamic> json = jsonDecode(temaJson);
@@ -37,7 +49,7 @@ void main() async {
         900:Color.fromRGBO(json['red'], json['green'], json['blue'], 1),
       }
     ),
-    fontFamily: prefs.getString('fuente') ?? 'Roboto',
+    fontFamily: prefs.getString('fuente') ?? 'Merriweather',
   );
   }
   bool isInDebugMode = false;
