@@ -1,8 +1,10 @@
+import 'package:Himnario/cupertino/models/tema.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/himnos.dart';
@@ -62,20 +64,16 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Voces Disponibles'),
+        actionsForegroundColor: ScopedModel.of<TemaModel>(context).mainColorContrast,
+        backgroundColor: ScopedModel.of<TemaModel>(context).mainColor,
+        middle: Text(
+          'Voces Disponibles',
+          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+            color: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            fontFamily: ScopedModel.of<TemaModel>(context).font,
+          )
+        ),
       ),
-      // appBar: AppBar(
-      //   title: Text('Voces Disponibles'),
-      //   bottom: PreferredSize(
-      //     preferredSize: Size.fromHeight(4.0),
-      //     child: AnimatedContainer(
-      //       duration: Duration(milliseconds: 100),
-      //       curve: Curves.easeInOutSine,
-      //       height: cargando ? 4.0 : 0.0,
-      //       child: LinearProgressIndicator(),
-      //     ),
-      //   ),
-      // ),
       child: cargando ? Center(
         child: CupertinoActivityIndicator(),
       )

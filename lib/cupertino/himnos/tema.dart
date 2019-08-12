@@ -1,6 +1,8 @@
+import 'package:Himnario/cupertino/models/tema.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 
@@ -85,53 +87,28 @@ class _TemaPageState extends State<TemaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final TemaModel tema = ScopedModel.of<TemaModel>(context);
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.tema),
+        actionsForegroundColor: ScopedModel.of<TemaModel>(context).mainColorContrast,
+        backgroundColor: ScopedModel.of<TemaModel>(context).mainColor,
+        middle: Text(
+          widget.tema,
+          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+            color: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            fontFamily: ScopedModel.of<TemaModel>(context).font
+          )
+        ),
       ),
-      child: Scroller(
-        himnos: himnos,
-        cargando: cargando,
-        initDB: initDB,
-        iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
+      child: ScopedModel<TemaModel>(
+        model: tema,
+        child: Scroller(
+          himnos: himnos,
+          cargando: cargando,
+          initDB: initDB,
+          iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
+        ),
       ),
     );
-    // return Scaffold(
-    //   appBar: AppBar(
-    //     title: Tooltip(
-    //       message: widget.tema,
-    //       child: Container(
-    //         width: double.infinity,
-    //         child: Text(widget.tema, textAlign: TextAlign.center,),
-    //       ),
-    //     ),
-    //     bottom: PreferredSize(
-    //       preferredSize: Size.fromHeight(4.0),
-    //       child: AnimatedContainer(
-    //         duration: Duration(milliseconds: 100),
-    //         curve: Curves.easeInOutSine,
-    //         height: cargando ? 4.0 : 0.0,
-    //         child: LinearProgressIndicator(),
-    //       ),
-    //     ),
-    //     actions: <Widget>[
-    //       IconButton(
-    //         onPressed: () async {
-    //           await db.close();
-    //           Navigator.push(
-    //             context,
-    //             MaterialPageRoute(builder: (BuildContext context) => Buscador(id: widget.id, subtema:widget.subtema, type: BuscadorType.Himnos,))
-    //           );
-    //         },
-    //         icon: Icon(Icons.search),
-    //       ),
-    //     ],
-    //   ),
-    //   body: Scroller(
-    //     himnos: himnos,
-    //     cargando: cargando,
-    //     initDB: initDB
-    //   )
-    // );
   }
 }

@@ -151,8 +151,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                   position: scrollPosition,
                   context: context,
                   dragging: dragging,
-                  numero: dragging ? (scrollPosition-15)~/((MediaQuery.of(context).size.height - 60 - 129)/widget.himnos.length) : -1,
-                  textColor: Theme.of(context).primaryIconTheme.color
+                  numero: dragging ? (scrollPosition-15)~/((MediaQuery.of(context).size.height - 60 - 129)/widget.himnos.length) : -1
                 ),
               ),
             )
@@ -169,13 +168,12 @@ class SideScroller extends CustomPainter {
   BuildContext context;
   int numero;
   Paint scrollBar;
-  Color textColor;
   List<Himno> himnos;
 
 
-  SideScroller({this.position, BuildContext context, this.dragging, this.numero, this.himnos, this.textColor}) {
+  SideScroller({this.position, BuildContext context, this.dragging, this.numero, this.himnos}) {
     scrollBar = Paint()
-      ..color = dragging ? Theme.of(context).primaryColor : Colors.grey
+      ..color = dragging ? Colors.black : Colors.grey
       ..strokeWidth = 10.0
       ..strokeCap = StrokeCap.round;
   }
@@ -197,7 +195,6 @@ class SideScroller extends CustomPainter {
           text: text,
           style: TextStyle(
             fontSize: 45.0,
-            color: textColor
           )
         ),
         textDirection: TextDirection.ltr)

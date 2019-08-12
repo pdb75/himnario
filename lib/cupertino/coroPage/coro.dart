@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:Himnario/cupertino/models/tema.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +10,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:scoped_model/scoped_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -151,7 +153,15 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
       children: <Widget>[
         CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
-            middle: Text(widget.titulo),
+            actionsForegroundColor: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            backgroundColor: ScopedModel.of<TemaModel>(context).mainColor,
+            middle: Text(
+              widget.titulo,
+              style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                color: ScopedModel.of<TemaModel>(context).mainColorContrast,
+                fontFamily: ScopedModel.of<TemaModel>(context).font
+              )
+            ),
             trailing: Transform.translate(
               offset: Offset(20.0, 0.0),
               child: Row(
@@ -163,6 +173,7 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                     child: favorito ? Icon(Icons.star, size: 30.0,) : Icon(Icons.star_border, size: 30.0,),
                   ),
                   CupertinoButton(
+                    disabledColor: Colors.black.withOpacity(0.5),
                     onPressed: acordesDisponible ? () {
                       showCupertinoModalPopup(
                         context: context,
@@ -276,7 +287,12 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                         child: Row(
                           children: <Widget>[
                             Icon(Icons.arrow_drop_down),
-                            Text('Bajar Tono')
+                            Text(
+                              'Bajar Tono',
+                              style: DefaultTextStyle.of(context).style.copyWith(
+                                fontFamily: ScopedModel.of<TemaModel>(context).font
+                              ),
+                            )
                           ],
                         ),
                         onPressed: () => applyTranspose(-1),
@@ -286,14 +302,24 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                         child: Row(
                           children: <Widget>[
                             Icon(Icons.arrow_drop_up),
-                            Text('Subir Tono')
+                            Text(
+                              'Subir Tono',
+                              style: DefaultTextStyle.of(context).style.copyWith(
+                                fontFamily: ScopedModel.of<TemaModel>(context).font
+                              )
+                            )
                           ],
                         ),
                         onPressed: () => applyTranspose(1),
                       ),
                       CupertinoButton(
                         padding: EdgeInsets.only(bottom: 4.0),
-                        child: Text('Ok'),
+                        child: Text(
+                          'Ok',
+                          style: DefaultTextStyle.of(context).style.copyWith(
+                            fontFamily: ScopedModel.of<TemaModel>(context).font
+                          ),
+                        ),
                         onPressed: () => setState(() => transposeMode = !transposeMode),
                       )
                     ],

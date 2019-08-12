@@ -1,6 +1,12 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
+import 'package:flutter_colorpicker/material_picker.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../models/tema.dart';
 
 class TemasPage extends StatefulWidget {
   @override
@@ -12,7 +18,9 @@ class _TemasPageState extends State<TemasPage> {
   List<String> temasNombre;
   List<ThemeData> temasTema;
   int value;
+  bool dark;
   SharedPreferences prefs;
+  Color pickerColor;
 
   @override
   void initState() {
@@ -22,146 +30,36 @@ class _TemasPageState extends State<TemasPage> {
 
   void loadThemes() async {
     prefs = await SharedPreferences.getInstance();
-    temasNombre = ['Morado', 'Morado Dark', 'Azul', 'Azul Dark', 'Naranjo', 'Naranjo Dark', 'Verde', 'Verde Dark', 'Rosa', 'Rosa Dark', 'Rojo', 'Rojo Dark', 'Cafe', 'Cafe Dark'];
-    temasTema = [
-      ThemeData(
-        primarySwatch: Colors.deepPurple,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.deepPurpleAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.deepPurple,
-        primaryColor: Colors.deepPurple,
-        brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
-      ),
-      ThemeData(
-        primarySwatch: Colors.blue,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.blueAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.blue,
-        primaryColor: Colors.blue,
-        brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
-      ),
-      ThemeData(
-        primarySwatch: Colors.orange,
-        indicatorColor: Colors.black,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.orangeAccent,
-        indicatorColor: Colors.black,
-        primaryColorDark: Colors.orange,
-        primaryColor: Colors.orange,
-        brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
-      ),
-      ThemeData(
-        primarySwatch: Colors.green,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.greenAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.green,
-        primaryColor: Colors.green,
-        brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
-      ),
-      ThemeData(
-        primarySwatch: Colors.pink,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.pinkAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.pink,
-        primaryColor: Colors.pink,
-        brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
-      ),
-      ThemeData(
-        primarySwatch: Colors.red,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.redAccent,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.red,
-        primaryColor: Colors.red,
-        brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
-      ),
-      ThemeData(
-        primarySwatch: Colors.brown,
-        indicatorColor: Colors.white,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto',
-        scaffoldBackgroundColor: Colors.white
-      ),
-      ThemeData(
-        accentColor: Colors.brown,
-        indicatorColor: Colors.white,
-        primaryColorDark: Colors.brown,
-        primaryColor: Colors.brown,
-        brightness: Brightness.dark,
-        fontFamily: prefs.getString('fuente') ?? 'Roboto'
-      )
-    ];
+    dark = prefs.getString('brightness') == Brightness.dark.toString() ? true : false;
+    pickerColor = ScopedModel.of<TemaModel>(context).mainColor;
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> botones = List<Widget>();
-    if(temasTema != null)
-    for(int i = 0; i < temasTema.length; ++i) {
-      if (Theme.of(context).primaryColor == temasTema[i].primaryColor && value == null && Theme.of(context).brightness == temasTema[i].brightness)
-        value = i;
-      botones.add(
-        InkWell(
-          onTap: () {
-            prefs.setString('tema', temasTema[i].primaryColor.toString());
-            prefs.setString('brightness', temasTema[i].brightness.toString());
-            DynamicTheme.of(context).setThemeData(temasTema[i]);
-            setState(() => value = i);
+    return CupertinoAlertDialog(
+      actions: <Widget>[
+        FlatButton(
+          child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        FlatButton(
+          child: Text('Guardar', style: Theme.of(context).textTheme.button,),
+          onPressed: () {
+            ScopedModel.of<TemaModel>(context).setMainColor(pickerColor);
+            prefs.setInt('mainColor', pickerColor.value);
+
+            print((pickerColor.red*0.299 + pickerColor.green*0.587 + pickerColor.blue*0.114));
+
+            setState(() {});
+            Navigator.of(context).pop();
           },
-          child: Row(
-            children: <Widget>[
-              Radio(
-                onChanged: (int e) {
-                  prefs.setString('tema', temasTema[i].primaryColor.toString());
-                  prefs.setString('brightness', temasTema[i].brightness.toString());
-                  DynamicTheme.of(context).setThemeData(temasTema[i]);
-                  setState(() => value = e);
-                },
-                groupValue: value,
-                value: i,
-              ),
-              Text(temasNombre[i])
-            ],
-          ),
-        )
-      );
-    }
-    return SimpleDialog(
-      title: Text('Seleccionar Colores'),
-      children: botones
+        ),
+      ],
+      content: MaterialPicker(
+        pickerColor: pickerColor,
+        onColorChanged: (Color color) => setState(() => pickerColor = color),
+      ),
     );
   }
 }

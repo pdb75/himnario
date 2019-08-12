@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,9 +9,10 @@ class AlineacionesPage extends StatefulWidget {
 
 
 class AlineacionesPageState extends State<AlineacionesPage> {
-  int value;
   List<List<dynamic>> alignments;
   SharedPreferences prefs;
+  int currentValue;
+  int value;
 
   @override
   void initState() {
@@ -32,39 +34,66 @@ class AlineacionesPageState extends State<AlineacionesPage> {
   Widget build(BuildContext context) {
     List<Widget> botones = List<Widget>();
     if(prefs != null)
-    for(int i = 0; i < alignments.length; ++i) {
-      if (prefs.getString('alignment') == alignments[i][0])
-        value = i;
-      if(prefs.getString('alignment') == null && i == 0)
-        value = i;
+      for(int i = 0; i < alignments.length; ++i) {
+        if (prefs.getString('alignment') == alignments[i][0])
+          currentValue = i;
+        if(prefs.getString('alignment') == null && i == 0)
+          currentValue = i;
+        
       botones.add(
-        InkWell(
-          onTap: () {
-            prefs.setString('alignment', alignments[i][0]);
-            setState(() => value = i);
-          },
+        CupertinoButton(
+          onPressed: () => setState(() => value = i),
           child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Radio(
-                onChanged: (int e) {
-                  prefs.setString('alignment', alignments[i][0]);
-                  setState(() => value = e);
-                },
-                groupValue: value,
-                value: i,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(right: 10.0),
+                    child: Icon(alignments[i][1]),
+                  ),
+                  Text(
+                    alignments[i][0],
+                  ),
+                ],
               ),
-              Icon(alignments[i][1]),
-              Padding(padding: EdgeInsets.only(left: 10.0),),
-              Text(alignments[i][0]),
+              IgnorePointer(
+                child: CupertinoSwitch(
+                  onChanged: (e) => e,
+                  value: value == null ? currentValue == i : value == i,
+                ),
+              )
             ],
-          ),
+          )
         )
       );
     }
     
-    return SimpleDialog(
+    return CupertinoAlertDialog(
       title: Text('Seleccionar Alineación'),
-      children: botones
+      content: SingleChildScrollView(
+        child: Column(
+          children: botones,
+        ),
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        FlatButton(
+          child: Text('Guardar', style: Theme.of(context).textTheme.button,),
+          onPressed: () {
+            if(value != null) {
+              prefs.setString('alignment', alignments[value][0]);
+            }
+            setState(() {});
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }

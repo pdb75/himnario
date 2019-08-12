@@ -1,5 +1,7 @@
+import 'package:Himnario/cupertino/models/tema.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 import '../models/himnos.dart';
 import '../coroPage/coro.dart';
@@ -53,13 +55,20 @@ class _CorosScrollerState extends State<CorosScroller> {
 
   @override
   Widget build(BuildContext context) {
+    final TemaModel tema = ScopedModel.of<TemaModel>(context);
     if (scrollPosition == double.infinity || scrollPosition == double.nan)
       scrollPosition = 72.0 + iPhoneXPadding;
     return Stack(
       children: <Widget>[
         widget.himnos.isEmpty ? Container(
               child: Center(
-                child: Text(widget.mensaje, textAlign: TextAlign.center,)
+                child: Text(
+                  widget.mensaje, 
+                  textAlign: TextAlign.center,
+                  style: DefaultTextStyle.of(context).style.copyWith(
+                    fontFamily: ScopedModel.of<TemaModel>(context).font,
+                  ),
+                )
               ),
             ) : SafeArea(
               child: CustomScrollView(
@@ -74,7 +83,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                     delegate: SliverChildBuilderDelegate((BuildContext builder, int index) => 
                     Container(
                       color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/widget.himnos.length) == index && dragging ? 
-                      CupertinoTheme.of(context).primaryColor : 
+                      tema.mainColor : 
                       CupertinoTheme.of(context).scaffoldBackgroundColor,
                       height: 55.0,
                       child: CupertinoButton(
@@ -83,10 +92,13 @@ class _CorosScrollerState extends State<CorosScroller> {
                           print(widget.himnos[index].numero > 517);
                           await Navigator.push(
                             context, 
-                            CupertinoPageRoute(builder: (BuildContext context) => CoroPage(
-                              numero: widget.himnos[index].numero,
-                              titulo: widget.himnos[index].titulo,
-                              transpose: widget.himnos[index].transpose,
+                            CupertinoPageRoute(builder: (BuildContext context) => ScopedModel<TemaModel>(
+                              model: tema,
+                              child: CoroPage(
+                                numero: widget.himnos[index].numero,
+                                titulo: widget.himnos[index].titulo,
+                                transpose: widget.himnos[index].transpose,
+                              ),
                             )));
                           widget.initDB(false);
                           // scrollPosition = 105.0 - 90.0;
@@ -101,8 +113,9 @@ class _CorosScrollerState extends State<CorosScroller> {
                                 textAlign: TextAlign.start,
                                 style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
                                   color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/widget.himnos.length) == index && dragging ? 
-                                  Colors.white : 
-                                  CupertinoTheme.of(context).textTheme.textStyle.color
+                                  tema.mainColorContrast : 
+                                  CupertinoTheme.of(context).textTheme.textStyle.color,
+                                  fontFamily: ScopedModel.of<TemaModel>(context).font,
                                 ),
                               )
                             ),
@@ -188,14 +201,17 @@ class _CorosScrollerState extends State<CorosScroller> {
             child: Container(
               height: double.infinity,
               width: 40.0,
-              child: CustomPaint(
-                painter: SideScroller(
-                  himnos: widget.himnos,
-                  position: scrollPosition,
-                  context: context,
-                  dragging: dragging,
-                  iPhoneXPadding: iPhoneXPadding,
-                  numero: dragging ? (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/widget.himnos.length) : -1
+              child: Transform.translate(
+                offset: Offset(0.0, -65.0),
+                child: CustomPaint(
+                  painter: SideScroller(
+                    himnos: widget.himnos,
+                    position: scrollPosition,
+                    context: context,
+                    dragging: dragging,
+                    iPhoneXPadding: iPhoneXPadding,
+                    numero: dragging ? (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/widget.himnos.length) : -1,
+                  ),
                 ),
               ),
             )

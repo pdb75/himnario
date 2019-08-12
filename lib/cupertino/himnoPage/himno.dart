@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:Himnario/cupertino/models/tema.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +10,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:scoped_model/scoped_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -417,21 +419,29 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             voz: 'Soprano',
             activo: currentVoice == 0 || currentVoice == 4,
             onPressed: () => toggleVoice(0),
+            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
+            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
           ),
           BotonVoz(
             voz: 'Tenor',
             activo: currentVoice == 1 || currentVoice == 4,
             onPressed: () => toggleVoice(1),
+            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
+            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
           ),
           BotonVoz(
             voz: 'Contra Alto',
             activo: currentVoice == 2 || currentVoice == 4,
             onPressed: () => toggleVoice(2),
+            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
+            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
           ),
           BotonVoz(
             voz: 'Bajo',
             activo: currentVoice == 3 || currentVoice == 4,
             onPressed: () => toggleVoice(3),
+            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
+            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
           ),
         ],
       )
@@ -443,11 +453,15 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             voz: '   Soprano  ',
             activo: currentVoice == 0 || currentVoice == 4,
             onPressed: () => toggleVoice(0),
+            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
+            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
           ),
           BotonVoz(
             voz: '    Tenor    ',
             activo: currentVoice == 1 || currentVoice == 4,
             onPressed: () => toggleVoice(1),
+            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
+            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
           ),
         ],
       ),
@@ -458,11 +472,15 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             voz: 'Contra Alto',
             activo: currentVoice == 2 || currentVoice == 4,
             onPressed: () => toggleVoice(2),
+            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
+            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
           ),
           BotonVoz(
             voz: '     Bajo     ',
             activo: currentVoice == 3 || currentVoice == 4,
             onPressed: () => toggleVoice(3),
+            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
+            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
           ),
         ],
       ),
@@ -562,7 +580,15 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         transitionBetweenRoutes: true,
-        middle: Text('${widget.numero} - ${widget.titulo}'),
+        actionsForegroundColor: ScopedModel.of<TemaModel>(context).mainColorContrast,
+        backgroundColor: ScopedModel.of<TemaModel>(context).mainColor,
+        middle: Text(
+          '${widget.numero} - ${widget.titulo}',
+          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+            color: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            fontFamily: ScopedModel.of<TemaModel>(context).font
+          ),
+        ),
         trailing: Transform.translate(
           offset: Offset(20.0, 0.0),
           child: Row(
@@ -574,6 +600,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                 child: favorito ? Icon(Icons.star, size: 30.0,) : Icon(Icons.star_border, size: 30.0,),
               ),
               CupertinoButton(
+                disabledColor: Colors.black.withOpacity(0.5),
                 onPressed: vozDisponible ? () {
                   showCupertinoModalPopup(
                     context: context,

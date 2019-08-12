@@ -14,6 +14,8 @@ import 'material/himnos/himnos.dart';
 void main() async {
   ThemeData tema;
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  int mainColor = prefs.getInt('mainColor');
+  String font = prefs.getString('font');
   if (Platform.isAndroid) {
     String temaJson = prefs.getString('temaPrincipal');
     if (temaJson == null)
@@ -69,7 +71,7 @@ void main() async {
   await FlutterCrashlytics().initialize();
 
   runZoned<Future<Null>>(() async {
-    runApp(MyApp(tema: tema,));
+    runApp(MyApp(tema: tema, mainColor: mainColor, font: font,));
   }, onError: (error, stackTrace) async {
     // Whenever an error occurs, call the `reportCrash` function. This will send
     // Dart errors to our dev console or Crashlytics depending on the environment.
@@ -79,9 +81,11 @@ void main() async {
 
 class MyApp extends StatelessWidget {
 
-  MyApp({this.tema});
+  MyApp({this.tema, this.mainColor, this.font});
 
   final ThemeData tema;
+  final int mainColor;
+  final String font;
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +106,10 @@ class MyApp extends StatelessWidget {
         // brightness: Brightness.dark
       ),
       title: 'Himnos y Cánticos del Evangelio',
-      home: CupertinoHimnosPage(),
+      home: CupertinoHimnosPage(
+        mainColor: mainColor,
+        font: font,
+      ),
     );
   }
 }

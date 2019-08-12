@@ -1,5 +1,7 @@
+import 'package:Himnario/cupertino/models/tema.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:scoped_model/scoped_model.dart';
 import '../../models/himnos.dart';
 
 class CoroText extends StatelessWidget {
@@ -40,6 +42,7 @@ class CoroText extends StatelessWidget {
             text: 'Coro\n',
             style: TextStyle(
               fontStyle: FontStyle.italic,
+              fontFamily: ScopedModel.of<TemaModel>(context).font,
               fontWeight: FontWeight.w300,
               fontSize: fontSize
             ),
@@ -52,6 +55,7 @@ class CoroText extends StatelessWidget {
               style: TextStyle(
                 fontSize: animation*fontSize,
                 height: Theme.of(context).textTheme.body1.height,
+                fontFamily: ScopedModel.of<TemaModel>(context).font,
                 fontWeight: FontWeight.bold,
                 wordSpacing: 0.3,
                 color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
@@ -61,6 +65,7 @@ class CoroText extends StatelessWidget {
               text: lineasParrafos[i] + (i == lineasParrafos.length - 1 ? '\n\n' : '\n'),
               style: TextStyle(
                 fontStyle: FontStyle.italic,
+                fontFamily: ScopedModel.of<TemaModel>(context).font,
                 fontSize: fontSize
               )
             ),
@@ -75,6 +80,7 @@ class CoroText extends StatelessWidget {
               style: TextStyle(
                 wordSpacing: 0.3,
                 fontSize: animation*fontSize,
+                fontFamily: ScopedModel.of<TemaModel>(context).font,
                 fontWeight: FontWeight.bold,
                 color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
               )
@@ -82,43 +88,14 @@ class CoroText extends StatelessWidget {
             TextSpan(
               text: lineasParrafos[i] + (i == lineasParrafos.length - 1 ? '\n\n' : '\n'),
               style: TextStyle(
-                fontSize: fontSize
+                fontSize: fontSize,
+                fontFamily: ScopedModel.of<TemaModel>(context).font,
               )
             ),
           ]);
         }
       }
     }
-    // for(Parrafo parrafo in estrofas) {
-    //   if(parrafo.coro)
-    //     parrafos.addAll([
-    //       TextSpan(
-    //         text: 'Coro\n',
-    //         style: TextStyle(
-    //           fontStyle: FontStyle.italic,
-    //           fontWeight: FontWeight.w300,
-    //           fontSize: fontSize
-    //         ),
-    //       ),
-    //       TextSpan(
-    //         text: parrafo.parrafo + '\n\n',
-    //         style: TextStyle(
-    //           fontStyle: FontStyle.italic,
-    //           fontSize: fontSize
-    //         )
-    //       )
-    //     ]);
-    //   else
-    //     parrafos.addAll([
-    //       TextSpan(
-    //         text: parrafo.parrafo + '\n\n',
-    //         style: TextStyle(
-    //           fontSize: fontSize
-    //         )
-    //       )
-    //     ]);
-    // }
-
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
       child: Center(
@@ -128,7 +105,9 @@ class CoroText extends StatelessWidget {
           // softWrap: false,
           // overflow: TextOverflow.fade,
           text: TextSpan(
-            style: DefaultTextStyle.of(context).style,
+            style: DefaultTextStyle.of(context).style.copyWith(
+              fontFamily: ScopedModel.of<TemaModel>(context).font,
+            ),
             children: parrafos
           ),
         )
