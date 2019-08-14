@@ -395,7 +395,7 @@ class _HimnosPageState extends State<HimnosPage> {
             height: cargando || categorias.isEmpty ? 4.0 : 0.0,
             child: LinearProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor),
-              backgroundColor: Theme.of(context).canvasColor,
+              backgroundColor: Colors.white,
               value: downloadProgress,
             ),
           ),
