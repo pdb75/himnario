@@ -47,6 +47,12 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
   Database db;
   SharedPreferences prefs;
 
+  // autoScroll Variables
+  ScrollController scrollController;
+  bool scrollMode;
+  bool autoScroll;
+  int autoScrollRate;
+
   @override
   void initState() {
     print(widget.transpose);
@@ -69,6 +75,11 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
     )..addListener(() => setState(() {}));
     estrofas = List<Parrafo>();
     getHimno();
+
+    scrollController = ScrollController();
+    autoScroll = false;
+    scrollMode = false;
+    autoScrollRate = 0;
   }
 
   Future<Database> initDB() async {
@@ -143,9 +154,15 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
     });
     setState(() {});
   }
+
+  void stopScroll() => scrollController.animateTo(
+      scrollController.offset, 
+      curve: Curves.linear, 
+      duration: Duration(milliseconds: 1)
+    );
+
   @override
   Widget build(BuildContext context) {
-
     if(prefs != null)
     return Scaffold(
       appBar: AppBar(
@@ -158,14 +175,20 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
             onSelected: (int e) {
               switch (e) {
                 case 0:
-                  setState(() => acordes = !acordes);
+                  acordes = !acordes;
                   if (fontController.value == 1.0) {
                     fontController.animateTo(
                       0.0,
                       curve: Curves.fastOutSlowIn
                     );
                     if (transposeMode)
-                      setState(() => transposeMode = !transposeMode);
+                      transposeMode = false;
+                    if (scrollMode) {
+                      stopScroll();
+                      autoScroll = false;
+                      scrollMode = false;
+                    }
+                    setState(() {});
                   }
                   else fontController.animateTo(
                     1.0,
@@ -179,6 +202,11 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                       1.0,
                       curve: Curves.linearToEaseOut
                     );
+                  if (scrollMode) {
+                    stopScroll();
+                    autoScroll = false;
+                    scrollMode = false;
+                  }
                   setState(() => transposeMode = !transposeMode);
                   break;
                 case 2:
@@ -194,6 +222,18 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                       curve: Curves.linearToEaseOut
                     );
                   setState(() {});
+                  break;
+                case 4:
+                  if (!scrollMode) 
+                    if (fontController.value == 0.1)
+                    fontController.animateTo(
+                      1.0,
+                      curve: Curves.linearToEaseOut
+                    );
+                  if (transposeMode) {
+                      transposeMode = false;
+                    }
+                  setState(() => scrollMode = !scrollMode);
                   break;
                 default:
               }
@@ -256,6 +296,19 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                   ),
                 )
               ),
+              PopupMenuItem(
+                value: 4,
+                enabled: acordesDisponible && scrollController.position.maxScrollExtent > 0.0,
+                child: ListTile(
+                  leading: Icon(Icons.expand_more),
+                  title: Text(
+                    'Scroll Automático',
+                    style: Theme.of(context).textTheme.subhead.copyWith(
+                      color: acordesDisponible && scrollController.position.maxScrollExtent > 0.0 ? Theme.of(context).textTheme.subhead.color : Colors.grey
+                    ),
+                  ),
+                )
+              ),
             ],
           )
         ],
@@ -270,8 +323,13 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
       body: Stack(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(bottom: transposeMode ? 40.0 : 0.0),
+            padding: EdgeInsets.only(bottom: transposeMode || scrollMode ? 40.0 : 0.0),
             child: BodyCoro(
+              scrollController: scrollController,
+              stopScroll: () {
+                stopScroll();
+                setState(() => autoScroll = false);
+              },
               alignment: prefs.getString('alignment'),
               estrofas: estrofas,
               initfontSize: initfontSize,
@@ -317,7 +375,81 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                 ],
               ),
             ),
-          )
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 200),
+              curve: Curves.fastOutSlowIn,
+              height: scrollMode ? 60 : 0.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    blurRadius: 20.0,
+                    // spreadRadius: 1.0,
+                    offset: Offset(0.0, 18.0)
+                  )
+                ],
+                color: Theme.of(context).scaffoldBackgroundColor
+              ),
+              child: ButtonBar(
+                alignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  FlatButton(
+                    child: Icon(Icons.fast_rewind),
+                    onPressed: () {
+                      autoScrollRate = autoScrollRate > 0 ? autoScrollRate - 1 : 0;
+                      scrollController.animateTo(
+                        scrollController.position.maxScrollExtent, 
+                        curve: Curves.linear, 
+                        duration: Duration(
+                          seconds: (scrollController.position.maxScrollExtent / (5 + 5*autoScrollRate)).floor()
+                        )
+                      );
+                      setState(() => autoScroll = true);
+                    },
+                  ),
+                  FlatButton(
+                    child: Row(
+                      children: <Widget>[
+                        Icon(autoScroll ? Icons.pause : Icons.play_arrow),
+                        Text('${autoScrollRate+1}x'),
+                      ],
+                    ),
+                    onPressed: () {
+                      if(autoScroll) {
+                        stopScroll();
+                      } else {
+                        scrollController.animateTo(
+                          scrollController.position.maxScrollExtent, 
+                          curve: Curves.linear, 
+                          duration: Duration(
+                            seconds: (scrollController.position.maxScrollExtent / (5 + 5*autoScrollRate)).floor()
+                          )
+                        );
+                      }
+                      setState(() => autoScroll = !autoScroll);
+                    },
+                  ),
+                  FlatButton(
+                    child: Icon(Icons.fast_forward),
+                    onPressed: () {
+                      ++autoScrollRate;
+                      scrollController.animateTo(
+                        scrollController.position.maxScrollExtent, 
+                        curve: Curves.linear, 
+                        duration: Duration(
+                          seconds: (scrollController.position.maxScrollExtent / (5 + 5*autoScrollRate)).floor()
+                        )
+                      );
+                      setState(() => autoScroll = true);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     ); else return Scaffold(appBar: AppBar(),);

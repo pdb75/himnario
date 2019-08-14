@@ -11,8 +11,10 @@ class BodyCoro extends StatefulWidget {
   final bool acordes;
   final double animation;
   final String notation;
+  final ScrollController scrollController;
+  final Function stopScroll;
 
-  BodyCoro({this.initfontSize, this.estrofas, this.alignment, this.acordes, this.animation, this.notation});
+  BodyCoro({this.initfontSize, this.estrofas, this.alignment, this.acordes, this.animation, this.notation, this.stopScroll, this.scrollController});
 
   @override
   _BodyCoroState createState() => _BodyCoroState();
@@ -40,10 +42,11 @@ class _BodyCoroState extends State<BodyCoro> {
       onScaleEnd: (ScaleEndDetails details) {
         initfontSize = fontSize;
       },
+      onTapDown: (TapDownDetails details) => widget.stopScroll(),
       child: Container(
         child: (widget.estrofas.isNotEmpty ? ListView(
+          controller: widget.scrollController,
           physics: BouncingScrollPhysics(),
-          // padding: EdgeInsets.only(bottom: 70.0 + switchMode.value * 130),
           children: <Widget>[
             CoroText(
               estrofas: widget.estrofas,

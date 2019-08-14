@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
@@ -91,6 +92,12 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     estrofas = List<Parrafo>();
     currentProgress = 0.0;
     tema = subTema = '';
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.light
+      )
+    );
     getHimno();
   }
 

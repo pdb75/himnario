@@ -95,6 +95,8 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
             // transpose
             List<Himno> transposedHImnos = List<Himno>();
 
+            db = db.isOpen ? db : await openDatabase(path);
+
             await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
             await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
 
@@ -140,7 +142,6 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
   Future<Null> initDB() async {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     path = databasesPath + "/himnos.db";
-
     prefs = await SharedPreferences.getInstance();
     String version = prefs.getString('version');
     String actualVersion = (await PackageInfo.fromPlatform()).version;

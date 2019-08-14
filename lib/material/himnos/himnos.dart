@@ -82,6 +82,7 @@ class _HimnosPageState extends State<HimnosPage> {
               ),
               action: SnackBarAction(
                 label: 'Ok',
+                textColor: Colors.white,
                 onPressed: () =>_globalKey.currentState.hideCurrentSnackBar(),
               ),
             ));
@@ -393,6 +394,8 @@ class _HimnosPageState extends State<HimnosPage> {
             curve: Curves.easeInOutSine,
             height: cargando || categorias.isEmpty ? 4.0 : 0.0,
             child: LinearProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor),
+              backgroundColor: Theme.of(context).canvasColor,
               value: downloadProgress,
             ),
           ),
@@ -403,6 +406,7 @@ class _HimnosPageState extends State<HimnosPage> {
         onPageChanged: (int index) => setState(() => currentPage = index),
         children: <Widget>[
           categorias.isNotEmpty ? RefreshIndicator(
+            color: Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor,
             onRefresh: () => checkUpdates(prefs, db),
             child: ListView.builder(
               padding: EdgeInsets.only(bottom: 80.0),
@@ -488,6 +492,7 @@ class _HimnosPageState extends State<HimnosPage> {
             ),
           ) : Container(),
          RefreshIndicator(
+           color: Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor,
            onRefresh: () => checkUpdates(prefs, db),
            child:  CorosScroller(
             cargando: cargando,
