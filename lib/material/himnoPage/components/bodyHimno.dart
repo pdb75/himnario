@@ -21,6 +21,7 @@ class BodyHimno extends StatefulWidget {
 }
 
 class _BodyHimnoState extends State<BodyHimno> {
+  ScrollController controller;
   double fontSize;
   double initfontSize;
 
@@ -29,6 +30,7 @@ class _BodyHimnoState extends State<BodyHimno> {
     super.initState();
     initfontSize = widget.initfontSize;
     fontSize = initfontSize;
+    controller = ScrollController();
   }
 
   @override
@@ -46,6 +48,7 @@ class _BodyHimnoState extends State<BodyHimno> {
           },
           child: Container(
             child: (widget.estrofas.isNotEmpty ? ListView(
+              controller: controller,
               physics: BouncingScrollPhysics(),
               padding: EdgeInsets.only(bottom: 70.0 + widget.switchValue * 130),
               children: <Widget>[
@@ -53,42 +56,27 @@ class _BodyHimnoState extends State<BodyHimno> {
                 //   onTap: () => Navigator.push(
                 //     context, 
                 //     MaterialPageRoute(
-                //       builder: (BuildContext context) => TemaPage(
-                //         id: widget.temaId, 
-                //         subtema: widget.subTema != '', 
-                //         tema: widget.subTema != '' ? widget.subTema : widget.tema
-                //       )
-                //     )),
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: <Widget>[
-                //       Container(
-                //         padding: EdgeInsets.only(top: 10.0, left: 15.0, right: 15.0, bottom: 5.0),
-                //         child: Text(
-                //             widget.tema,
-                //             style: DefaultTextStyle.of(context).style.copyWith(
-                //               color: Colors.blueAccent,
-                //               fontSize: fontSize*0.8,
-                //               fontStyle: FontStyle.italic,
-                //               fontWeight: FontWeight.w300
-                //             ),
-                //           ),
-                        
-                //       ),
-                //       widget.subTema != '' ? Container(
-                //         padding: EdgeInsets.only(top: 0.0, left: 15.0, right: 15.0, bottom: 0.0),
-                //         child: Text(
-                //             widget.subTema,
-                //             style: DefaultTextStyle.of(context).style.copyWith(
-                //               color: Colors.blueAccent,
-                //               fontSize: fontSize*0.8,
-                //               fontStyle: FontStyle.italic,
-                //               fontWeight: FontWeight.w300
-                //             )
-                //           ),
-                //       ) : Container()
-                //     ],
+                //       builder: (BuildContext context) => TemaPage(id: widget.temaId, subtema: widget.subTema != '', tema: (widget.subTema != '') ? widget.subTema : widget.tema)
+                //     )
                 //   ),
+                //   child: Padding(
+                //     padding: EdgeInsets.symmetric(vertical: 10.0),
+                //     child: Center(
+                //       child: Text(
+                //         '- ' + widget.tema + ((widget.subTema != '') ? '\n~ ' + widget.subTema : ''),
+                //         textAlign: TextAlign.center,
+                //         style: DefaultTextStyle.of(context).style.copyWith(
+                //           fontSize: fontSize,
+                //           fontStyle: FontStyle.italic
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // Container(
+                //   margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width/4),
+                //   height: fontSize*0.04,
+                //   color: Colors.black12,
                 // ),
                 HimnoText(
                   estrofas: widget.estrofas,

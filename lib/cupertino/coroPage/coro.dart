@@ -403,7 +403,7 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                             scrollController.position.maxScrollExtent, 
                             curve: Curves.linear, 
                             duration: Duration(
-                              seconds: (scrollController.position.maxScrollExtent / (5 + 5*autoScrollRate)).floor()
+                              seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5*autoScrollRate)).floor()
                             )
                           );
                           setState(() => autoScroll = true);
@@ -424,7 +424,7 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                               scrollController.position.maxScrollExtent, 
                               curve: Curves.linear, 
                               duration: Duration(
-                                seconds: (scrollController.position.maxScrollExtent / (5 + 5*autoScrollRate)).floor()
+                                seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5*autoScrollRate)).floor()
                               )
                             );
                           }
@@ -439,7 +439,7 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                             scrollController.position.maxScrollExtent, 
                             curve: Curves.linear, 
                             duration: Duration(
-                              seconds: (scrollController.position.maxScrollExtent / (5 + 5*autoScrollRate)).floor()
+                              seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5*autoScrollRate)).floor()
                             )
                           );
                           setState(() => autoScroll = true);

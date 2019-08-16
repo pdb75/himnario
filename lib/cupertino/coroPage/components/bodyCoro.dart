@@ -43,6 +43,8 @@ class _BodyCoroState extends State<BodyCoro> {
         initfontSize = fontSize;
       },
       onTapDown: (TapDownDetails details) => widget.stopScroll(),
+      onHorizontalDragDown: (DragDownDetails details) => widget.stopScroll(),
+      onVerticalDragDown: (DragDownDetails details) => widget.stopScroll(),
       child: Container(
         child: (widget.estrofas.isNotEmpty ? ListView(
           controller: widget.scrollController,
