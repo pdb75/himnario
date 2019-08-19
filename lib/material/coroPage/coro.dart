@@ -1,22 +1,12 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import './components/bodyCoro.dart';
 import '../models/himnos.dart';
-import './components/boton_voz.dart';
-import './components/estructura_Coro.dart';
-import './components/slider.dart';
 
 class CoroPage extends StatefulWidget {
 
@@ -40,7 +30,8 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
   bool favorito;
   bool acordes;
   bool transposeMode;
-  double initfontSize;
+  double initfontSizeProtrait;
+  double initfontSizeLandscape;
   double initposition;
   bool descargado;
   int max;
@@ -66,7 +57,8 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
     transposeMode = false;
     acordesDisponible = false;
     favorito = false;
-    initfontSize = 16.0;
+    initfontSizeProtrait = 16.0;
+    initfontSizeLandscape = 16.0;
     fontController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
@@ -108,7 +100,14 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
         if (linea.length > max) max = linea.length;
       }
     }
-    initfontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
+
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      initfontSizeProtrait = (MediaQuery.of(context).size.width - 30)/max + 8;
+      initfontSizeLandscape = (MediaQuery.of(context).size.height - 30)/max + 8;
+    } else {
+      initfontSizeProtrait = (MediaQuery.of(context).size.height - 30)/max + 8;
+      initfontSizeLandscape = (MediaQuery.of(context).size.width - 30)/max + 8;
+    }
 
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
     List<Map<String,dynamic>> descargadoQuery = await db.rawQuery('select * from descargados where himno_id = ${widget.numero}');
@@ -332,7 +331,8 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
               },
               alignment: prefs.getString('alignment'),
               estrofas: estrofas,
-              initfontSize: initfontSize,
+              initfontSizeProtrait: initfontSizeProtrait,
+              initfontSizeLandscape: initfontSizeLandscape,
               acordes: acordes,
               animation: fontController.value,
               notation: prefs.getString('notation') ?? 'latino',

@@ -28,6 +28,7 @@ class Buscador extends StatefulWidget {
 class _BuscadorState extends State<Buscador> {
   List<Himno> himnos;
   bool cargando;
+  String path;
   Database db; 
 
   @override
@@ -35,25 +36,26 @@ class _BuscadorState extends State<Buscador> {
     super.initState();
     cargando = true;
     himnos = List<Himno>();
+    path = '';
     initDB();
   }
 
   Future<Null> initDB([bool refresh = true]) async {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
-    String path = databasesPath + "/himnos.db";
+    path = databasesPath + "/himnos.db";
     db = await openReadOnlyDatabase(path);
 
     if (refresh) {
       List<Himno> himnostemp = List<Himno>();
-      List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo, himnos.transpose from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
-      List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
+      List<Map<String,dynamic>> data = await executeQuery('select himnos.id, himnos.titulo, himnos.transpose from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
+      List<Map<String,dynamic>> favoritosQuery = await executeQuery('select * from favoritos');
       List<int> favoritos = List<int>();
 
       for(dynamic favorito in favoritosQuery) {
         favoritos.add(favorito['himno_id']);
       }
 
-      List<Map<String,dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
+      List<Map<String,dynamic>> descargasQuery = await executeQuery('select * from descargados');
       List<int> descargas = List<int>();
 
       for(dynamic descarga in descargasQuery) {
@@ -126,6 +128,19 @@ class _BuscadorState extends State<Buscador> {
     return null;
   }
 
+  Future<List<Map<String, dynamic>>> executeQuery(String query) async {
+    List<Map<String, dynamic>> result = List<Map<String, dynamic>>();
+    try {
+      if (!db.isOpen) {
+        db = await openReadOnlyDatabase(path);
+      }
+      result = await db.rawQuery(query);
+    } catch(e) {
+      print(e);
+    }
+    return result;
+  }
+
   @override
   void dispose() async {
     super.dispose();
@@ -156,7 +171,10 @@ class _BuscadorState extends State<Buscador> {
             duration: Duration(milliseconds: 100),
             curve: Curves.easeInOutSine,
             height: cargando ? 4.0 : 0.0,
-            child: LinearProgressIndicator(),
+            child: LinearProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor),
+              backgroundColor: Colors.white,
+            ),
           ),
         ),
       ),

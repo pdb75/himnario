@@ -131,7 +131,7 @@ class CustomSlider extends CustomPainter {
     canvas.drawLine(Offset(0.0, position), Offset(currentProgress, position), primaryColorPaint);
     canvas.drawLine(Offset(currentProgress, position), Offset(size.width, position), geryColorPaint);
     if (dragging) {
-      currentProgress = progress >= 0.76 ? size.width*0.76 : currentProgress;
+      currentProgress = currentProgress > size.width-90.0 ? size.width-90.0 : currentProgress;
       double height = 50.0;
       double radius = 70.0;
       canvas.drawLine(Offset(currentProgress, position+5.0), Offset(currentProgress, -height), Paint()

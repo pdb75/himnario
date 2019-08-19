@@ -31,29 +31,32 @@ class Buscador extends StatefulWidget {
 class _BuscadorState extends State<Buscador> {
   List<Himno> himnos;
   bool cargando;
+  String path;
   Database db; 
 
   @override
   void initState() {
     super.initState();
     cargando = true;
+    path = '';
     himnos = List<Himno>();
     initDB();
   }
 
   Future<Null> initDB([bool refresh = true]) async {
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
-    String path = databasesPath + "/himnos.db";
+    path = databasesPath + "/himnos.db";
     db = await openReadOnlyDatabase(path);
+
     if (refresh) {
       List<Himno> himnostemp = List<Himno>();
-      List<Map<String,dynamic>> data = await db.rawQuery('select himnos.id, himnos.titulo, himnos.transpose from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
-      List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
+      List<Map<String,dynamic>> data = await executeQuery('select himnos.id, himnos.titulo, himnos.transpose from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
+      List<Map<String,dynamic>> favoritosQuery = await executeQuery('select * from favoritos');
       List<int> favoritos = List<int>();
       for(dynamic favorito in favoritosQuery) {
         favoritos.add(favorito['himno_id']);
       }
-      List<Map<String,dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
+      List<Map<String,dynamic>> descargasQuery = await executeQuery('select * from descargados');
       List<int> descargas = List<int>();
       for(dynamic descarga in descargasQuery) {
         descargas.add(descarga['himno_id']);
@@ -97,13 +100,13 @@ class _BuscadorState extends State<Buscador> {
       else queryParrafo += " and REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(parrafo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
     }
     
-    List<Map<String,dynamic>> data = await db.rawQuery("select himnos.id, himnos.titulo, himnos.transpose from himnos join parrafos on parrafos.himno_id = himnos.id where${widget.type == BuscadorType.Coros ? ' himnos.id > 517 and' : widget.type == BuscadorType.Himnos ? ' himnos.id <= 517 and' : ''} ($queryTitulo or $queryParrafo) group by himnos.id order by himnos.id ASC");
-    List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
+    List<Map<String,dynamic>> data = await executeQuery("select himnos.id, himnos.titulo, himnos.transpose from himnos join parrafos on parrafos.himno_id = himnos.id where${widget.type == BuscadorType.Coros ? ' himnos.id > 517 and' : widget.type == BuscadorType.Himnos ? ' himnos.id <= 517 and' : ''} ($queryTitulo or $queryParrafo) group by himnos.id order by himnos.id ASC");
+    List<Map<String,dynamic>> favoritosQuery = await executeQuery('select * from favoritos');
     List<int> favoritos = List<int>();
     for(dynamic favorito in favoritosQuery) {
       favoritos.add(favorito['himno_id']);
     }
-    List<Map<String,dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
+    List<Map<String,dynamic>> descargasQuery = await executeQuery('select * from descargados');
     List<int> descargas = List<int>();
     for(dynamic descarga in descargasQuery) {
       descargas.add(descarga['himno_id']);
@@ -120,6 +123,19 @@ class _BuscadorState extends State<Buscador> {
     himnos = himnostemp;
     setState(() => cargando = false);
     return null;
+  }
+
+  Future<List<Map<String, dynamic>>> executeQuery(String query) async {
+    List<Map<String, dynamic>> result = List<Map<String, dynamic>>();
+    try {
+      if (!db.isOpen) {
+        db = await openReadOnlyDatabase(path);
+      }
+      result = await db.rawQuery(query);
+    } catch(e) {
+      print(e);
+    }
+    return result;
   }
 
   @override

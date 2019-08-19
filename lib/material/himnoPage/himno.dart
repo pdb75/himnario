@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:photo_view/photo_view.dart';
 
 import './components/bodyHimno.dart';
 import './components/boton_voz.dart';
@@ -49,7 +50,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   bool favorito;
   bool acordes;
   bool swipeAnimation;
-  double initfontSize;
+  double initfontSizeProtrait;
+  double initfontSizeLandscape;
   double initposition;
   bool descargado;
   int max;
@@ -61,6 +63,14 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   String tema;
   int temaId;
   String subTema;
+
+  bool sheet;
+  bool sheetDragging;
+  bool sheetOutDragging;
+  double initSheetOffset;
+  double sheetOffset;
+  PhotoViewController sheetController;
+  Orientation currentOrientation;
 
   @override
   void initState() {
@@ -79,7 +89,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     start = false;
     vozDisponible = false;
     favorito = false;
-    initfontSize = 16.0;
+    initfontSizeProtrait = 16.0;
+    initfontSizeLandscape = 16.0;
     currentDuration = Duration();
     switchModeController = AnimationController(
       duration: Duration(milliseconds: 200), 
@@ -99,6 +110,14 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       )
     );
     getHimno();
+
+    // Sheet init
+    sheet = false;
+    sheetDragging = false;
+    sheetOutDragging = false;
+    sheetOffset = 0.0;
+    initSheetOffset = 0.0;
+    sheetController = PhotoViewController();
   }
 
   Future<Database> initDB() async {
@@ -178,7 +197,14 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         if (linea.length > max) max = linea.length;
       }
     }
-    initfontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
+
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      initfontSizeProtrait = (MediaQuery.of(context).size.width - 30)/max + 8;
+      initfontSizeLandscape = (MediaQuery.of(context).size.height - 30)/max + 8;
+    } else {
+      initfontSizeProtrait = (MediaQuery.of(context).size.height - 30)/max + 8;
+      initfontSizeLandscape = (MediaQuery.of(context).size.width - 30)/max + 8;
+    }
 
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
     List<Map<String,dynamic>> descargadoQuery = await db.rawQuery('select * from descargados where himno_id = ${widget.numero}');
@@ -189,7 +215,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       descargado = descargadoQuery.isNotEmpty;
       totalDuration = descargadoQuery.isNotEmpty ? descargadoQuery[0]['duracion'] : 0;
       estrofas = Parrafo.fromJson(parrafos);
-      tema = temaQuery[0]['tema'];
+      tema = temaQuery == null || temaQuery.isEmpty ? '' : temaQuery[0]['tema'];
       subTema = subTemaQuery.isNotEmpty ? subTemaQuery[0]['sub_tema'] : '';
       temaId = subTemaQuery.isNotEmpty ? subTemaQuery[0]['id'] : temaQuery[0]['id'];
     });
@@ -603,12 +629,122 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           BodyHimno(
             alignment: prefs.getString('alignment'),
             estrofas: estrofas,
-            initfontSize: initfontSize,
+            initfontSizeProtrait: initfontSizeProtrait,
+            initfontSizeLandscape: initfontSizeLandscape,
             switchValue: switchModeController.value,
             tema: tema,
             subTema: subTema,
             temaId: temaId
           ),
+
+          // Partitura de Himno
+
+          // GestureDetector(
+          //   onHorizontalDragStart: (DragStartDetails details) {
+          //     setState(() {
+          //        sheetDragging = true;
+          //        initSheetOffset = details.globalPosition.dx;
+          //     });
+          //   },
+          //   onHorizontalDragUpdate: (DragUpdateDetails details) {
+          //     setState(() {
+          //       sheetOffset = (initSheetOffset - details.globalPosition.dx);
+          //       sheet = details.delta.dx < -4;
+          //     });
+          //   },
+          //   onHorizontalDragEnd: (DragEndDetails details) {
+          //     setState(() {
+          //        sheetDragging = false;
+          //        sheet = sheet ? true : sheetOffset > MediaQuery.of(context).size.width/4;
+          //        sheetOffset = 0.0;
+          //        initSheetOffset = 0.0;
+          //     });
+          //   },
+          //   child: Align(
+          //     alignment: Alignment.centerRight,
+          //     child: Container(
+          //       height: double.infinity,
+          //       width: MediaQuery.of(context).orientation == Orientation.portrait ? 40.0 : 50,
+          //       color: Colors.transparent,
+          //     ),
+          //   ),
+          // ),
+          // WillPopScope(
+          //   onWillPop: () {
+          //     bool aux = !sheet;
+          //     if (sheet) {
+          //       setState(() => sheet = false);
+          //     }
+          //     return Future(() => aux);
+          //   },
+          //   child: AnimatedContainer(
+          //     curve: Curves.easeInOutSine,
+          //     duration: Duration(milliseconds: sheetDragging || sheetOutDragging ? 1 : 500),
+          //     transform: Matrix4.translationValues(
+          //       sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
+          //       sheetOutDragging ? sheetOffset :
+          //       sheet ? 0.0 :MediaQuery.of(context).size.width, 
+          //       0.0, 
+          //       0.0
+          //     ),
+          //     child: OrientationBuilder(
+          //       builder: (BuildContext context, Orientation orientation) {
+          //         if (currentOrientation == null) {
+          //           currentOrientation = orientation;
+          //         }
+          //         if (currentOrientation != orientation) {
+          //           currentOrientation = null;
+          //           sheetController = PhotoViewController();
+          //           sheet = false;
+          //         }
+          //         return currentOrientation == null ? Container() : PhotoView(
+          //           controller: sheetController,
+          //           imageProvider: AssetImage('assets/1.jpg'),
+          //           basePosition: orientation ==  Orientation.portrait ? Alignment.center : Alignment.topCenter,
+          //           initialScale: orientation ==  Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
+          //           backgroundDecoration: BoxDecoration(
+          //             color: Colors.white
+          //           )
+          //         );
+          //       },
+          //     )
+          //   ),
+          // ),
+          // GestureDetector(
+          //   onHorizontalDragStart: !sheet ? null : (DragStartDetails details) {
+          //     setState(() {
+          //        sheetOutDragging = true;
+          //        initSheetOffset = details.globalPosition.dx;
+          //     });
+          //   },
+          //   onHorizontalDragUpdate: (DragUpdateDetails details) {
+          //     print(details.delta.dx);
+          //     setState(() {
+          //       sheetOffset = (details.globalPosition.dx - initSheetOffset);
+          //       sheet = sheetOutDragging && details.delta.dx < 4;
+          //     });
+          //   },
+          //   onHorizontalDragEnd: (DragEndDetails details) {
+          //     setState(() {
+          //        sheetOutDragging = false;
+          //        sheet = !sheet ? false : sheetOffset < MediaQuery.of(context).size.width/4;
+          //        sheetOffset = 0.0;
+          //        initSheetOffset = 0.0;
+          //        if (!sheet) {
+          //          sheetController.reset();
+          //        }
+          //     });
+          //   },
+          //   child: Align(
+          //     alignment: Alignment.centerLeft,
+          //     child: Container(
+          //       height: double.infinity,
+          //       width: MediaQuery.of(context).orientation == Orientation.portrait ? 40.0 : 50,
+          //       color: Colors.transparent,
+          //     ),
+          //   ),
+          // ),
+
           Align(
             alignment: FractionalOffset.bottomCenter,
             child: FractionalTranslation(

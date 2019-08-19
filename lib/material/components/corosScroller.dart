@@ -30,8 +30,9 @@ class _CorosScrollerState extends State<CorosScroller> {
     scrollController = ScrollController(initialScrollOffset: 0.0);
     scrollController.addListener((){
       double maxScrollPosition = MediaQuery.of(context).size.height - 60 - 130.0;
+      double maxScrollExtent = scrollController.position.maxScrollExtent == 0.0 ? 1.0 : scrollController.position.maxScrollExtent;
       if(!dragging)
-        setState(() => scrollPosition = 15.0 + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
+        setState(() => scrollPosition = 15.0 + ((scrollController.offset/maxScrollExtent)*(maxScrollPosition)));
     });
     scrollPosition = 105.0 - 90.0;
     dragging = false;
@@ -48,6 +49,7 @@ class _CorosScrollerState extends State<CorosScroller> {
 
   @override
   Widget build(BuildContext context) {
+    int length = widget.himnos.length == 0 ? 1 : widget.himnos.length;
     if (scrollPosition == double.infinity || scrollPosition == double.nan)
       scrollPosition = 105.0 - 90.0;
     return Stack(
@@ -63,7 +65,7 @@ class _CorosScrollerState extends State<CorosScroller> {
               Column(
                 children: <Widget>[
                   Container(
-                    color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 60 - 129)/widget.himnos.length) == index && dragging ? Theme.of(context).primaryColor : Theme.of(context).scaffoldBackgroundColor,
+                    color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 60 - 129)/length) == index && dragging ? Theme.of(context).primaryColor : Theme.of(context).scaffoldBackgroundColor,
                     child: ListTile(
                       onTap: () async {
                         await Navigator.push(
@@ -84,7 +86,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                           ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
                           softWrap: true,
                           style: Theme.of(context).textTheme.subhead.copyWith(
-                            color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 60 - 129)/widget.himnos.length) == index && dragging ? Theme.of(context).primaryIconTheme.color : Theme.of(context).textTheme.subhead.color
+                            color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 60 - 129)/length) == index && dragging ? Theme.of(context).primaryIconTheme.color : Theme.of(context).textTheme.subhead.color
                           ),
                         ),
                       ),
@@ -112,11 +114,11 @@ class _CorosScrollerState extends State<CorosScroller> {
                 scrollPosition = position;
                 dragging = true;
               });
-              int currentHimno = ((position-15)~/((MediaQuery.of(context).size.height - 60 - 129)/widget.himnos.length) + 1);
+              int currentHimno = ((position-15)~/((MediaQuery.of(context).size.height - 60 - 129)/length) + 1);
               if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 60 - 115.0)~/56.0)
                 scrollController.jumpTo(scrollController.position.maxScrollExtent);
               else
-                scrollController.jumpTo((position-15)~/((MediaQuery.of(context).size.height - 60 - 129)/widget.himnos.length)*56.0);
+                scrollController.jumpTo((position-15)~/((MediaQuery.of(context).size.height - 60 - 129)/length)*56.0);
             },
             onVerticalDragUpdate: (DragUpdateDetails details) {
               double position;
@@ -131,11 +133,11 @@ class _CorosScrollerState extends State<CorosScroller> {
               setState(() {
                 scrollPosition = position;
               });
-              int currentHimno = ((position-15)~/((MediaQuery.of(context).size.height - 60 - 129)/widget.himnos.length) + 1);
+              int currentHimno = ((position-15)~/((MediaQuery.of(context).size.height - 60 - 129)/length) + 1);
               if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 60 - 115.0)~/56.0)
                 scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
               else
-                scrollController.jumpTo((position-15)~/((MediaQuery.of(context).size.height - 60 - 129)/widget.himnos.length)*56.0);
+                scrollController.jumpTo((position-15)~/((MediaQuery.of(context).size.height - 60 - 129)/length)*56.0);
             },
             onVerticalDragEnd: (DragEndDetails details) {
               setState(() {
@@ -151,7 +153,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                   position: scrollPosition,
                   context: context,
                   dragging: dragging,
-                  numero: dragging ? (scrollPosition-15)~/((MediaQuery.of(context).size.height - 60 - 129)/widget.himnos.length) : -1
+                  numero: dragging ? (scrollPosition-15)~/((MediaQuery.of(context).size.height - 60 - 129)/length) : -1
                 ),
               ),
             )

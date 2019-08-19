@@ -38,7 +38,6 @@ class CupertinoHimnosPage extends StatefulWidget {
 }
 
 class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
-  final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
   TemaModel tema;
   List<Categoria> categorias;
   List<Himno> coros;

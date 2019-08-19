@@ -17,6 +17,7 @@ class QuickBuscador extends StatefulWidget {
 class _QuickBuscadorState extends State<QuickBuscador> {
   bool done;
   bool cargando;
+  String path;
   Database db;
   Himno himno;
   List<Parrafo> estrofas;
@@ -27,6 +28,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
   @override
   void initState() {
     super.initState();
+    path = '';
     max = 0;
     fontSize = 16.0;
     done = false;
@@ -39,7 +41,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
   Future<Null> initDB() async {
     prefs = await SharedPreferences.getInstance();
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
-    String path = databasesPath + "/himnos.db";
+    path = databasesPath + "/himnos.db";
     db = await openDatabase(path);
     setState(() {
       cargando = false;
@@ -51,7 +53,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
     max = 0;
     setState(() => cargando = true);
     if (query.isNotEmpty) {
-      List<Map<String,dynamic>> himnoQuery = await db.rawQuery('select himnos.id, himnos.titulo from himnos where himnos.id = $query');
+      List<Map<String,dynamic>> himnoQuery = await executeQuery('select himnos.id, himnos.titulo from himnos where himnos.id = $query');
       if (himnoQuery.isEmpty || int.parse(query) > 517)
         setState(() {
           estrofas = List<Parrafo>();
@@ -59,7 +61,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
           cargando = false;
         });
       else {
-        List<Map<String,dynamic>> parrafos = await db.rawQuery('select * from parrafos where himno_id = $query');
+        List<Map<String,dynamic>> parrafos = await executeQuery('select * from parrafos where himno_id = $query');
         for (Map<String,dynamic> parrafo in parrafos) {
           for (String linea in parrafo['parrafo'].split('\n')) {
             if (linea.length > max) max = linea.length;
@@ -77,6 +79,19 @@ class _QuickBuscadorState extends State<QuickBuscador> {
         himno = Himno(titulo: 'Ingrese un número', numero: -1);
         cargando = false;
       });
+  }
+
+  Future<List<Map<String, dynamic>>> executeQuery(String query) async {
+    List<Map<String, dynamic>> result = List<Map<String, dynamic>>();
+    try {
+      if (!db.isOpen) {
+        db = await openReadOnlyDatabase(path);
+      }
+      result = await db.rawQuery(query);
+    } catch(e) {
+      print(e);
+    }
+    return result;
   }
 
   @override
@@ -128,7 +143,10 @@ class _QuickBuscadorState extends State<QuickBuscador> {
             duration: Duration(milliseconds: 100),
             curve: Curves.easeInOutSine,
             height: cargando ? 4.0 : 0.0,
-            child: LinearProgressIndicator(),
+            child: LinearProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor),
+              backgroundColor: Colors.white,
+            ),
           ),
         ),
         actions: <Widget>[

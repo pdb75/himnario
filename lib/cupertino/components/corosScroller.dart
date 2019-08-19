@@ -37,8 +37,9 @@ class _CorosScrollerState extends State<CorosScroller> {
     scrollController = ScrollController(initialScrollOffset: 0.0);
     scrollController.addListener((){
       double maxScrollPosition = MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 + iPhoneXPadding;
+      double maxScrollExtent = scrollController.position.maxScrollExtent == 0.0 ? 1.0 : scrollController.position.maxScrollExtent;
       if(!dragging)
-        setState(() => scrollPosition = 72.0 + iPhoneXPadding + ((scrollController.offset/scrollController.position.maxScrollExtent)*(maxScrollPosition)));
+        setState(() => scrollPosition = 72.0 + iPhoneXPadding + ((scrollController.offset/maxScrollExtent)*(maxScrollPosition)));
     });
     scrollPosition = 72.0 + iPhoneXPadding;
     dragging = false;
@@ -56,6 +57,7 @@ class _CorosScrollerState extends State<CorosScroller> {
   @override
   Widget build(BuildContext context) {
     final TemaModel tema = ScopedModel.of<TemaModel>(context);
+    int length = widget.himnos.length == 0 ? 1 : widget.himnos.length;
     if (scrollPosition == double.infinity || scrollPosition == double.nan)
       scrollPosition = 72.0 + iPhoneXPadding;
     return Stack(
@@ -82,7 +84,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                     key: PageStorageKey('Scroller Tema'),
                     delegate: SliverChildBuilderDelegate((BuildContext builder, int index) => 
                     Container(
-                      color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/widget.himnos.length) == index && dragging ? 
+                      color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) == index && dragging ? 
                       tema.mainColor : 
                       CupertinoTheme.of(context).scaffoldBackgroundColor,
                       height: 55.0,
@@ -112,7 +114,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                                 softWrap: true,
                                 textAlign: TextAlign.start,
                                 style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                  color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/widget.himnos.length) == index && dragging ? 
+                                  color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) == index && dragging ? 
                                   tema.mainColorContrast : 
                                   CupertinoTheme.of(context).textTheme.textStyle.color,
                                   fontFamily: ScopedModel.of<TemaModel>(context).font,
@@ -160,12 +162,12 @@ class _CorosScrollerState extends State<CorosScroller> {
                 dragging = true;
               });
 
-              int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/widget.himnos.length) + 1);
+              int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length) + 1);
 
               if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
                 scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
               else
-                scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/widget.himnos.length)*tileSize);
+                scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length)*tileSize);
             },
             onVerticalDragUpdate: (DragUpdateDetails details) {
               double position;
@@ -186,12 +188,12 @@ class _CorosScrollerState extends State<CorosScroller> {
                 scrollPosition = position;
               });
 
-              int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/widget.himnos.length) + 1);
+              int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length) + 1);
 
               if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
                 scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
               else
-                scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/widget.himnos.length)*tileSize);
+                scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length)*tileSize);
             },
             onVerticalDragEnd: (DragEndDetails details) {
               setState(() {
@@ -210,7 +212,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                     context: context,
                     dragging: dragging,
                     iPhoneXPadding: iPhoneXPadding,
-                    numero: dragging ? (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/widget.himnos.length) : -1,
+                    numero: dragging ? (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) : -1,
                   ),
                 ),
               ),

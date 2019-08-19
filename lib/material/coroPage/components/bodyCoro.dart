@@ -6,7 +6,8 @@ import '../../models/himnos.dart';
 class BodyCoro extends StatefulWidget {
 
   final String alignment;
-  final double initfontSize;
+  final double initfontSizeProtrait;
+  final double initfontSizeLandscape;
   final List<Parrafo> estrofas;
   final bool acordes;
   final double animation;
@@ -14,33 +15,45 @@ class BodyCoro extends StatefulWidget {
   final ScrollController scrollController;
   final Function stopScroll;
 
-  BodyCoro({this.initfontSize, this.estrofas, this.alignment, this.acordes, this.animation, this.notation, this.scrollController, this.stopScroll});
+  BodyCoro({ this.estrofas, this.alignment, this.acordes, this.animation, this.notation, this.scrollController, this.stopScroll, this.initfontSizeLandscape, this.initfontSizeProtrait});
 
   @override
   _BodyCoroState createState() => _BodyCoroState();
 }
 
 class _BodyCoroState extends State<BodyCoro> {
-  double fontSize;
-  double initfontSize;
+  double fontSizeProtrait;
+  double initfontSizeProtrait;
+  double fontSizeLandscape;
+  double initfontSizeLandscape;
 
   @override
   void initState() {
     super.initState();
-    initfontSize = widget.initfontSize;
-    fontSize = initfontSize;
+    // Protrait Font Size
+    initfontSizeProtrait = widget.initfontSizeProtrait;
+    fontSizeProtrait = initfontSizeProtrait;
+
+    // Landscape Font Size
+    initfontSizeLandscape = widget.initfontSizeLandscape;
+    fontSizeLandscape = initfontSizeLandscape;
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       key: Key('GestureDetector-Coro'),
-      onScaleUpdate: (ScaleUpdateDetails details) {
-        double newFontSize = initfontSize*details.scale;
-        setState(() => fontSize = newFontSize < 10.0 ? 10.0 : newFontSize);
+      onScaleUpdate: MediaQuery.of(context).orientation == Orientation.portrait ? (ScaleUpdateDetails details) {
+        double newFontSize = initfontSizeProtrait*details.scale;
+        setState(() => fontSizeProtrait = newFontSize < 10.0 ? 10.0 : newFontSize);
+      } : (ScaleUpdateDetails details) {
+        double newFontSize = initfontSizeLandscape*details.scale;
+        setState(() => fontSizeLandscape = newFontSize < 10.0 ? 10.0 : newFontSize);
       },
-      onScaleEnd: (ScaleEndDetails details) {
-        initfontSize = fontSize;
+      onScaleEnd: MediaQuery.of(context).orientation == Orientation.portrait ? (ScaleEndDetails details) {
+        initfontSizeProtrait = fontSizeProtrait;
+      } : (ScaleEndDetails details) {
+        initfontSizeLandscape = fontSizeLandscape;
       },
       onTapDown: (TapDownDetails details) => widget.stopScroll(),
       onHorizontalDragDown: (DragDownDetails details) => widget.stopScroll(),
@@ -52,7 +65,7 @@ class _BodyCoroState extends State<BodyCoro> {
           children: <Widget>[
             CoroText(
               estrofas: widget.estrofas,
-              fontSize: fontSize,
+              fontSize: MediaQuery.of(context).orientation == Orientation.portrait ? fontSizeProtrait : fontSizeLandscape,
               alignment: widget.alignment,
               acordes: widget.acordes,
               animation: widget.animation,
