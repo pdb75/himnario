@@ -193,16 +193,19 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
     List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
     List<Map<String,dynamic>> descargadoQuery = await db.rawQuery('select * from descargados where himno_id = ${widget.numero}');
-    List<Map<String,dynamic>> temaQuery = await db.rawQuery('select temas.tema, temas.id from tema_himnos join temas on temas.id = tema_himnos.tema_id where tema_himnos.himno_id = ${widget.numero}');
-    List<dynamic> subTemaQuery = await db.rawQuery('select sub_temas.id, sub_temas.sub_tema from sub_tema_himnos join sub_temas on sub_temas.id = sub_tema_himnos.sub_tema_id where sub_tema_himnos.himno_id = ${widget.numero}');
+    // List<Map<String,dynamic>> temaQuery = await db.rawQuery('select temas.tema, temas.id from tema_himnos join temas on temas.id = tema_himnos.tema_id where tema_himnos.himno_id = ${widget.numero}');
+    // List<dynamic> subTemaQuery = await db.rawQuery('select sub_temas.id, sub_temas.sub_tema from sub_tema_himnos join sub_temas on sub_temas.id = sub_tema_himnos.sub_tema_id where sub_tema_himnos.himno_id = ${widget.numero}');
     setState(() {
       favorito = favoritosQuery.isNotEmpty;
       descargado = descargadoQuery.isNotEmpty;
       totalDuration = descargadoQuery.isNotEmpty ? descargadoQuery[0]['duracion'] : 0;
       estrofas = Parrafo.fromJson(parrafos);
-      tema = temaQuery == null || temaQuery.isEmpty ? '' : temaQuery[0]['tema'];
-      subTema = subTemaQuery.isNotEmpty ? subTemaQuery[0]['sub_tema'] : '';
-      temaId = subTemaQuery.isNotEmpty ? subTemaQuery[0]['id'] : temaQuery[0]['id'];
+      tema = '';
+      subTema = '';
+      temaId = 1;
+      // tema = temaQuery == null || temaQuery.isEmpty ? '' : temaQuery[0]['tema'];
+      // subTema = subTemaQuery == null || subTemaQuery.isEmpty ? '' : subTemaQuery[0]['sub_tema'];
+      // temaId = subTemaQuery.isNotEmpty ? subTemaQuery[0]['id'] : temaQuery[0]['id'];
     });
 
     if (descargadoQuery.isEmpty) {
