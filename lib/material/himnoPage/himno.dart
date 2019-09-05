@@ -65,10 +65,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   String subTema;
 
   bool sheet;
-  bool sheetDragging;
-  bool sheetOutDragging;
-  double initSheetOffset;
-  double sheetOffset;
+  // bool sheetDragging;
+  // bool sheetOutDragging;
+  // double initSheetOffset;
+  // double sheetOffset;
   PhotoViewController sheetController;
   Orientation currentOrientation;
 
@@ -113,11 +113,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
     // Sheet init
     sheet = false;
-    sheetDragging = false;
-    sheetOutDragging = false;
-    sheetOffset = 0.0;
-    initSheetOffset = 0.0;
-    sheetController = PhotoViewController();
+    // sheetDragging = false;
+    // sheetOutDragging = false;
+    // sheetOffset = 0.0;
+    // initSheetOffset = 0.0;
+    // sheetController = PhotoViewController();
   }
 
   Future<Database> initDB() async {
@@ -232,7 +232,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         }
         else
           setState(() => vozDisponible = false);
-      });
+      }).catchError((onError) => print(onError));
     } else initVocesDownloaded();
     await db.close();
     return null;
@@ -460,6 +460,20 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       });
   }
 
+  // double draggingIn(double minOpacity) {
+  //   double result = (minOpacity/(MediaQuery.of(context).size.width - (MediaQuery.of(context).size.width - initSheetOffset)))*sheetOffset;
+  //   if (!sheetDragging)
+  //     result = sheet ? minOpacity : 0.0;
+  //   return result < 0.0 ? 0.0 : result;
+  // }
+  // double draggingOut(double minOpacity) {
+  //   double result = -(minOpacity/(MediaQuery.of(context).size.width - (initSheetOffset)))*sheetOffset + minOpacity;
+  //   if (!sheetOutDragging)
+  //     result = sheet ? 0.0 : minOpacity;
+
+  //   return result < 0.0 ? 0.0 : result;
+  // }
+
   @override
   Widget build(BuildContext context) {
 
@@ -611,6 +625,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             icon: descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
           ),
           IconButton(
+            onPressed: () => setState(() => sheet = !sheet),
+            icon: Icon(Icons.music_note),
+          ),
+          IconButton(
             onPressed: toggleFavorito,
             icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
           ),
@@ -642,6 +660,17 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
           // Partitura de Himno
 
+          // IgnorePointer(
+          //   child: AnimatedOpacity(
+          //     duration: Duration(milliseconds: sheetDragging || sheetOutDragging ? 1 : 500),
+          //     curve: Curves.easeInOutSine,
+          //     opacity: sheet && sheetOutDragging ? draggingOut(0.8) : draggingIn(0.8),
+          //     child: Container(
+          //       color: Colors.black,
+          //     ),
+          //   ),
+          // ),
+
           // GestureDetector(
           //   onHorizontalDragStart: (DragStartDetails details) {
           //     setState(() {
@@ -672,47 +701,54 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           //     ),
           //   ),
           // ),
-          // WillPopScope(
-          //   onWillPop: () {
-          //     bool aux = !sheet;
-          //     if (sheet) {
-          //       setState(() => sheet = false);
-          //     }
-          //     return Future(() => aux);
-          //   },
-          //   child: AnimatedContainer(
-          //     curve: Curves.easeInOutSine,
-          //     duration: Duration(milliseconds: sheetDragging || sheetOutDragging ? 1 : 500),
-          //     transform: Matrix4.translationValues(
-          //       sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
-          //       sheetOutDragging ? sheetOffset :
-          //       sheet ? 0.0 :MediaQuery.of(context).size.width, 
-          //       0.0, 
-          //       0.0
-          //     ),
-          //     child: OrientationBuilder(
-          //       builder: (BuildContext context, Orientation orientation) {
-          //         if (currentOrientation == null) {
-          //           currentOrientation = orientation;
-          //         }
-          //         if (currentOrientation != orientation) {
-          //           currentOrientation = null;
-          //           sheetController = PhotoViewController();
-          //           sheet = false;
-          //         }
-          //         return currentOrientation == null ? Container() : PhotoView(
-          //           controller: sheetController,
-          //           imageProvider: AssetImage('assets/1.jpg'),
-          //           basePosition: orientation ==  Orientation.portrait ? Alignment.center : Alignment.topCenter,
-          //           initialScale: orientation ==  Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
-          //           backgroundDecoration: BoxDecoration(
-          //             color: Colors.white
-          //           )
-          //         );
-          //       },
-          //     )
-          //   ),
-          // ),
+          WillPopScope(
+            onWillPop: () {
+              bool aux = !sheet;
+              if (sheet) {
+                setState(() => sheet = false);
+              }
+              return Future(() => aux);
+            },
+            child: IgnorePointer(
+              ignoring: !sheet,
+              child: AnimatedContainer(
+                curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
+                duration: Duration(milliseconds: 500),
+                transform: Matrix4.skew(
+                  sheet ? 0.0 : -1.0, 
+                  sheet ? 0.0 : -1.0
+                ),
+                // transform: Matrix4.translationValues(
+                //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
+                //   sheetOutDragging ? sheetOffset :
+                //   sheet ? 0.0 :MediaQuery.of(context).size.width, 
+                //   0.0, 
+                //   0.0
+                // ),
+                child: OrientationBuilder(
+                  builder: (BuildContext context, Orientation orientation) {
+                    if (currentOrientation == null) {
+                      currentOrientation = orientation;
+                    }
+                    if (currentOrientation != orientation) {
+                      currentOrientation = null;
+                      sheetController = PhotoViewController();
+                      sheet = false;
+                    }
+                    return currentOrientation == null ? Container() : PhotoView(
+                      controller: sheetController,
+                      imageProvider: AssetImage('assets/1.jpg'),
+                      basePosition: orientation ==  Orientation.portrait ? Alignment.center : Alignment.topCenter,
+                      initialScale: PhotoViewComputedScale.covered,
+                      backgroundDecoration: BoxDecoration(
+                        color: Colors.white
+                      )
+                    );
+                  },
+                )
+              ),
+            )
+          ),
           // GestureDetector(
           //   onHorizontalDragStart: !sheet ? null : (DragStartDetails details) {
           //     setState(() {
@@ -721,7 +757,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           //     });
           //   },
           //   onHorizontalDragUpdate: (DragUpdateDetails details) {
-          //     print(details.delta.dx);
           //     setState(() {
           //       sheetOffset = (details.globalPosition.dx - initSheetOffset);
           //       sheet = sheetOutDragging && details.delta.dx < 4;
