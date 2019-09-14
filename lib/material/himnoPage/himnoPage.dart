@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 
-import 'himno.dart';
+class HimnoBuilder extends StatefulWidget {
+  final int initialHimno;
 
-class HimnoPageController extends StatefulWidget {
-  
+  HimnoBuilder({this.initialHimno});
+
   @override
-  _HimnoPageControllerState createState() => _HimnoPageControllerState();
+  _HimnoBuilderState createState() => _HimnoBuilderState();
 }
 
-class _HimnoPageControllerState extends State<HimnoPageController> {
+class _HimnoBuilderState extends State<HimnoBuilder> {
+  int currentHimno;
+
+  @override
+  void initState() {
+    super.initState();
+    currentHimno = widget.initialHimno;
+  }
+
+  void getHimnos() {
+    
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
 
-    return HimnoPage(
-      numero: 251,
-      titulo: 'asdasdsa',
-    );
+    return Container();
   }
 }

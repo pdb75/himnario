@@ -103,6 +103,8 @@ class CustomSlider extends CustomPainter {
   bool smalldevice;
   
   CustomSlider({this.progress, this.context, this.dragging, this.duration, this.smalldevice}){
+    duration = duration == double.nan || duration == double.infinity ? 0.0 : duration;
+    progress = progress == double.nan || progress == double.infinity ? 0.0 : progress;
     text = TextPainter(
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,

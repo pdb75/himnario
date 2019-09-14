@@ -21,25 +21,23 @@ import './components/slider.dart';
 
 class HimnoPage extends StatefulWidget {
 
-  HimnoPage({this.numero, this.titulo});
-  
   final int numero;
   final String titulo;
+  
+  HimnoPage({this.numero, this.titulo});
 
   @override
   _HimnoPageState createState() => _HimnoPageState();
 }
 
-class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
+class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMixin {
+  // Voices Variables
   AnimationController switchModeController;
-  AnimationController cancionDuracion;
   StreamSubscription positionSubscription;
   StreamSubscription completeSubscription;
   List<AudioPlayer> audioVoces;
   List<String> stringVoces;
   int currentVoice;
-  List<Parrafo> estrofas;
-  List<File> archivos;
   bool modoVoces;
   bool start;
   double currentProgress;
@@ -47,23 +45,28 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   int totalDuration;
   bool vozDisponible;
   bool cargando;
+  bool descargado;
+  int max;
+  int doneCount;
+  HttpClient cliente;
+
+  // Lyrics Variables
+  List<Parrafo> estrofas;
+  List<File> archivos;
   bool favorito;
   bool acordes;
   bool swipeAnimation;
   double initfontSizeProtrait;
   double initfontSizeLandscape;
   double initposition;
-  bool descargado;
-  int max;
-  int doneCount;
   Database db;
-  HttpClient cliente;
-  SharedPreferences prefs;
-
   String tema;
   int temaId;
   String subTema;
 
+  SharedPreferences prefs;
+
+  // Sheet variables
   bool sheet;
   // bool sheetDragging;
   // bool sheetOutDragging;
@@ -624,10 +627,13 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             onPressed: vozDisponible ? toggleDescargado : null,
             icon: descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
           ),
-          IconButton(
-            onPressed: () => setState(() => sheet = !sheet),
-            icon: Icon(Icons.music_note),
-          ),
+
+          // Activar modo partituras
+          // IconButton(
+          //   onPressed: () => setState(() => sheet = !sheet),
+          //   icon: Icon(Icons.music_note),
+          // ),
+          
           IconButton(
             onPressed: toggleFavorito,
             icon: favorito ? Icon(Icons.star,) : Icon(Icons.star_border,),
