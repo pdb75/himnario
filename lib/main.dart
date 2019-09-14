@@ -71,6 +71,7 @@ void main() async {
   await FlutterCrashlytics().initialize();
 
   runZoned<Future<Null>>(() async {
+    WidgetsFlutterBinding.ensureInitialized();
     runApp(MyApp(tema: tema, mainColor: mainColor, font: font,));
   }, onError: (error, stackTrace) async {
     // Whenever an error occurs, call the `reportCrash` function. This will send
