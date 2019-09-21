@@ -134,7 +134,11 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
   void deleteVocesFiles() async {
     String path = (await getApplicationDocumentsDirectory()).path;
     for (int i = 0; i < audioVoces.length; ++i) {
-      try {File(path + '/${widget.numero}-${stringVoces[i]}.mp3').delete();}
+      try {
+        File aux = File(path + '/${widget.numero}-${stringVoces[i]}.mp3');
+        if(aux.existsSync())
+          aux.delete();
+      }
       catch (e) {print(e);}
     }
 
@@ -147,7 +151,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     });
 
     String path = (await getApplicationDocumentsDirectory()).path;
-    if(cliente != null) 
+    if(cliente != null && mounted) 
       for (int i = 0; i < audioVoces.length; ++i) {
         int success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
         while(success != 1) {
@@ -174,7 +178,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
         });
       });
 
-    if(cliente != null) {
+    if(cliente != null && mounted) {
       setState(() => cargando = false);
     } else if(archivos[0] == null && !descargado)
         deleteVocesFiles();
@@ -184,8 +188,8 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
 
   Future<Null> getHimno() async {
     setState(() => swipeAnimation = true);
-    Future.delayed(Duration(milliseconds: 1500))
-        .then((_) => setState(() => swipeAnimation = false));
+    // Future.delayed(Duration(milliseconds: 1500))
+    //     .then((_) => setState(() => swipeAnimation = false));
 
     prefs = await SharedPreferences.getInstance();
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
@@ -226,7 +230,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
       temaId = 1;
     });
 
-    if (descargadoQuery.isEmpty) {
+    if (descargadoQuery.isEmpty && mounted) {
       http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible')
       .then((res) {
         if(res.body == 'si') {
@@ -269,7 +273,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
       await Future.delayed(Duration(milliseconds: 200));
     }
 
-    if(cliente != null) 
+    if(cliente != null && mounted) 
       for (int i = 0; i < audioVoces.length; ++i) {
         int success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
         while(success != 1) {
@@ -290,7 +294,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
         });
       });
 
-    if(cliente != null) {
+    if(cliente != null && mounted) {
       setState(() => cargando = false);
     } else {
       for (int i = 0; i < audioVoces.length; ++i) {
@@ -623,10 +627,10 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
-          IconButton(
-            onPressed: vozDisponible ? toggleDescargado : null,
+          vozDisponible ? IconButton(
+            onPressed: toggleDescargado,
             icon: descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
-          ),
+          ) : Container(),
 
           // Activar modo partituras
           // IconButton(
