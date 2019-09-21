@@ -89,7 +89,7 @@ class _ScrollerState extends State<Scroller> {
                     print(widget.himnos[index].numero > 517);
                     await Navigator.push(
                       context, 
-                      CupertinoPageRoute(builder: (BuildContext context) => widget.himnos[index].numero < 517 ? 
+                      CupertinoPageRoute(builder: (BuildContext context) => widget.himnos[index].numero <= 517 ? 
                       ScopedModel<TemaModel>(
                         model: tema,
                         child: HimnoPage(numero: widget.himnos[index].numero, titulo: widget.himnos[index].titulo,),

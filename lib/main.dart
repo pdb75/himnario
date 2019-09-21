@@ -12,6 +12,7 @@ import 'cupertino/himnos/himnos.dart';
 import 'material/himnos/himnos.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   ThemeData tema;
   SharedPreferences prefs = await SharedPreferences.getInstance();
   int mainColor = prefs.getInt('mainColor');
@@ -71,7 +72,6 @@ void main() async {
   await FlutterCrashlytics().initialize();
 
   runZoned<Future<Null>>(() async {
-    WidgetsFlutterBinding.ensureInitialized();
     runApp(MyApp(tema: tema, mainColor: mainColor, font: font,));
   }, onError: (error, stackTrace) async {
     // Whenever an error occurs, call the `reportCrash` function. This will send
@@ -90,7 +90,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Platform.isAndroid ? DynamicTheme(
+    return !Platform.isAndroid ? DynamicTheme(
       data: (Brightness brightness) => tema,
       themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
       MaterialApp(
