@@ -75,7 +75,7 @@ void main() async {
   await FlutterCrashlytics().initialize();
 
   runZoned<Future<Null>>(() async {
-    runApp(MyApp(tema: tema, mainColor: mainColor, font: font,));
+    runApp(MyApp(tema: tema, mainColor: mainColor, font: font, brightness: dark ? Brightness.dark : Brightness.light,));
   }, onError: (error, stackTrace) async {
     // Whenever an error occurs, call the `reportCrash` function. This will send
     // Dart errors to our dev console or Crashlytics depending on the environment.
@@ -85,11 +85,12 @@ void main() async {
 
 class MyApp extends StatelessWidget {
 
-  MyApp({this.tema, this.mainColor, this.font});
+  MyApp({this.tema, this.mainColor, this.font, this.brightness});
 
   final ThemeData tema;
   final int mainColor;
   final String font;
+  final Brightness brightness;
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +113,7 @@ class MyApp extends StatelessWidget {
       home: CupertinoHimnosPage(
         mainColor: mainColor,
         font: font,
-        brightness: tema.brightness
+        brightness: brightness
       ),
     );
   }
