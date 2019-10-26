@@ -491,16 +491,16 @@ class _HimnosPageState extends State<HimnosPage> {
               }
             ),
           ) : Container(),
-         RefreshIndicator(
-           color: Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor,
-           onRefresh: () => checkUpdates(prefs, db),
-           child:  CorosScroller(
-            cargando: cargando,
-            himnos: coros,
-            initDB: fetchCategorias,
-            mensaje: '',
-          ),
-         )
+          RefreshIndicator(
+            color: Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor,
+            onRefresh: () => checkUpdates(prefs, db),
+            child:  CorosScroller(
+              cargando: cargando,
+              himnos: coros,
+              initDB: fetchCategorias,
+              mensaje: '',
+            ),
+          )
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

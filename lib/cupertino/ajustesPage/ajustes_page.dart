@@ -32,13 +32,14 @@ class _AjustesPageState extends State<AjustesPage> {
   Widget build(BuildContext context) {
     final TemaModel tema = ScopedModel.of<TemaModel>(context, rebuildOnChange: true);
     return CupertinoPageScaffold(
+      backgroundColor: tema.getScaffoldBackgroundColor(),
       navigationBar: CupertinoNavigationBar(
-        actionsForegroundColor: ScopedModel.of<TemaModel>(context, rebuildOnChange: true).mainColorContrast,
-        backgroundColor: ScopedModel.of<TemaModel>(context, rebuildOnChange: true).mainColor,
+        actionsForegroundColor: tema.getTabTextColor(),
+        backgroundColor: tema.getTabBackgroundColor(),
         middle: Text(
           'Ajustes',
           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            color: ScopedModel.of<TemaModel>(context, rebuildOnChange: true).mainColorContrast,
+            color: tema.getTabTextColor(),
             fontFamily: ScopedModel.of<TemaModel>(context, rebuildOnChange: true).font
           ),
         ),
@@ -58,11 +59,15 @@ class _AjustesPageState extends State<AjustesPage> {
             child: Row(
               children: <Widget>[
                 Expanded(child: Container(),),
-                Icon(Icons.color_lens),
+                Icon(
+                  Icons.color_lens,
+                  color: tema.getScaffoldTextColor(),
+                ),
                 SizedBox(width: 10.0,),
                 Text(
                   'Colores',
                   style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                    color: tema.getScaffoldTextColor(),
                     fontFamily: ScopedModel.of<TemaModel>(context, rebuildOnChange: true).font
                   )
                 ),
@@ -83,10 +88,14 @@ class _AjustesPageState extends State<AjustesPage> {
             child: Row(
               children: <Widget>[
                 Expanded(child: Container(),),
-                Icon(Icons.text_fields),
+                Icon(
+                  Icons.text_fields,
+                  color: tema.getScaffoldTextColor(),
+                ),
                 SizedBox(width: 10.0,),
                 Text('Fuente',
                   style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                    color: tema.getScaffoldTextColor(),
                     fontFamily: ScopedModel.of<TemaModel>(context, rebuildOnChange: true).font
                   )
                 ),
@@ -107,10 +116,14 @@ class _AjustesPageState extends State<AjustesPage> {
             child: Row(
               children: <Widget>[
                 Expanded(child: Container(),),
-                Icon(Icons.format_align_center),
+                Icon(
+                  Icons.format_align_center,
+                  color: tema.getScaffoldTextColor(),
+                ),
                 SizedBox(width: 10.0,),
                 Text('Alineación',
                   style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                    color: tema.getScaffoldTextColor(),
                     fontFamily: ScopedModel.of<TemaModel>(context, rebuildOnChange: true).font
                   )
                 ),

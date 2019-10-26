@@ -30,8 +30,9 @@ import '../models/tema.dart';
 class CupertinoHimnosPage extends StatefulWidget {
   final int mainColor;
   final String font;
+  final Brightness brightness;
 
-  CupertinoHimnosPage({this.mainColor, this.font});
+  CupertinoHimnosPage({this.mainColor, this.font, this.brightness});
   
   @override
   _CupertinoHimnosPageState createState() => _CupertinoHimnosPageState();
@@ -60,6 +61,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     tema = TemaModel();
     tema.setMainColor(Color(widget.mainColor ?? 4294309365));
     tema.setFont(widget.font ?? '.SF Pro Text');
+    tema.setBrightness(widget.brightness);
     expanded = <bool>[false, false, false, false, false, false];
     currentPage = 0;
     categorias = List<Categoria>();
@@ -344,9 +346,10 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
           if(index == 0) {
             return 
               CupertinoPageScaffold(
+                backgroundColor: tema.getScaffoldBackgroundColor(),
                 navigationBar: CupertinoNavigationBar(
-                  backgroundColor: tema.mainColor,
-                  actionsForegroundColor: tema.mainColorContrast,
+                  backgroundColor: tema.getTabBackgroundColor(),
+                  actionsForegroundColor: tema.getTabTextColor(),
                   transitionBetweenRoutes: false,
                   leading: CupertinoButton(
                     onPressed: showMenu,
@@ -369,7 +372,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                   middle: Text(
                     'Himnos del Evangelio',
                     style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                      color: tema.mainColorContrast,
+                      color: tema.getTabTextColor(),
                       fontFamily: tema.font
                     ),
                   ),
@@ -401,6 +404,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                                 },
                                 child: Text('Todos', 
                                   style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                    color: tema.getScaffoldTextColor(),
                                     fontFamily: tema.font
                                   ),
                                 ),
@@ -419,6 +423,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                                 },
                                 child: Text(categorias[index-1].categoria, 
                                   style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                    color: tema.getScaffoldTextColor(),
                                     fontFamily: tema.font
                                   )
                                 ),
@@ -434,6 +439,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                                           alignment: Alignment.center,
                                           child: Text(categorias[index-1].categoria, 
                                             style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                              color: tema.getScaffoldTextColor(),
                                               fontFamily: tema.font
                                             )
                                           ),
@@ -442,7 +448,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                                           alignment: Alignment.centerRight,
                                           child: Icon(
                                             expanded[index - 1] ? CupertinoIcons.up_arrow : CupertinoIcons.down_arrow,
-                                            color: CupertinoTheme.of(context).textTheme.textStyle.color,
+                                            color: tema.getScaffoldTextColor(),
                                           ),
                                         ),
                                       ],
@@ -482,6 +488,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                                               subCategoria.subCategoria,
                                               textAlign: TextAlign.center,
                                               style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                                color: tema.getScaffoldTextColor(),
                                                 fontFamily: tema.font,
                                                 fontWeight: FontWeight.w400,
                                                 fontSize: 15.0
@@ -507,7 +514,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                       child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5.0),
-                            color: tema.mainColor
+                            color: tema.brightness == Brightness.light ? tema.mainColor : Colors.greenAccent
                           ),
                           width: 100.0,
                           height: 54.0,
@@ -527,7 +534,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                               },
                               child: Icon(
                                 Icons.dialpad,
-                                color: tema.mainColorContrast,
+                                color: tema.brightness == Brightness.light ? tema.mainColorContrast : null,
                             ),
                           )
                         ),
@@ -542,7 +549,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                         duration: Duration(milliseconds: 1000),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: tema.mainColor
+                          color: tema.brightness == Brightness.light ? tema.mainColor : Colors.greenAccent
                         ),
                         width: 100.0,
                         height: 54.0,
@@ -561,9 +568,10 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
             );
           }
           else return CupertinoPageScaffold(
+              backgroundColor: tema.getScaffoldBackgroundColor(),
               navigationBar: CupertinoNavigationBar(
-                backgroundColor: tema.mainColor,
-                actionsForegroundColor: tema.mainColorContrast,
+                backgroundColor: tema.getTabBackgroundColor(),
+                actionsForegroundColor: tema.getTabTextColor(),
                 transitionBetweenRoutes: false,
                 leading: CupertinoButton(
                   onPressed: showMenu,
@@ -586,7 +594,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                 middle: Text(
                   'Coros',
                   style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                    color: tema.mainColorContrast,
+                    color: tema.getTabTextColor(),
                     fontFamily: tema.font
                   ),
                 ),
@@ -612,7 +620,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                       duration: Duration(milliseconds: 1000),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5.0),
-                        color: tema.mainColor
+                        color: tema.brightness == Brightness.light ? tema.mainColor : Colors.greenAccent
                       ),
                       width: 100.0,
                       height: 54.0,
@@ -629,15 +637,15 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
             );
         },
         tabBar: CupertinoTabBar(
-          backgroundColor: tema.mainColor,
-          activeColor: tema.mainColorContrast,
-          inactiveColor: Colors.black.withOpacity(0.5),
+          backgroundColor: tema.getTabBackgroundColor(),
+          activeColor: tema.getTabTextColor(),
+          inactiveColor: tema.mainColorContrast == Colors.white || tema.brightness == Brightness.light ? Colors.black.withOpacity(0.5) : Colors.white.withOpacity(0.5),
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.library_music),
               title: Text('Himnos',
                 style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(
-                  color: tema.mainColorContrast,
+                  color: tema.brightness == Brightness.light ? tema.mainColorContrast : Colors.white,
                   fontFamily: tema.font
                 )
               )
@@ -646,7 +654,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
               icon: Icon(Icons.music_note),
               title: Text('Coros',
                 style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(
-                  color: tema.mainColorContrast,
+                  color: tema.brightness == Brightness.light ? tema.mainColorContrast : Colors.white,
                   fontFamily: tema.font
                 )
               )

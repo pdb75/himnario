@@ -7,8 +7,9 @@ class VoicesProgressBar extends StatefulWidget {
   final Function onSelected;
   final Function onDragStart;
   final bool smalldevice;
+  final Brightness brightness;
 
-  VoicesProgressBar({this.currentProgress, this.duration, this.onSelected, this.onDragStart, this.smalldevice});
+  VoicesProgressBar({this.brightness, this.currentProgress, this.duration, this.onSelected, this.onDragStart, this.smalldevice});
 
   @override
   _VoicesProgressBarState createState() => _VoicesProgressBarState();
@@ -77,6 +78,7 @@ class _VoicesProgressBarState extends State<VoicesProgressBar> {
       },
       child: CustomPaint(
         painter: CustomSlider(
+          brightness: widget.brightness,
           progress: dragging ? draggingProgress : widget.currentProgress,
           dragging: dragging,
           smalldevice: widget.smalldevice,
@@ -102,8 +104,9 @@ class CustomSlider extends CustomPainter {
   TextPainter text;
   BuildContext context;
   bool smalldevice;
+  Brightness brightness;
   
-  CustomSlider({this.progress, this.context, this.dragging, this.duration, this.smalldevice}){
+  CustomSlider({this.brightness, this.progress, this.context, this.dragging, this.duration, this.smalldevice}){
     duration = duration == double.nan || duration == double.infinity ? 0.0 : duration;
     progress = progress == double.nan || progress == double.infinity ? 0.0 : progress;
     text = TextPainter(
@@ -119,7 +122,7 @@ class CustomSlider extends CustomPainter {
       )
     );
     primaryColorPaint = Paint()
-      ..color = CupertinoTheme.of(context).primaryColor
+      ..color = brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor : Colors.greenAccent
       ..strokeWidth = 10.0;
     geryColorPaint = Paint()
       ..color = Colors.grey
@@ -137,7 +140,7 @@ class CustomSlider extends CustomPainter {
       double height = 50.0;
       double radius = 70.0;
       canvas.drawLine(Offset(currentProgress, position+5.0), Offset(currentProgress, -height), Paint()
-      ..color = CupertinoTheme.of(context).primaryColor
+      ..color = primaryColorPaint.color
       ..strokeWidth = 6.0);
       canvas.skew(-0.2, 0.0);
       canvas.drawOval(

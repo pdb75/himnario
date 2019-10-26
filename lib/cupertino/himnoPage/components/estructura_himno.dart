@@ -76,6 +76,7 @@ class HimnoText extends StatelessWidget {
             textAlign: align,
             text: TextSpan(
               style: DefaultTextStyle.of(context).style.copyWith(
+                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
                 fontFamily: tema.font
               ),
               children: parrafos

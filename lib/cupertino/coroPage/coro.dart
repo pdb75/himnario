@@ -168,13 +168,14 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
     return Stack(
       children: <Widget>[
         CupertinoPageScaffold(
+          backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
           navigationBar: CupertinoNavigationBar(
-            actionsForegroundColor: ScopedModel.of<TemaModel>(context).mainColorContrast,
-            backgroundColor: ScopedModel.of<TemaModel>(context).mainColor,
+            actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+            backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
             middle: Text(
               widget.titulo,
               style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                color: ScopedModel.of<TemaModel>(context).mainColorContrast,
+                color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
                 fontFamily: ScopedModel.of<TemaModel>(context).font
               )
             ),
@@ -326,7 +327,7 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                         offset: Offset(0.0, 18.0)
                       )
                     ],
-                    color: Theme.of(context).scaffoldBackgroundColor
+                    color: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor()
                   ),
                   child: ButtonBar(
                     alignment: MainAxisAlignment.spaceEvenly,
@@ -335,10 +336,14 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                         padding: EdgeInsets.only(bottom: 4.0),
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.arrow_drop_down),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                            ),
                             Text(
                               'Bajar Tono',
                               style: DefaultTextStyle.of(context).style.copyWith(
+                                color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
                                 fontFamily: ScopedModel.of<TemaModel>(context).font
                               ),
                             )
@@ -350,10 +355,14 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                         padding: EdgeInsets.only(bottom: 4.0),
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.arrow_drop_up),
+                            Icon(
+                              Icons.arrow_drop_up,
+                              color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                            ),
                             Text(
                               'Subir Tono',
                               style: DefaultTextStyle.of(context).style.copyWith(
+                                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
                                 fontFamily: ScopedModel.of<TemaModel>(context).font
                               )
                             )
@@ -366,6 +375,7 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                         child: Text(
                           'Ok',
                           style: DefaultTextStyle.of(context).style.copyWith(
+                            color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
                             fontFamily: ScopedModel.of<TemaModel>(context).font
                           ),
                         ),
@@ -386,17 +396,19 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                     boxShadow: <BoxShadow>[
                       BoxShadow(
                         blurRadius: 20.0,
-                        // spreadRadius: 1.0,
                         offset: Offset(0.0, 18.0)
                       )
                     ],
-                    color: Theme.of(context).scaffoldBackgroundColor
+                    color: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor()
                   ),
                   child: ButtonBar(
                     alignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       FlatButton(
-                        child: Icon(Icons.fast_rewind),
+                        child: Icon(
+                          Icons.fast_rewind,
+                          color: ScopedModel.of<TemaModel>(context).getTabTextColor()
+                        ),
                         onPressed: () {
                           autoScrollRate = autoScrollRate > 0 ? autoScrollRate - 1 : 0;
                           scrollController.animateTo(
@@ -412,8 +424,16 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                       FlatButton(
                         child: Row(
                           children: <Widget>[
-                            Icon(autoScroll ? Icons.pause : Icons.play_arrow),
-                            Text('${autoScrollRate+1}x'),
+                            Icon(
+                              autoScroll ? Icons.pause : Icons.play_arrow,
+                              color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                            ),
+                            Text(
+                              '${autoScrollRate+1}x',
+                              style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                color: ScopedModel.of<TemaModel>(context).getTabTextColor()
+                              ),
+                            ),
                           ],
                         ),
                         onPressed: () {
@@ -432,7 +452,10 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                         },
                       ),
                       FlatButton(
-                        child: Icon(Icons.fast_forward),
+                        child: Icon(
+                          Icons.fast_forward,
+                          color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                        ),
                         onPressed: () {
                           ++autoScrollRate;
                           scrollController.animateTo(

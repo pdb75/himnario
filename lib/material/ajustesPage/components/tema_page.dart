@@ -27,28 +27,36 @@ class _TemasPageState extends State<TemasPage> {
 
   void loadThemes() async {
     prefs = await SharedPreferences.getInstance();
+
+    String temaJson = prefs.getString('temaPrincipal');
+    if (temaJson == null) {
+      pickerColor = Colors.black;
+    } else {
+      Map<dynamic, dynamic> json = jsonDecode(temaJson);
+      pickerColor = Color.fromRGBO(json['red'], json['green'], json['blue'], 1);
+    }
+    
     dark = prefs.getString('brightness') == Brightness.dark.toString() ? true : false;
-    pickerColor = Theme.of(context).primaryColor;
+
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      // titlePadding: EdgeInsets.all(0.0),
-      // title: Row(
-      //   children: <Widget>[
-      //     Checkbox(
-      //       activeColor: Theme.of(context).primaryColor,
-      //       checkColor: Theme.of(context).primaryIconTheme.color,
-      //       value: dark,
-      //       onChanged: (e) => setState(() => dark = e),
-      //     ),
-      //     Text('Tema Oscuro', style: Theme.of(context).textTheme.button,)
-      //   ],
-      // ),
       contentPadding: EdgeInsets.all(0.0),
       actions: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Checkbox(
+              value: dark,
+              onChanged: (bool value) => setState(() => dark = !dark),
+            ),
+            Text('Tema Oscuro')
+          ],
+        ),
+        Divider(),
         FlatButton(
           child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
           onPressed: () => Navigator.of(context).pop(),
@@ -71,22 +79,35 @@ class _TemasPageState extends State<TemasPage> {
             };
 
             prefs.setString('temaPrincipal', jsonEncode({'red': pickerColor.red,'green': pickerColor.green,'blue': pickerColor.blue,'value': pickerColor.value}));
-            // prefs.setString('brightness', dark ? Brightness.dark.toString() : Brightness.light.toString());
+            prefs.setString('brightness', dark ? Brightness.dark.toString() : Brightness.light.toString());
 
             DynamicTheme.of(context).setThemeData(ThemeData(
               primarySwatch: MaterialColor(pickerColor.value, swatch),
               fontFamily: prefs.getString('fuente') ?? 'Merriweather',
-              // brightness: dark ? Brightness.dark : Brightness.light
+              brightness: dark ? Brightness.dark : Brightness.light
             ));
             setState(() {});
             Navigator.of(context).pop();
           },
         ),
       ],
-      content: MaterialPicker(
-        pickerColor: pickerColor,
-        onColorChanged: (Color color) => setState(() => pickerColor = color),
-      ),
+      content: Stack(
+        children: <Widget>[
+          IgnorePointer(
+            ignoring: dark,
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 250),
+              foregroundDecoration: BoxDecoration(
+                color: Colors.black.withOpacity(dark ? 0.6 : 0.0)
+              ),
+              child: MaterialPicker(
+                pickerColor: pickerColor,
+                onColorChanged: (Color color) => setState(() => pickerColor = color),
+              ),
+            ),
+          )
+        ],
+      )
     );
   }
 }

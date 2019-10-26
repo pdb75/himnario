@@ -66,9 +66,11 @@ class _ScrollerState extends State<Scroller> {
         widget.himnos.isEmpty ? Container(
               child: Center(
                 child: Text(
-                  widget.mensaje, 
+                  widget.mensaje,
+                  textScaleFactor: 1.5, 
                   textAlign: TextAlign.center,
                   style: DefaultTextStyle.of(context).style.copyWith(
+                    color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
                     fontFamily: ScopedModel.of<TemaModel>(context).font,
                   ),
                 )
@@ -80,8 +82,8 @@ class _ScrollerState extends State<Scroller> {
               itemBuilder: (BuildContext context, int index) =>
               Container(
                 color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) == index && dragging ? 
-                tema.mainColor : 
-                CupertinoTheme.of(context).scaffoldBackgroundColor,
+                (tema.brightness == Brightness.light ? tema.mainColor : Colors.greenAccent) : 
+                tema.getScaffoldBackgroundColor(),
                 height: 55.0,
                 child: CupertinoButton(
                   onPressed: () async {
@@ -114,8 +116,8 @@ class _ScrollerState extends State<Scroller> {
                           textAlign: TextAlign.start,
                           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
                             color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) == index && dragging ? 
-                            tema.mainColorContrast : 
-                            CupertinoTheme.of(context).textTheme.textStyle.color,
+                            (tema.brightness == Brightness.light ? tema.mainColorContrast : Colors.black) : 
+                            tema.getScaffoldTextColor(),
                             fontFamily: ScopedModel.of<TemaModel>(context).font,
                           ),
                         )
@@ -203,6 +205,7 @@ class _ScrollerState extends State<Scroller> {
                 offset: Offset(0.0, -65.0),
                 child: CustomPaint(
                   painter: SideScroller(
+                    tema: tema,
                     himnos: widget.himnos,
                     position: scrollPosition,
                     context: context,
@@ -223,16 +226,19 @@ class _ScrollerState extends State<Scroller> {
 class SideScroller extends CustomPainter {
   double position;
   bool dragging;
+  Color textColor;
   BuildContext context;
   int numero;
   Paint scrollBar;
   List<Himno> himnos;
   double iPhoneXPadding;
+  TemaModel tema;
 
 
-  SideScroller({this.position, BuildContext context, this.dragging, this.numero, this.himnos, this.iPhoneXPadding = 0.0}) {
+  SideScroller({this.tema, this.position, BuildContext context, this.dragging, this.numero, this.himnos, this.iPhoneXPadding = 0.0}) {
+    textColor = tema.brightness == Brightness.light ? Colors.white : Colors.black;
     scrollBar = Paint()
-      ..color = dragging ? CupertinoTheme.of(context).primaryColor : Colors.grey.withOpacity(0.5)
+      ..color = dragging ? (tema.brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor : Colors.greenAccent) : Colors.grey.withOpacity(0.5)
       ..strokeWidth = 5.0
       ..strokeCap = StrokeCap.round;
   }
@@ -253,6 +259,7 @@ class SideScroller extends CustomPainter {
         text: TextSpan(
           text: text,
           style: TextStyle(
+            color: textColor,
             fontSize: 45.0,
           )
         ),

@@ -17,6 +17,8 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   int mainColor = prefs.getInt('mainColor');
   String font = prefs.getString('font');
+  bool dark = prefs.getString('brightness') == Brightness.dark.toString() ? true : false;
+
   if (Platform.isAndroid) {
     String temaJson = prefs.getString('temaPrincipal');
     if (temaJson == null)
@@ -39,6 +41,7 @@ void main() async {
     else {
       Map<dynamic, dynamic> json = jsonDecode(temaJson);
       tema = ThemeData(
+        brightness: dark ? Brightness.dark : Brightness.light,
         primarySwatch: MaterialColor(json['value'], {
             50:Color.fromRGBO(json['red'], json['green'], json['blue'], .1),
             100:Color.fromRGBO(json['red'], json['green'], json['blue'], .2),
@@ -104,12 +107,12 @@ class MyApp extends StatelessWidget {
         // debugShowCheckedModeBanner: false,
         theme: CupertinoThemeData(
         primaryColor: Colors.black,
-        // brightness: Brightness.dark
       ),
       title: 'Himnos y Cánticos del Evangelio',
       home: CupertinoHimnosPage(
         mainColor: mainColor,
         font: font,
+        brightness: tema.brightness
       ),
     );
   }

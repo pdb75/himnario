@@ -108,9 +108,10 @@ class _QuickBuscadorState extends State<QuickBuscador> {
     return done ? 
     HimnoPage(titulo: himno.titulo, numero: himno.numero) :
     CupertinoPageScaffold(
+      backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
       navigationBar: CupertinoNavigationBar(
-        actionsForegroundColor: ScopedModel.of<TemaModel>(context).mainColorContrast,
-        backgroundColor: ScopedModel.of<TemaModel>(context).mainColor,
+        actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+        backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
         middle: Padding(
           padding: EdgeInsets.only(right: 0.0),
           child: CupertinoTextField(
@@ -118,6 +119,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
             keyboardType: TextInputType.number,
             cursorColor: Colors.black,
             style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+              color: ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? null : Colors.black,
               fontFamily: ScopedModel.of<TemaModel>(context).font,
             ),
             decoration: BoxDecoration(
@@ -132,7 +134,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
                 softWrap: false,
                 textAlign: TextAlign.end,
                 style: TextStyle(
-                  color: CupertinoTheme.of(context).textTheme.textStyle.color,
+                  color: ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).textTheme.textStyle.color : Colors.black,
                   fontFamily: ScopedModel.of<TemaModel>(context).font,
                   fontSize: 20.0,
                   fontWeight: FontWeight.w500,
@@ -169,14 +171,17 @@ class _QuickBuscadorState extends State<QuickBuscador> {
               'Himno no encontrado', 
               textAlign: TextAlign.center,
               style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
                 fontFamily: ScopedModel.of<TemaModel>(context).font
-              )
+              ),
+              textScaleFactor: 1.5,
             ),
           ) 
         : Center(child: Text(
           'Ingrese el número del himno', 
           textAlign: TextAlign.center,
           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+            color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
             fontFamily: ScopedModel.of<TemaModel>(context).font
           ),
           textScaleFactor: 1.5,

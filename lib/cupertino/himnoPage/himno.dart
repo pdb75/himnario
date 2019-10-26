@@ -461,29 +461,29 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             voz: 'Soprano',
             activo: currentVoice == 0 || currentVoice == 4,
             onPressed: () => toggleVoice(0),
-            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
-            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+            mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
           ),
           BotonVoz(
             voz: 'Tenor',
             activo: currentVoice == 1 || currentVoice == 4,
             onPressed: () => toggleVoice(1),
-            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
-            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+            mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
           ),
           BotonVoz(
             voz: 'Contra Alto',
             activo: currentVoice == 2 || currentVoice == 4,
             onPressed: () => toggleVoice(2),
-            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
-            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+            mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
           ),
           BotonVoz(
             voz: 'Bajo',
             activo: currentVoice == 3 || currentVoice == 4,
             onPressed: () => toggleVoice(3),
-            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
-            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+            mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
           ),
         ],
       )
@@ -495,15 +495,15 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             voz: '   Soprano  ',
             activo: currentVoice == 0 || currentVoice == 4,
             onPressed: () => toggleVoice(0),
-            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
-            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+            mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
           ),
           BotonVoz(
             voz: '    Tenor    ',
             activo: currentVoice == 1 || currentVoice == 4,
             onPressed: () => toggleVoice(1),
-            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
-            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+            mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
           ),
         ],
       ),
@@ -514,15 +514,15 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             voz: 'Contra Alto',
             activo: currentVoice == 2 || currentVoice == 4,
             onPressed: () => toggleVoice(2),
-            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
-            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+            mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
           ),
           BotonVoz(
             voz: '     Bajo     ',
             activo: currentVoice == 3 || currentVoice == 4,
             onPressed: () => toggleVoice(3),
-            mainColor: ScopedModel.of<TemaModel>(context).mainColor,
-            mainColorContrast: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+            mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
           ),
         ],
       ),
@@ -530,6 +530,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
     List<Widget> buttonLayout = [
       VoicesProgressBar(
+        brightness: ScopedModel.of<TemaModel>(context).brightness,
         currentProgress: currentProgress,
         duration: totalDuration,
         onDragStart: cancelSubscription,
@@ -566,7 +567,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               },
               icon: Icon(
                 Icons.fast_rewind,
-                color: CupertinoTheme.of(context).textTheme.textStyle.color,
+                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
               ),
             ),
             onPressed: () {},
@@ -577,7 +578,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               onPressed: pauseVoces,
               icon: Icon(
                 Icons.pause,
-                color: CupertinoTheme.of(context).textTheme.textStyle.color,
+                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
               ),
             ),
             onPressed: () {},
@@ -590,7 +591,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               } : null,
               icon: Icon(
                 Icons.play_arrow,
-                color: CupertinoTheme.of(context).textTheme.textStyle.color,
+                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
               ),
             ),
             onPressed: () {},
@@ -606,7 +607,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               },
               icon: Icon(
                 Icons.fast_forward,
-                color: CupertinoTheme.of(context).textTheme.textStyle.color,
+                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
               )
             ),
             onPressed: () {},
@@ -620,14 +621,15 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
     if(prefs != null)
     return CupertinoPageScaffold(
+      backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
       navigationBar: CupertinoNavigationBar(
         transitionBetweenRoutes: true,
-        actionsForegroundColor: ScopedModel.of<TemaModel>(context).mainColorContrast,
-        backgroundColor: ScopedModel.of<TemaModel>(context).mainColor,
+        actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+        backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
         middle: Text(
           '${widget.numero} - ${widget.titulo}',
           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            color: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
             fontFamily: ScopedModel.of<TemaModel>(context).font
           ),
         ),
@@ -808,7 +810,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               translation: Offset(0.0, 1.0 - switchModeController.value),
               child: Card(
                 margin: EdgeInsets.all(0.0),
-                color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+                color: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
                 elevation: 10.0,
                 child: !cargando ? Padding(
                   padding: EdgeInsets.symmetric(vertical: 5.0),

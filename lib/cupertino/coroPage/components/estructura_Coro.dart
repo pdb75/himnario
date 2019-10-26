@@ -41,6 +41,7 @@ class CoroText extends StatelessWidget {
           TextSpan(
             text: 'Coro\n',
             style: TextStyle(
+              color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
               fontStyle: FontStyle.italic,
               fontFamily: ScopedModel.of<TemaModel>(context).font,
               fontWeight: FontWeight.w300,
@@ -58,12 +59,17 @@ class CoroText extends StatelessWidget {
                 fontFamily: ScopedModel.of<TemaModel>(context).font,
                 fontWeight: FontWeight.bold,
                 wordSpacing: 0.3,
-                color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
+                color: Color.fromRGBO(
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.red : Colors.greenAccent.red, 
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.green : Colors.greenAccent.green, 
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.blue : Colors.greenAccent.blue, 
+                  animation),
               )
             ),
             TextSpan(
               text: lineasParrafos[i] + (i == lineasParrafos.length - 1 ? '\n\n' : '\n'),
               style: TextStyle(
+                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
                 fontStyle: FontStyle.italic,
                 fontFamily: ScopedModel.of<TemaModel>(context).font,
                 fontSize: fontSize
@@ -82,12 +88,17 @@ class CoroText extends StatelessWidget {
                 fontSize: animation*fontSize,
                 fontFamily: ScopedModel.of<TemaModel>(context).font,
                 fontWeight: FontWeight.bold,
-                color: Color.fromRGBO(CupertinoTheme.of(context).primaryColor.red, CupertinoTheme.of(context).primaryColor.green, CupertinoTheme.of(context).primaryColor.blue, animation),
+                color: Color.fromRGBO(
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.red : Colors.greenAccent.red, 
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.green : Colors.greenAccent.green, 
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.blue : Colors.greenAccent.blue, 
+                  animation),
               )
             ),
             TextSpan(
               text: lineasParrafos[i] + (i == lineasParrafos.length - 1 ? '\n\n' : '\n'),
               style: TextStyle(
+                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
                 fontSize: fontSize,
                 fontFamily: ScopedModel.of<TemaModel>(context).font,
               )

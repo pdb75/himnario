@@ -19,7 +19,9 @@ class _TemasPageState extends State<TemasPage> {
   List<ThemeData> temasTema;
   int value;
   bool dark;
+  bool originalDark;
   SharedPreferences prefs;
+  Color originalColor;
   Color pickerColor;
 
   @override
@@ -31,7 +33,9 @@ class _TemasPageState extends State<TemasPage> {
   void loadThemes() async {
     prefs = await SharedPreferences.getInstance();
     dark = prefs.getString('brightness') == Brightness.dark.toString() ? true : false;
+    originalDark = dark;
     pickerColor = ScopedModel.of<TemaModel>(context).mainColor;
+    originalColor = pickerColor;
     setState(() {});
   }
 
@@ -39,26 +43,76 @@ class _TemasPageState extends State<TemasPage> {
   Widget build(BuildContext context) {
     return CupertinoAlertDialog(
       actions: <Widget>[
-        FlatButton(
-          child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        FlatButton(
-          child: Text('Guardar', style: Theme.of(context).textTheme.button,),
-          onPressed: () {
-            ScopedModel.of<TemaModel>(context).setMainColor(pickerColor);
-            prefs.setInt('mainColor', pickerColor.value);
+        Column(
+          children: <Widget>[
+            CupertinoButton(
+              onPressed: () => setState(() {
+                dark = !dark;
+                Brightness brightness = dark ? Brightness.dark : Brightness.light;
+                ScopedModel.of<TemaModel>(context).setBrightness(brightness);
+              }),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(right: 10.0),
+                        child: Icon(CupertinoIcons.brightness),
+                      ),
+                      Text(
+                        'Tema Oscuro',
+                      ),
+                    ],
+                  ),
+                  IgnorePointer(
+                    child: CupertinoSwitch(
+                      onChanged: (e) => e,
+                      value: dark,
+                    ),
+                  )
+                ],
+              )
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                FlatButton(
+                  child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
+                  onPressed: () {
+                    ScopedModel.of<TemaModel>(context).setMainColor(originalColor);
+                    ScopedModel.of<TemaModel>(context).setBrightness(originalDark ? Brightness.dark : Brightness.light);
+                    Navigator.of(context).pop();
+                  },
+                ),
+                FlatButton(
+                  child: Text('Guardar', style: Theme.of(context).textTheme.button,),
+                  onPressed: () {
+                    Brightness brightness = dark ? Brightness.dark : Brightness.light;
+                    ScopedModel.of<TemaModel>(context).setMainColor(pickerColor);
+                    ScopedModel.of<TemaModel>(context).setBrightness(brightness);
 
-            print((pickerColor.red*0.299 + pickerColor.green*0.587 + pickerColor.blue*0.114));
+                    prefs.setInt('mainColor', pickerColor.value);
+                    prefs.setString('brightness', brightness.toString());
+                    print((pickerColor.red*0.299 + pickerColor.green*0.587 + pickerColor.blue*0.114));
 
-            setState(() {});
-            Navigator.of(context).pop();
-          },
-        ),
+                    setState(() {});
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            )
+          ],
+        )
       ],
       content: MaterialPicker(
         pickerColor: pickerColor,
-        onColorChanged: (Color color) => setState(() => pickerColor = color),
+        onColorChanged: (Color color) => setState(() {
+          pickerColor = color;
+          ScopedModel.of<TemaModel>(context).setMainColor(color);
+        }),
       ),
     );
   }

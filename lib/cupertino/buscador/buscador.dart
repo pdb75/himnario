@@ -148,14 +148,16 @@ class _BuscadorState extends State<Buscador> {
   Widget build(BuildContext context) {
     final TemaModel tema = ScopedModel.of<TemaModel>(context);
     return CupertinoPageScaffold(
+      backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
       navigationBar: CupertinoNavigationBar(
-        actionsForegroundColor: tema.mainColorContrast,
-        backgroundColor: tema.mainColor,
+        actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+        backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
         middle: CupertinoTextField(
           autofocus: true,
           onChanged: fetchHimnos,
           cursorColor: Colors.black,
           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+            color: ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? null : Colors.black,
             fontFamily: ScopedModel.of<TemaModel>(context).font,
           ),
           decoration: BoxDecoration(

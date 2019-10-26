@@ -52,13 +52,14 @@ class _FavoritosPageState extends State<FavoritosPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
       navigationBar: CupertinoNavigationBar(
-        actionsForegroundColor: ScopedModel.of<TemaModel>(context).mainColorContrast,
-        backgroundColor: ScopedModel.of<TemaModel>(context).mainColor,
+        actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+        backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
         middle: Text(
           'Favoritos',
           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            color: ScopedModel.of<TemaModel>(context).mainColorContrast,
+            color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
             fontFamily: ScopedModel.of<TemaModel>(context).font
           ),
         ),
