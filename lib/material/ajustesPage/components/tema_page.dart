@@ -18,6 +18,8 @@ class _TemasPageState extends State<TemasPage> {
   bool dark;
   SharedPreferences prefs;
   Color pickerColor;
+  Color originalColor;
+  bool originalDark;
 
   @override
   void initState() {
@@ -35,9 +37,10 @@ class _TemasPageState extends State<TemasPage> {
       Map<dynamic, dynamic> json = jsonDecode(temaJson);
       pickerColor = Color.fromRGBO(json['red'], json['green'], json['blue'], 1);
     }
+    originalColor = originalColor;
     
     dark = prefs.getString('brightness') == Brightness.dark.toString() ? true : false;
-
+    originalDark = dark;
     setState(() {});
   }
 
@@ -46,20 +49,48 @@ class _TemasPageState extends State<TemasPage> {
     return AlertDialog(
       contentPadding: EdgeInsets.all(0.0),
       actions: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Checkbox(
-              value: dark,
-              onChanged: (bool value) => setState(() => dark = !dark),
-            ),
-            Text('Tema Oscuro')
-          ],
+        GestureDetector(
+          onTap: () => setState(() => dark = !dark),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Checkbox(
+                value: dark,
+                onChanged: (bool value) => setState(() => dark = !dark),
+              ),
+              Text('Tema Oscuro')
+            ],
+          ),
         ),
         Divider(),
         FlatButton(
           child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
-          onPressed: () => Navigator.of(context).pop(),
+
+          onPressed: () {
+            Map<int, Color> swatch = {
+              50:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .1),
+              100:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .2),
+              200:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .3),
+              300:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .4),
+              400:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .5),
+              500:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .6),
+              600:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .7),
+              700:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .8),
+              800:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .9),
+              900:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, 1),
+            };
+
+            DynamicTheme.of(context).setThemeData(ThemeData(
+              primarySwatch: MaterialColor(originalColor.value, swatch),
+              fontFamily: prefs.getString('fuente') ?? 'Merriweather',
+              brightness: originalDark ? Brightness.dark : Brightness.light,
+              accentColor: originalDark ? pickerColor : null,
+              scaffoldBackgroundColor: originalDark ? Colors.black : null,
+              cardColor: originalDark ? Color.fromRGBO(33, 33, 33, 1) : null
+            ));
+            setState(() {});
+            Navigator.of(context).pop();
+          },
         ),
         FlatButton(
           child: Text('Guardar', style: Theme.of(context).textTheme.button,),

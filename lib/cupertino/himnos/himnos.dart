@@ -514,7 +514,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                       child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5.0),
-                            color: tema.brightness == Brightness.light ? tema.mainColor : Colors.greenAccent
+                            color: tema.getAccentColor()
                           ),
                           width: 100.0,
                           height: 54.0,
@@ -534,7 +534,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                               },
                               child: Icon(
                                 Icons.dialpad,
-                                color: tema.brightness == Brightness.light ? tema.mainColorContrast : null,
+                                color: tema.getAccentColorText(),
                             ),
                           )
                         ),
@@ -549,7 +549,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                         duration: Duration(milliseconds: 1000),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: tema.brightness == Brightness.light ? tema.mainColor : Colors.greenAccent
+                          color: tema.getAccentColor()
                         ),
                         width: 100.0,
                         height: 54.0,
@@ -620,7 +620,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                       duration: Duration(milliseconds: 1000),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5.0),
-                        color: tema.brightness == Brightness.light ? tema.mainColor : Colors.greenAccent
+                        color: tema.getAccentColor()
                       ),
                       width: 100.0,
                       height: 54.0,
@@ -639,7 +639,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
         tabBar: CupertinoTabBar(
           backgroundColor: tema.getTabBackgroundColor(),
           activeColor: tema.getTabTextColor(),
-          inactiveColor: tema.mainColorContrast == Colors.white || tema.brightness == Brightness.light ? Colors.black.withOpacity(0.5) : Colors.white.withOpacity(0.5),
+          inactiveColor: tema.mainColorContrast == Colors.white || tema.brightness == Brightness.dark ? Colors.white.withOpacity(0.5) : Colors.black.withOpacity(0.5),
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.library_music),

@@ -37,7 +37,7 @@ class TemaModel extends Model {
   Color getScaffoldBackgroundColor() => _brightness == Brightness.light ? Colors.white : Colors.black;
   Color getTabTextColor() => _brightness == Brightness.light ? _mainColorContrast : Colors.white;
   Color getScaffoldTextColor() => _brightness == Brightness.light ? Colors.black : Colors.white;
-  Color getAccentColor() => _brightness == Brightness.light ? _mainColor : Colors.greenAccent;
-  Color getAccentColorText() => _brightness == Brightness.light ? _mainColorContrast : Colors.black;
+  Color getAccentColor() => _mainColor;
+  Color getAccentColorText() => _mainColorContrast;
 
 }

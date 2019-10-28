@@ -65,7 +65,9 @@ class _ScrollerState extends State<Scroller> {
               itemCount: widget.himnos.length,
               itemBuilder: (BuildContext context, int index) =>
               Container(
-                color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/length) == index && dragging ? Theme.of(context).primaryColor : Theme.of(context).scaffoldBackgroundColor,
+                color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/length) == index && dragging ? (
+                  Theme.of(context).brightness == Brightness.light ? Theme.of(context).primaryColor : Theme.of(context).accentColor
+                ) : Theme.of(context).scaffoldBackgroundColor,
                 child: ListTile(
                   onTap: () async {
                     double aux = scrollController.offset;
@@ -88,7 +90,9 @@ class _ScrollerState extends State<Scroller> {
                       ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
                       softWrap: true,
                       style: Theme.of(context).textTheme.subhead.copyWith(
-                        color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/length) == index && dragging ? Theme.of(context).primaryIconTheme.color : Theme.of(context).textTheme.subhead.color
+                        color: (scrollPosition-15)~/((MediaQuery.of(context).size.height - 129)/length) == index && dragging ? (
+                          Theme.of(context).brightness == Brightness.light ? Theme.of(context).primaryIconTheme.color : Theme.of(context).accentTextTheme.body1.color
+                        ) : Theme.of(context).textTheme.subhead.color
                       ),
                     ),
                   ),
@@ -175,7 +179,9 @@ class SideScroller extends CustomPainter {
 
   SideScroller({this.position, BuildContext context, this.dragging, this.numero, this.himnos}) {
     scrollBar = Paint()
-      ..color = dragging ? Colors.black : Colors.grey
+      ..color = dragging ? (
+        Theme.of(context).brightness == Brightness.light ? Colors.black : Theme.of(context).cardColor
+      ) : Colors.grey
       ..strokeWidth = 10.0
       ..strokeCap = StrokeCap.round;
   }

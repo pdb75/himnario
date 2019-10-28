@@ -619,7 +619,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     for (Widget widget in buttonLayout)
       controlesLayout.add(widget);
 
-    if(prefs != null)
     return CupertinoPageScaffold(
       backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
       navigationBar: CupertinoNavigationBar(
@@ -633,7 +632,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             fontFamily: ScopedModel.of<TemaModel>(context).font
           ),
         ),
-        trailing: Transform.translate(
+        trailing: prefs != null ? Transform.translate(
           offset: Offset(20.0, 0.0),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -679,9 +678,9 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               ),
             ],
           ),
-        )
+        ) : null
       ),
-      child: Stack(
+      child: prefs != null ? Stack(
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(bottom: switchModeController.value * (smallDevice ? 185.0 : 140.0)),
@@ -835,7 +834,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             )
           )
         ],
-      ),
-    ); else return CupertinoPageScaffold(child: Container(),);
+      ) : Container(),
+    );
   }
 }

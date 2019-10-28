@@ -122,7 +122,7 @@ class CustomSlider extends CustomPainter {
       )
     );
     primaryColorPaint = Paint()
-      ..color = brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor : Colors.greenAccent
+      ..color = CupertinoTheme.of(context).primaryColor
       ..strokeWidth = 10.0;
     geryColorPaint = Paint()
       ..color = Colors.grey

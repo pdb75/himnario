@@ -87,7 +87,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                     delegate: SliverChildBuilderDelegate((BuildContext builder, int index) => 
                     Container(
                       color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) == index && dragging ? 
-                      (tema.brightness == Brightness.light ? tema.mainColor : Colors.greenAccent) : 
+                      tema.mainColor : 
                       tema.getScaffoldBackgroundColor(),
                       height: 55.0,
                       child: CupertinoButton(
@@ -117,7 +117,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                                 textAlign: TextAlign.start,
                                 style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
                                   color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) == index && dragging ? 
-                                  (tema.brightness == Brightness.light ? tema.mainColorContrast : Colors.black) : 
+                                  tema.mainColorContrast : 
                                   tema.getScaffoldTextColor(),
                                   fontFamily: ScopedModel.of<TemaModel>(context).font,
                                 ),
@@ -143,83 +143,86 @@ class _CorosScrollerState extends State<CorosScroller> {
             ),
         widget.himnos.length*60.0 > MediaQuery.of(context).size.height ?
         Align(
-          alignment: FractionalOffset.centerRight,
-          child: GestureDetector(
-            onVerticalDragStart: (DragStartDetails details) {
-              double position;
-              double bottomPadding = MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding;
-              double topPadding = 72.0 + iPhoneXPadding;
-              double tileSize = 55.0;
+          alignment: FractionalOffset.bottomRight,
+          child: Container(
+            margin: EdgeInsets.only(top: tema.brightness == Brightness.dark ? 70.0 : 0.0),
+            child: GestureDetector(
+              onVerticalDragStart: (DragStartDetails details) {
+                double position;
+                double bottomPadding = MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding;
+                double topPadding = 72.0 + iPhoneXPadding;
+                double tileSize = 55.0;
 
-              if (details.globalPosition.dy > bottomPadding + 15.0) {
-                position = bottomPadding;
-              }
-              else if (details.globalPosition.dy < topPadding + 15.0) {
-                position = topPadding;
-              }
-              else 
-                position = details.globalPosition.dy - 15.0;
-              setState(() {
-                scrollPosition = position;
-                dragging = true;
-              });
+                if (details.globalPosition.dy > bottomPadding + 15.0) {
+                  position = bottomPadding;
+                }
+                else if (details.globalPosition.dy < topPadding + 15.0) {
+                  position = topPadding;
+                }
+                else 
+                  position = details.globalPosition.dy - 15.0;
+                setState(() {
+                  scrollPosition = position;
+                  dragging = true;
+                });
 
-              int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length) + 1);
+                int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length) + 1);
 
-              if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
-                scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
-              else
-                scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length)*tileSize);
-            },
-            onVerticalDragUpdate: (DragUpdateDetails details) {
-              double position;
-              double bottomPadding = MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding;
-              double topPadding = 72.0 + iPhoneXPadding;
-              double tileSize = 55.0;
+                if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
+                  scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
+                else
+                  scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length)*tileSize);
+              },
+              onVerticalDragUpdate: (DragUpdateDetails details) {
+                double position;
+                double bottomPadding = MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding;
+                double topPadding = 72.0 + iPhoneXPadding;
+                double tileSize = 55.0;
 
-              if (details.globalPosition.dy > bottomPadding + 15.0) {
-                position = bottomPadding;
-              }
-              else if (details.globalPosition.dy < topPadding + 15.0) {
-                position = topPadding;
-              }
-              else 
-                position = details.globalPosition.dy - 15.0;
+                if (details.globalPosition.dy > bottomPadding + 15.0) {
+                  position = bottomPadding;
+                }
+                else if (details.globalPosition.dy < topPadding + 15.0) {
+                  position = topPadding;
+                }
+                else 
+                  position = details.globalPosition.dy - 15.0;
 
-              setState(() {
-                scrollPosition = position;
-              });
+                setState(() {
+                  scrollPosition = position;
+                });
 
-              int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length) + 1);
+                int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length) + 1);
 
-              if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
-                scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
-              else
-                scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length)*tileSize);
-            },
-            onVerticalDragEnd: (DragEndDetails details) {
-              setState(() {
-                dragging = false;
-              });
-            },
-            child: Container(
-              height: double.infinity,
-              width: 40.0,
-              child: Transform.translate(
-                offset: Offset(0.0, -65.0),
-                child: CustomPaint(
-                  painter: SideScroller(
-                    tema: tema,
-                    himnos: widget.himnos,
-                    position: scrollPosition,
-                    context: context,
-                    dragging: dragging,
-                    iPhoneXPadding: iPhoneXPadding,
-                    numero: dragging ? (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) : -1,
+                if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
+                  scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
+                else
+                  scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length)*tileSize);
+              },
+              onVerticalDragEnd: (DragEndDetails details) {
+                setState(() {
+                  dragging = false;
+                });
+              },
+              child: Container(
+                height: double.infinity,
+                width: 40.0,
+                child: Transform.translate(
+                  offset: Offset(0.0, -65.0),
+                  child: CustomPaint(
+                    painter: SideScroller(
+                      tema: tema,
+                      himnos: widget.himnos,
+                      position: scrollPosition,
+                      context: context,
+                      dragging: dragging,
+                      iPhoneXPadding: iPhoneXPadding,
+                      numero: dragging ? (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) : -1,
+                    ),
                   ),
                 ),
-              ),
-            )
+              )
+            ),
           )
         ) : Container()
       ],
@@ -239,9 +242,9 @@ class SideScroller extends CustomPainter {
   TemaModel tema;
 
   SideScroller({this.tema, this.position, BuildContext context, this.dragging, this.numero, this.himnos, this.iPhoneXPadding = 0.0}) {
-    textColor = tema.brightness == Brightness.light ? Colors.white : Colors.black;
+    textColor = tema.brightness == Brightness.light ? Colors.white : tema.getTabTextColor();
     scrollBar = Paint()
-      ..color = dragging ? (tema.brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor : Colors.greenAccent) : Colors.grey.withOpacity(0.5)
+      ..color = dragging ? (tema.brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor : tema.getTabBackgroundColor().withOpacity(1.0)) : Colors.grey.withOpacity(0.5)
       ..strokeWidth = 5.0
       ..strokeCap = StrokeCap.round;
   }

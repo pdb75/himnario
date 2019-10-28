@@ -60,9 +60,9 @@ class CoroText extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 wordSpacing: 0.3,
                 color: Color.fromRGBO(
-                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.red : Colors.greenAccent.red, 
-                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.green : Colors.greenAccent.green, 
-                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.blue : Colors.greenAccent.blue, 
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.red : ScopedModel.of<TemaModel>(context).mainColor.red ,
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.green : ScopedModel.of<TemaModel>(context).mainColor.green, 
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.blue : ScopedModel.of<TemaModel>(context).mainColor.blue, 
                   animation),
               )
             ),
@@ -89,9 +89,9 @@ class CoroText extends StatelessWidget {
                 fontFamily: ScopedModel.of<TemaModel>(context).font,
                 fontWeight: FontWeight.bold,
                 color: Color.fromRGBO(
-                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.red : Colors.greenAccent.red, 
-                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.green : Colors.greenAccent.green, 
-                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.blue : Colors.greenAccent.blue, 
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.red : ScopedModel.of<TemaModel>(context).mainColor.red, 
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.green : ScopedModel.of<TemaModel>(context).mainColor.green, 
+                  ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor.blue : ScopedModel.of<TemaModel>(context).mainColor.blue, 
                   animation),
               )
             ),

@@ -163,8 +163,6 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-
-    if(prefs != null)
     return Stack(
       children: <Widget>[
         CupertinoPageScaffold(
@@ -179,7 +177,7 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                 fontFamily: ScopedModel.of<TemaModel>(context).font
               )
             ),
-            trailing: Transform.translate(
+            trailing: prefs != null ? Transform.translate(
               offset: Offset(20.0, 0.0),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -292,9 +290,9 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                   ),
                 ],
               ),
-            )
+            ) : null
           ),
-          child: Stack(
+          child: prefs != null ? Stack(
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(bottom: transposeMode ? 40.0 : 0.0),
@@ -473,9 +471,9 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                 ),
               ),
             ],
-          ),
+          ) : Container(),
         ),
       ]
-    ); else return CupertinoPageScaffold(navigationBar: CupertinoNavigationBar(), child: Container(),);
+    );
   }
 }
