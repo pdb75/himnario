@@ -29,6 +29,9 @@ class _ScrollerState extends State<Scroller> {
   bool dragging;
   double scrollPosition;
   double iPhoneXPadding;
+  double topPadding;
+  double bottomPadding;
+  double scrollBarSize;
 
 
   @override
@@ -36,13 +39,16 @@ class _ScrollerState extends State<Scroller> {
     super.initState();
     iPhoneXPadding = widget.iPhoneX ? 20.0 : 0.0;
     scrollController = ScrollController(initialScrollOffset: 0.0);
-    scrollController.addListener((){
-      double maxScrollPosition = MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 + iPhoneXPadding;
+    scrollController.addListener(() {
+      double maxScrollPosition = MediaQuery.of(context).size.height - bottomPadding - topPadding;
       double maxScrollExtent = scrollController.position.maxScrollExtent == 0.0 ? 1.0 : scrollController.position.maxScrollExtent;
       if(!dragging)
-        setState(() => scrollPosition = 72.0 + iPhoneXPadding + ((scrollController.offset/maxScrollExtent)*(maxScrollPosition)));
+        setState(() => scrollPosition = topPadding + ((scrollController.offset/maxScrollExtent)*(maxScrollPosition)));
     });
-    scrollPosition = 72.0 + iPhoneXPadding;
+    scrollBarSize = 45.0;
+    topPadding = 140.0 + iPhoneXPadding;
+    bottomPadding = widget.iPhoneXBottomPadding;
+    scrollPosition = topPadding;
     dragging = false;
   }
 
@@ -50,7 +56,7 @@ class _ScrollerState extends State<Scroller> {
   void didUpdateWidget(Scroller oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.himnos != widget.himnos && widget.buscador) {
-      scrollPosition = 72.0 + iPhoneXPadding;
+      scrollPosition = topPadding;
     }
   }
 
@@ -60,7 +66,7 @@ class _ScrollerState extends State<Scroller> {
     final TemaModel tema = ScopedModel.of<TemaModel>(context, rebuildOnChange: true);
     int length = widget.himnos.length == 0 ? 1 : widget.himnos.length;
     if (scrollPosition == double.infinity || scrollPosition == double.nan)
-      scrollPosition = 72.0 + iPhoneXPadding;
+      scrollPosition = topPadding;
     return Stack(
       children: <Widget>[
         widget.himnos.isEmpty ? Container(
@@ -81,7 +87,7 @@ class _ScrollerState extends State<Scroller> {
               itemCount: widget.himnos.length,
               itemBuilder: (BuildContext context, int index) =>
               Container(
-                color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) == index && dragging ? 
+                color: (scrollPosition - topPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - topPadding + 0.5)/length) == index && dragging ? 
                 (tema.brightness == Brightness.light ? tema.mainColor : Colors.greenAccent) : 
                 tema.getScaffoldBackgroundColor(),
                 height: 55.0,
@@ -115,7 +121,7 @@ class _ScrollerState extends State<Scroller> {
                           softWrap: true,
                           textAlign: TextAlign.start,
                           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                            color: (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) == index && dragging ? 
+                            color: (scrollPosition - topPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - topPadding + 0.5)/length) == index && dragging ? 
                             (tema.brightness == Brightness.light ? tema.mainColorContrast : Colors.black) : 
                             tema.getScaffoldTextColor(),
                             fontFamily: ScopedModel.of<TemaModel>(context).font,
@@ -143,18 +149,17 @@ class _ScrollerState extends State<Scroller> {
           child: GestureDetector(
             onVerticalDragStart: (DragStartDetails details) {
               double position;
-              double bottomPadding = MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding;
-              double topPadding = 72.0 + iPhoneXPadding;
               double tileSize = 55.0;
 
-              if (details.globalPosition.dy > bottomPadding + 15.0) {
-                position = bottomPadding;
+              if (details.globalPosition.dy > MediaQuery.of(context).size.height - bottomPadding - scrollBarSize/2) {
+                position = MediaQuery.of(context).size.height - bottomPadding + scrollBarSize/2;
               }
-              else if (details.globalPosition.dy < topPadding + 15.0) {
+              else if (details.globalPosition.dy < topPadding - scrollBarSize) {
                 position = topPadding;
               }
               else 
-                position = details.globalPosition.dy - 15.0;
+                position = details.globalPosition.dy + scrollBarSize;
+                
               setState(() {
                 scrollPosition = position;
                 dragging = true;
@@ -162,36 +167,34 @@ class _ScrollerState extends State<Scroller> {
 
               int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length) + 1);
 
-              if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
-                scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
-              else
-                scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length)*tileSize);
+              // if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
+              //   scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
+              // else
+              //   scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length)*tileSize);
             },
             onVerticalDragUpdate: (DragUpdateDetails details) {
               double position;
-              double bottomPadding = MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding;
-              double topPadding = 72.0 + iPhoneXPadding;
               double tileSize = 55.0;
 
-              if (details.globalPosition.dy > bottomPadding + 15.0) {
-                position = bottomPadding;
+              if (details.globalPosition.dy > MediaQuery.of(context).size.height - bottomPadding - scrollBarSize/2) {
+                position = MediaQuery.of(context).size.height - bottomPadding + scrollBarSize/2;
               }
-              else if (details.globalPosition.dy < topPadding + 15.0) {
+              else if (details.globalPosition.dy < topPadding - scrollBarSize) {
                 position = topPadding;
               }
               else 
-                position = details.globalPosition.dy - 15.0;
+                position = details.globalPosition.dy + scrollBarSize;
 
               setState(() {
                 scrollPosition = position;
               });
 
-              int currentHimno = ((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length) + 1);
-
-              if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
-                scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
-              else
-                scrollController.jumpTo((scrollPosition - topPadding)~/((bottomPadding - topPadding + 0.5)/length)*tileSize);
+              int currentHimno = ((scrollPosition - 15.0)~/((MediaQuery.of(context).size.height - bottomPadding - topPadding - scrollBarSize)/length) + 1);
+              print(currentHimno);
+              // if (currentHimno > widget.himnos.length-(MediaQuery.of(context).size.height - 115.0)~/tileSize)
+              //   scrollController.animateTo(scrollController.position.maxScrollExtent, curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
+              // else
+              //   scrollController.jumpTo((scrollPosition - 15.0)~/((MediaQuery.of(context).size.height - bottomPadding - topPadding - scrollBarSize)/length)*tileSize);
             },
             onVerticalDragEnd: (DragEndDetails details) {
               setState(() {
@@ -211,7 +214,7 @@ class _ScrollerState extends State<Scroller> {
                     context: context,
                     dragging: dragging,
                     iPhoneXPadding: iPhoneXPadding,
-                    numero: dragging ? (scrollPosition - 72.0 - iPhoneXPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5)/length) : -1,
+                    numero: dragging ? (scrollPosition - topPadding)~/((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - topPadding + 0.5)/length) : -1,
                   ),
                 ),
               ),
@@ -234,7 +237,6 @@ class SideScroller extends CustomPainter {
   double iPhoneXPadding;
   TemaModel tema;
 
-
   SideScroller({this.tema, this.position, BuildContext context, this.dragging, this.numero, this.himnos, this.iPhoneXPadding = 0.0}) {
     textColor = tema.brightness == Brightness.light ? Colors.white : Colors.black;
     scrollBar = Paint()
@@ -248,7 +250,7 @@ class SideScroller extends CustomPainter {
     canvas.drawLine(Offset(size.width - 5, position), Offset(size.width - 5, position + 30), scrollBar);
     if (dragging) {
       String text = himnos[numero].numero <= 517 ?  himnos[numero].numero.toString() : himnos[numero].titulo[0];
-      double textPosition = position < 155.0 + iPhoneXPadding ? 155.0 + iPhoneXPadding : position;
+      double textPosition = position < 220.0 + iPhoneXPadding ? 220.0 + iPhoneXPadding : position;
       for(int i = 0; i < text.length; ++i)
         canvas.drawCircle(Offset(size.width - 85 - 5*i, textPosition - 40), 45.0, scrollBar);
       canvas.drawRect(Rect.fromCircle(
@@ -266,7 +268,7 @@ class SideScroller extends CustomPainter {
         textDirection: TextDirection.ltr)
       ..layout()
       ..paint(
-        canvas, 
+        canvas,
         Offset(
           size.width - (text == "M" ? 132 : 127) - 15*(text.length-3), 
           textPosition - 65

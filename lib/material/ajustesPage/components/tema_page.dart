@@ -84,29 +84,19 @@ class _TemasPageState extends State<TemasPage> {
             DynamicTheme.of(context).setThemeData(ThemeData(
               primarySwatch: MaterialColor(pickerColor.value, swatch),
               fontFamily: prefs.getString('fuente') ?? 'Merriweather',
-              brightness: dark ? Brightness.dark : Brightness.light
+              brightness: dark ? Brightness.dark : Brightness.light,
+              accentColor: dark ? pickerColor : null,
+              scaffoldBackgroundColor: dark ? Colors.black : null,
+              cardColor: dark ? Color.fromRGBO(33, 33, 33, 1) : null
             ));
             setState(() {});
             Navigator.of(context).pop();
           },
         ),
       ],
-      content: Stack(
-        children: <Widget>[
-          IgnorePointer(
-            ignoring: dark,
-            child: AnimatedContainer(
-              duration: Duration(milliseconds: 250),
-              foregroundDecoration: BoxDecoration(
-                color: Colors.black.withOpacity(dark ? 0.6 : 0.0)
-              ),
-              child: MaterialPicker(
-                pickerColor: pickerColor,
-                onColorChanged: (Color color) => setState(() => pickerColor = color),
-              ),
-            ),
-          )
-        ],
+      content: MaterialPicker(
+        pickerColor: pickerColor,
+        onColorChanged: (Color color) => setState(() => pickerColor = color),
       )
     );
   }

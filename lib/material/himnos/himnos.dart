@@ -75,9 +75,17 @@ class _HimnosPageState extends State<HimnosPage> {
             _globalKey.currentState.showSnackBar(SnackBar(
               content: Row(
                 children: <Widget>[
-                  Icon(Icons.get_app),
+                  Icon(
+                    Icons.get_app,
+                    color: Colors.white,
+                  ),
                   SizedBox(width: 15.0,),
-                  Text('Actualizando Base de Datos')
+                  Text(
+                    'Actualizando Base de Datos',
+                    style: Theme.of(context).textTheme.button.copyWith(
+                      color: Colors.white
+                    ),
+                  )
                 ],
               ),
               action: SnackBarAction(
@@ -141,9 +149,17 @@ class _HimnosPageState extends State<HimnosPage> {
             _globalKey.currentState.showSnackBar(SnackBar(
               content: Row(
                 children: <Widget>[
-                  Icon(Icons.done),
+                  Icon(
+                    Icons.done,
+                    color: Colors.white,
+                  ),
                   SizedBox(width: 15.0,),
-                  Text('Base de Datos Actualizada')
+                  Text(
+                    'Base de Datos Actualizada',
+                    style: Theme.of(context).textTheme.button.copyWith(
+                      color: Colors.white
+                    ),
+                  )
                 ],
               ),
               backgroundColor: Colors.green,

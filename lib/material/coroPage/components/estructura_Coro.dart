@@ -68,7 +68,17 @@ class CoroText extends StatelessWidget {
                 height: Theme.of(context).textTheme.body1.height,
                 fontWeight: FontWeight.bold,
                 wordSpacing: fontFamilies[DefaultTextStyle.of(context).style.fontFamily],
-                color: Color.fromRGBO(Theme.of(context).textTheme.body1.color.red, Theme.of(context).textTheme.body1.color.green, Theme.of(context).textTheme.body1.color.blue, animation),
+                color: Theme.of(context).brightness == Brightness.light ? Color.fromRGBO(
+                  Theme.of(context).textTheme.body1.color.red, 
+                  Theme.of(context).textTheme.body1.color.green, 
+                  Theme.of(context).textTheme.body1.color.blue, 
+                  animation
+                ) : Color.fromRGBO(
+                  Theme.of(context).accentColor.red, 
+                  Theme.of(context).accentColor.green, 
+                  Theme.of(context).accentColor.blue, 
+                  animation
+                ),
               )
             ),
             TextSpan(
@@ -90,7 +100,17 @@ class CoroText extends StatelessWidget {
                 wordSpacing: fontFamilies[DefaultTextStyle.of(context).style.fontFamily],
                 fontSize: animation*fontSize,
                 fontWeight: FontWeight.bold,
-                color: Color.fromRGBO(Theme.of(context).textTheme.body1.color.red, Theme.of(context).textTheme.body1.color.green, Theme.of(context).textTheme.body1.color.blue, animation),
+                color: Theme.of(context).brightness == Brightness.light ? Color.fromRGBO(
+                  Theme.of(context).textTheme.body1.color.red, 
+                  Theme.of(context).textTheme.body1.color.green, 
+                  Theme.of(context).textTheme.body1.color.blue, 
+                  animation
+                ) : Color.fromRGBO(
+                  Theme.of(context).accentColor.red, 
+                  Theme.of(context).accentColor.green, 
+                  Theme.of(context).accentColor.blue, 
+                  animation
+                ),
               )
             ),
             TextSpan(

@@ -42,6 +42,9 @@ void main() async {
       Map<dynamic, dynamic> json = jsonDecode(temaJson);
       tema = ThemeData(
         brightness: dark ? Brightness.dark : Brightness.light,
+        scaffoldBackgroundColor: dark ? Colors.black : null,
+        accentColor: dark ? Color.fromRGBO(json['red'], json['green'], json['blue'], 1) : null,
+        cardColor: dark ? Color.fromRGBO(33, 33, 33, 1) : null,
         primarySwatch: MaterialColor(json['value'], {
             50:Color.fromRGBO(json['red'], json['green'], json['blue'], .1),
             100:Color.fromRGBO(json['red'], json['green'], json['blue'], .2),
