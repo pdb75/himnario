@@ -74,9 +74,9 @@ class CoroText extends StatelessWidget {
                   Theme.of(context).textTheme.body1.color.blue, 
                   animation
                 ) : Color.fromRGBO(
-                  Theme.of(context).accentColor.red, 
-                  Theme.of(context).accentColor.green, 
-                  Theme.of(context).accentColor.blue, 
+                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.red : Theme.of(context).accentColor.red, 
+                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.green : Theme.of(context).accentColor.green, 
+                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.blue : Theme.of(context).accentColor.blue, 
                   animation
                 ),
               )
@@ -106,9 +106,9 @@ class CoroText extends StatelessWidget {
                   Theme.of(context).textTheme.body1.color.blue, 
                   animation
                 ) : Color.fromRGBO(
-                  Theme.of(context).accentColor.red, 
-                  Theme.of(context).accentColor.green, 
-                  Theme.of(context).accentColor.blue, 
+                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.red : Theme.of(context).accentColor.red, 
+                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.green : Theme.of(context).accentColor.green, 
+                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.blue : Theme.of(context).accentColor.blue, 
                   animation
                 ),
               )

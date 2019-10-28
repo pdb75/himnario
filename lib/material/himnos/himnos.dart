@@ -77,20 +77,20 @@ class _HimnosPageState extends State<HimnosPage> {
                 children: <Widget>[
                   Icon(
                     Icons.get_app,
-                    color: Colors.white,
+                    color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
                   ),
                   SizedBox(width: 15.0,),
                   Text(
                     'Actualizando Base de Datos',
                     style: Theme.of(context).textTheme.button.copyWith(
-                      color: Colors.white
+                      color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black
                     ),
                   )
                 ],
               ),
               action: SnackBarAction(
                 label: 'Ok',
-                textColor: Colors.white,
+                textColor: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
                 onPressed: () =>_globalKey.currentState.hideCurrentSnackBar(),
               ),
             ));

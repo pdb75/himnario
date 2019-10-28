@@ -65,32 +65,7 @@ class _TemasPageState extends State<TemasPage> {
         Divider(),
         FlatButton(
           child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
-
-          onPressed: () {
-            Map<int, Color> swatch = {
-              50:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .1),
-              100:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .2),
-              200:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .3),
-              300:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .4),
-              400:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .5),
-              500:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .6),
-              600:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .7),
-              700:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .8),
-              800:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, .9),
-              900:Color.fromRGBO(originalColor.red, originalColor.green, originalColor.blue, 1),
-            };
-
-            DynamicTheme.of(context).setThemeData(ThemeData(
-              primarySwatch: MaterialColor(originalColor.value, swatch),
-              fontFamily: prefs.getString('fuente') ?? 'Merriweather',
-              brightness: originalDark ? Brightness.dark : Brightness.light,
-              accentColor: originalDark ? pickerColor : null,
-              scaffoldBackgroundColor: originalDark ? Colors.black : null,
-              cardColor: originalDark ? Color.fromRGBO(33, 33, 33, 1) : null
-            ));
-            setState(() {});
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.of(context).pop(),
         ),
         FlatButton(
           child: Text('Guardar', style: Theme.of(context).textTheme.button,),
