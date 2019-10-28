@@ -608,6 +608,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                       himnos: coros,
                       initDB: fetchCategorias,
                       mensaje: '',
+                      iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
                       refresh: () => checkUpdates(prefs, db)
                     ),
                   ),

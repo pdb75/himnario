@@ -141,8 +141,12 @@ class _ScrollerState extends State<Scroller> {
         Align(
           alignment: FractionalOffset.centerRight,
           child: Container(
-            transform: Matrix4.translationValues(0.0, tema.brightness == Brightness.dark ? 0.0 : -20.0, 0.0),
-            margin: EdgeInsets.only(top: tema.brightness == Brightness.dark ? 50.0 : 0.0),
+            transform: Matrix4.translationValues(0.0, (
+              widget.iPhoneX && tema.brightness == Brightness.light ? -20.0 : 0.0
+            ), 0.0),
+            margin: EdgeInsets.only(top: tema.brightness == Brightness.dark ? (
+              widget.iPhoneX ? 70.0 : 65.0
+            ) : 0.0),
             child: GestureDetector(
               onVerticalDragStart: (DragStartDetails details) {
                 double position;

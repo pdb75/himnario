@@ -56,7 +56,11 @@ class _CorosScrollerState extends State<CorosScroller> {
       children: <Widget>[
         widget.himnos.isEmpty ? Container(
               child: Center(
-                child: Text(widget.mensaje, textAlign: TextAlign.center,)
+                child: Text(
+                  widget.mensaje, 
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.5,
+                )
               ),
             ) : ListView.builder(
             controller: scrollController,

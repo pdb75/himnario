@@ -57,7 +57,11 @@ class _ScrollerState extends State<Scroller> {
       children: <Widget>[
         widget.himnos.isEmpty ? Container(
               child: Center(
-                child: Text(widget.mensaje, textAlign: TextAlign.center,)
+                child: Text(
+                  widget.mensaje, 
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.5,
+                )
               ),
             ) : ListView.builder(
             key: PageStorageKey('Scroller Tema'),

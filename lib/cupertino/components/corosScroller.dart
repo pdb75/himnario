@@ -145,7 +145,9 @@ class _CorosScrollerState extends State<CorosScroller> {
         Align(
           alignment: FractionalOffset.bottomRight,
           child: Container(
-            margin: EdgeInsets.only(top: tema.brightness == Brightness.dark ? 70.0 : 0.0),
+            margin: EdgeInsets.only(top: tema.brightness == Brightness.dark ? (
+              widget.iPhoneX ? 90.0 : 65.0
+            ) : 0.0),
             child: GestureDetector(
               onVerticalDragStart: (DragStartDetails details) {
                 double position;
