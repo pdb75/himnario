@@ -97,7 +97,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return !Platform.isAndroid ? DynamicTheme(
+    return Platform.isAndroid ? DynamicTheme(
       data: (Brightness brightness) => tema,
       themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
       MaterialApp(
