@@ -66,6 +66,7 @@ class CoroText extends StatelessWidget {
               style: TextStyle(
                 fontSize: animation*fontSize,
                 height: Theme.of(context).textTheme.body1.height,
+                fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.bold,
                 wordSpacing: fontFamilies[DefaultTextStyle.of(context).style.fontFamily],
                 color: Theme.of(context).brightness == Brightness.light ? Color.fromRGBO(
@@ -74,9 +75,9 @@ class CoroText extends StatelessWidget {
                   Theme.of(context).textTheme.body1.color.blue, 
                   animation
                 ) : Color.fromRGBO(
-                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.red : Theme.of(context).accentColor.red, 
-                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.green : Theme.of(context).accentColor.green, 
-                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.blue : Theme.of(context).accentColor.blue, 
+                  Colors.white.red, 
+                  Colors.white.green, 
+                  Colors.white.blue, 
                   animation
                 ),
               )
@@ -106,9 +107,9 @@ class CoroText extends StatelessWidget {
                   Theme.of(context).textTheme.body1.color.blue, 
                   animation
                 ) : Color.fromRGBO(
-                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.red : Theme.of(context).accentColor.red, 
-                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.green : Theme.of(context).accentColor.green, 
-                  Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white.blue : Theme.of(context).accentColor.blue, 
+                  Colors.white.red, 
+                  Colors.white.green, 
+                  Colors.white.blue, 
                   animation
                 ),
               )

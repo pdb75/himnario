@@ -11,7 +11,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info/package_info.dart';
 import 'package:dio/dio.dart';
-import 'package:launch_review/launch_review.dart'; 
+import 'package:launch_review/launch_review.dart';
 import 'package:http/http.dart' as http;
 
 import '../components/corosScroller.dart';
@@ -63,115 +63,106 @@ class _HimnosPageState extends State<HimnosPage> {
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         print('connected');
         String date = prefs.getString('latest');
-        http.Response res = await http.post(
-          'http://104.131.104.212:8085/updates',
-          headers: {'Content-Type': 'application/json'},
-          body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'}))
-        );
+        http.Response res = await http.post('http://104.131.104.212:8085/updates',
+            headers: {'Content-Type': 'application/json'}, body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'})));
         List<dynamic> latest = jsonDecode(res.body);
         print(latest.isEmpty);
-        if (latest.isNotEmpty)
-          if (date == null || date != latest[0]['updatedAt']) {
-            _globalKey.currentState.showSnackBar(SnackBar(
-              content: Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.get_app,
-                    color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
-                  ),
-                  SizedBox(width: 15.0,),
-                  Text(
-                    'Actualizando Base de Datos',
-                    style: Theme.of(context).textTheme.button.copyWith(
-                      color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black
-                    ),
-                  )
-                ],
-              ),
-              action: SnackBarAction(
-                label: 'Ok',
-                textColor: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
-                onPressed: () =>_globalKey.currentState.hideCurrentSnackBar(),
-              ),
-            ));
-            setState(() => cargando = true);
-            print('descargando');
-            Response request = await Dio(BaseOptions(
-              baseUrl: "http://104.131.104.212:8085",
-              // connectTimeout: 5000,
-              // receiveTimeout: 3000,
-            )).get('/db',
-              options: Options(responseType: ResponseType.bytes),
-              onReceiveProgress: (int total, int sent) {
-                setState(() => downloadProgress = total/sent);
-              });
-            setState(() => downloadProgress = null);
+        if (latest.isNotEmpty) if (date == null || date != latest[0]['updatedAt']) {
+          _globalKey.currentState.showSnackBar(SnackBar(
+            content: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.get_app,
+                  color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
+                ),
+                SizedBox(
+                  width: 15.0,
+                ),
+                Text(
+                  'Actualizando Base de Datos',
+                  style: Theme.of(context).textTheme.button.copyWith(color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black),
+                )
+              ],
+            ),
+            action: SnackBarAction(
+              label: 'Ok',
+              textColor: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
+              onPressed: () => _globalKey.currentState.hideCurrentSnackBar(),
+            ),
+          ));
+          setState(() => cargando = true);
+          print('descargando');
+          Response request = await Dio(BaseOptions(
+            baseUrl: "http://104.131.104.212:8085",
+            // connectTimeout: 5000,
+            // receiveTimeout: 3000,
+          )).get('/db', options: Options(responseType: ResponseType.bytes), onReceiveProgress: (int total, int sent) {
+            setState(() => downloadProgress = total / sent);
+          });
+          setState(() => downloadProgress = null);
 
-            // Favoritos
-            List<int> favoritos = List<int>();
-            // Descargados
-            List<List<int>> descargados = List<List<int>>();
-            // transpose
-            List<Himno> transposedHImnos = List<Himno>();
+          // Favoritos
+          List<int> favoritos = List<int>();
+          // Descargados
+          List<List<int>> descargados = List<List<int>>();
+          // transpose
+          List<Himno> transposedHImnos = List<Himno>();
 
-            db = db.isOpen ? db : await openDatabase(path);
+          db = db.isOpen ? db : await openDatabase(path);
 
-            await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
-            await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+          await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+          await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
 
-            for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
-              favoritos.add(favorito['himno_id']);
-            }
-            for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
-              descargados.add([descargado['himno_id'], descargado['duracion']]);
-            }
-            transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
-
-            await db.close();
-            db = null;
-
-            File(path).deleteSync();
-            File(path).writeAsBytesSync(request.data);
-
-            db = await openDatabase(path);
-
-            await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
-            await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
-            for (int favorito in favoritos)
-              await db.rawInsert('insert into favoritos values ($favorito)');
-            for (List<int> descargado in descargados)
-              await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
-            for (Himno himno in transposedHImnos)
-              await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
-
-            prefs.setString('latest', latest[0]['updatedAt']);
-
-            _globalKey.currentState.showSnackBar(SnackBar(
-              content: Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.done,
-                    color: Colors.white,
-                  ),
-                  SizedBox(width: 15.0,),
-                  Text(
-                    'Base de Datos Actualizada',
-                    style: Theme.of(context).textTheme.button.copyWith(
-                      color: Colors.white
-                    ),
-                  )
-                ],
-              ),
-              backgroundColor: Colors.green,
-              action: SnackBarAction(
-                label: 'Ok',
-                textColor: Colors.white,
-                onPressed: () =>_globalKey.currentState.hideCurrentSnackBar(),
-              ),
-            ));
-
-            fetchCategorias();
+          for (Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
+            favoritos.add(favorito['himno_id']);
           }
+          for (Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+            descargados.add([descargado['himno_id'], descargado['duracion']]);
+          }
+          transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
+
+          await db.close();
+          db = null;
+
+          File(path).deleteSync();
+          File(path).writeAsBytesSync(request.data);
+
+          db = await openDatabase(path);
+
+          await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+          await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+          for (int favorito in favoritos) await db.rawInsert('insert into favoritos values ($favorito)');
+          for (List<int> descargado in descargados) await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
+          for (Himno himno in transposedHImnos) await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
+
+          prefs.setString('latest', latest[0]['updatedAt']);
+
+          _globalKey.currentState.showSnackBar(SnackBar(
+            content: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.done,
+                  color: Colors.white,
+                ),
+                SizedBox(
+                  width: 15.0,
+                ),
+                Text(
+                  'Base de Datos Actualizada',
+                  style: Theme.of(context).textTheme.button.copyWith(color: Colors.white),
+                )
+              ],
+            ),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: 'Ok',
+              textColor: Colors.white,
+              onPressed: () => _globalKey.currentState.hideCurrentSnackBar(),
+            ),
+          ));
+
+          fetchCategorias();
+        }
         setState(() => cargando = false);
         print('termino de actualizar');
         return null;
@@ -197,7 +188,8 @@ class _HimnosPageState extends State<HimnosPage> {
       await copiarBase(path, version == null, version == null ? 0.0 : double.parse(version));
       prefs.setString('version', actualVersion);
       prefs.setString('latest', null);
-    } else db = await openDatabase(path);
+    } else
+      db = await openDatabase(path);
     // if ((await (Connectivity().checkConnectivity()) == ConnectivityResult.none))
     await fetchCategorias();
     checkUpdates(prefs, db);
@@ -216,28 +208,32 @@ class _HimnosPageState extends State<HimnosPage> {
     if (!fistRun) {
       print('abriendo base de datos');
       try {
-        if(version < 2.2) {
+        if (version < 2.2) {
           print('Old Version db path');
           db = await openDatabase(await getDatabasesPath() + '/himnos.db');
-        }
-        else {
+        } else {
           print('New Version db path');
           db = await openDatabase((await getApplicationDocumentsDirectory()).path + '/himnos.db');
         }
-        for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
+        for (Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
           favoritos.add(favorito['himno_id']);
         }
         try {
-          for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+          for (Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
             descargados.add([descargado['himno_id'], descargado['duracion']]);
           }
-        } catch(e) {print(e);}
+        } catch (e) {
+          print(e);
+        }
         try {
-          if (version > 3.9)
-            transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
-        } catch (e) {print(e);}
+          if (version > 3.9) transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
+        } catch (e) {
+          print(e);
+        }
         await db.close();
-      } catch(e) {print(e);}
+      } catch (e) {
+        print(e);
+      }
     }
     ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
     List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
@@ -247,12 +243,9 @@ class _HimnosPageState extends State<HimnosPage> {
     if (!fistRun) {
       await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
       await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
-      for (int favorito in favoritos)
-        await db.rawInsert('insert into favoritos values ($favorito)');
-      for (List<int> descargado in descargados)
-        await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
-      for (Himno himno in transposedHImnos)
-        await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
+      for (int favorito in favoritos) await db.rawInsert('insert into favoritos values ($favorito)');
+      for (List<int> descargado in descargados) await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
+      for (Himno himno in transposedHImnos) await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
     } else {
       await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
       await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
@@ -261,7 +254,6 @@ class _HimnosPageState extends State<HimnosPage> {
   }
 
   Future<Null> fetchCategorias([bool refresh = true]) async {
-
     db = await openDatabase(path);
 
     List<Map<String, dynamic>> temas = await db.rawQuery('select * from temas');
@@ -270,11 +262,7 @@ class _HimnosPageState extends State<HimnosPage> {
     for (Categoria categoria in categorias) {
       List<Map<String, dynamic>> subTemas = await db.rawQuery('select * from sub_temas where tema_id = ${categoria.id}');
       for (var x in subTemas) {
-        categoria.subCategorias.add(SubCategoria(
-          id: x['id'],
-          subCategoria: x['sub_tema'],
-          categoriaId: x['tema_id']
-        ));
+        categoria.subCategorias.add(SubCategoria(id: x['id'], subCategoria: x['sub_tema'], categoriaId: x['tema_id']));
       }
     }
 
@@ -292,10 +280,9 @@ class _HimnosPageState extends State<HimnosPage> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -306,36 +293,24 @@ class _HimnosPageState extends State<HimnosPage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor
-              ),
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Himnos y Cánticos del Evangelio',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                        color: Theme.of(context).primaryIconTheme.color,
-                        fontSize: 20.0
-                      )
-                    )
-                  ],
-                ),
-              )
-            ),
+                decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text('Himnos y Cánticos del Evangelio',
+                          textAlign: TextAlign.start, style: TextStyle(color: Theme.of(context).primaryIconTheme.color, fontSize: 20.0))
+                    ],
+                  ),
+                )),
             ListTile(
               leading: Icon(Icons.favorite),
               title: Text('Favoritos'),
               onTap: () async {
                 await db.close();
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (BuildContext context) => FavoritosPage())
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => FavoritosPage()));
               },
             ),
             ListTile(
@@ -344,10 +319,7 @@ class _HimnosPageState extends State<HimnosPage> {
               onTap: () async {
                 await db.close();
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (BuildContext context) => DescargadosPage())
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => DescargadosPage()));
               },
             ),
             ListTile(
@@ -356,10 +328,7 @@ class _HimnosPageState extends State<HimnosPage> {
               onTap: () async {
                 await db.close();
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (BuildContext context) => DisponiblesPage())
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => DisponiblesPage()));
               },
             ),
             ListTile(
@@ -367,10 +336,7 @@ class _HimnosPageState extends State<HimnosPage> {
               title: Text('Ajustes'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (BuildContext context) => AjustesPage())
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => AjustesPage()));
               },
             ),
             ListTile(
@@ -379,10 +345,7 @@ class _HimnosPageState extends State<HimnosPage> {
               onTap: () => LaunchReview.launch(),
             ),
             ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text('Políticas de privacidad'),
-              onTap: () => launch('https://sites.google.com/view/himnos-privacy-policy/')
-            ),
+                leading: Icon(Icons.info_outline), title: Text('Políticas de privacidad'), onTap: () => launch('https://sites.google.com/view/himnos-privacy-policy/')),
             // ListTile(s
           ],
         ),
@@ -390,15 +353,18 @@ class _HimnosPageState extends State<HimnosPage> {
       appBar: AppBar(
         title: Container(
           width: double.infinity,
-          child: Text(currentPage == 0 ? 'Himnos del Evangelio' : 'Coros', textAlign: TextAlign.center,),
+          child: Text(
+            currentPage == 0 ? 'Himnos del Evangelio' : 'Coros',
+            textAlign: TextAlign.center,
+          ),
         ),
         actions: <Widget>[
           IconButton(
             onPressed: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros))
-              );
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros)));
             },
             icon: Icon(Icons.search),
           ),
@@ -418,99 +384,100 @@ class _HimnosPageState extends State<HimnosPage> {
         ),
       ),
       body: PageView(
-        controller: pageController,  
+        controller: pageController,
         onPageChanged: (int index) => setState(() => currentPage = index),
         children: <Widget>[
-          categorias.isNotEmpty ? RefreshIndicator(
-            color: Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor,
-            onRefresh: () => checkUpdates(prefs, db),
-            child: ListView.builder(
-              padding: EdgeInsets.only(bottom: 80.0),
-              itemCount: categorias.length + 1,
-              itemBuilder: (BuildContext context, int index) {
-                return index == 0 ? 
-                Card(
-                  elevation: 4.0,
-                  margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  child: ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context, 
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => TemaPage(id: 0, tema: 'Todos',)
-                        ));
-                    },
-                    title: Text('Todos'),
-                  ),
+          categorias.isNotEmpty
+              ? RefreshIndicator(
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? (Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor)
+                      : (Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white : Theme.of(context).accentColor),
+                  onRefresh: () => checkUpdates(prefs, db),
+                  child: ListView.builder(
+                      padding: EdgeInsets.only(bottom: 80.0),
+                      itemCount: categorias.length + 1,
+                      itemBuilder: (BuildContext context, int index) {
+                        return index == 0
+                            ? Card(
+                                elevation: 4.0,
+                                margin: EdgeInsets.only(left: 10.0, right: 10.0, top: 16.0, bottom: 8.0),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                                child: ListTile(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) => TemaPage(
+                                                  id: 0,
+                                                  tema: 'Todos',
+                                                )));
+                                  },
+                                  title: Text('Todos'),
+                                ),
+                              )
+                            : categorias[index - 1].subCategorias.isEmpty
+                                ? Card(
+                                    elevation: 4.0,
+                                    margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                                    child: ListTile(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context, MaterialPageRoute(builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index - 1].categoria)));
+                                      },
+                                      title: Text(categorias[index - 1].categoria),
+                                    ))
+                                : Card(
+                                    elevation: 4.0,
+                                    margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                                    child: Column(
+                                      children: <Widget>[
+                                        ListTile(
+                                            title: Text(categorias[index - 1].categoria),
+                                            trailing: Icon(expanded[index - 1] ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                                            onTap: () {
+                                              List<bool> aux = expanded;
+                                              for (int i = 0; i < aux.length; ++i) if (i == index - 1) aux[i] = !aux[i];
+                                              setState(() => expanded = aux);
+                                            }),
+                                        AnimatedContainer(
+                                          duration: Duration(milliseconds: 400),
+                                          curve: Curves.easeInOutSine,
+                                          height: expanded[index - 1] ? categorias[index - 1].subCategorias.length * 48.0 : 0.0,
+                                          child: AnimatedOpacity(
+                                            opacity: expanded[index - 1] ? 1.0 : 0.0,
+                                            duration: Duration(milliseconds: 400),
+                                            curve: Curves.easeInOutSine,
+                                            child: Column(
+                                                children: categorias[index - 1]
+                                                    .subCategorias
+                                                    .map((subCategoria) => ListTile(
+                                                          dense: true,
+                                                          onTap: () {
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder: (BuildContext context) =>
+                                                                        TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)));
+                                                          },
+                                                          title: Text(subCategoria.subCategoria),
+                                                        ))
+                                                    .toList()),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                      }),
                 )
-                :
-                categorias[index-1].subCategorias.isEmpty ? Card(
-                  elevation: 4.0,
-                  margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  child: ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context, 
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index-1].categoria)
-                        ));
-                    },
-                    title: Text(categorias[index-1].categoria),
-                  )
-                ) : 
-                Card(
-                  elevation: 4.0,
-                  margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                        title: Text(categorias[index-1].categoria),
-                        trailing: Icon(expanded[index - 1] ? Icons.arrow_drop_up : Icons.arrow_drop_down),
-                        onTap: () {
-                          List<bool> aux = expanded;
-                          for (int i = 0; i < aux.length; ++i)
-                            if (i == index-1)
-                              aux[i] = !aux[i];
-                          setState(() => expanded = aux);
-                        }
-                      ),
-                      AnimatedContainer(
-                        duration: Duration(milliseconds: 400),
-                        curve: Curves.easeInOutSine,
-                        height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 48.0 : 0.0,
-                        child: AnimatedOpacity(
-                          opacity: expanded[index - 1] ? 1.0 : 0.0,
-                          duration: Duration(milliseconds: 400),
-                          curve: Curves.easeInOutSine,
-                          child: Column(
-                            children: categorias[index-1].subCategorias.map((subCategoria) =>
-                            ListTile(
-                              dense: true,
-                              onTap: () {
-                                Navigator.push(
-                                  context, 
-                                  MaterialPageRoute(
-                                    builder: (BuildContext context) => TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)
-                                  ));
-                              },
-                              title: Text(subCategoria.subCategoria),
-                            )).toList()
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            ),
-          ) : Container(),
+              : Container(),
           RefreshIndicator(
-            color: Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor,
+            color: Theme.of(context).brightness == Brightness.light
+                ? (Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor)
+                : (Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white : Theme.of(context).accentColor),
             onRefresh: () => checkUpdates(prefs, db),
-            child:  CorosScroller(
+            child: CorosScroller(
               cargando: cargando,
               himnos: coros,
               initDB: fetchCategorias,
@@ -531,31 +498,23 @@ class _HimnosPageState extends State<HimnosPage> {
         },
         items: [
           BottomNavigationBarItem(
-            backgroundColor: Theme.of(context).primaryColor,
-            icon: Icon(Icons.library_music, color: Theme.of(context).primaryIconTheme.color),
-            title: Text('Himnos', style: Theme.of(context).textTheme.button.copyWith(
-              color: Theme.of(context).primaryIconTheme.color
-            ))
-          ),
+              backgroundColor: Theme.of(context).primaryColor,
+              icon: Icon(Icons.library_music, color: Theme.of(context).primaryIconTheme.color),
+              title: Text('Himnos', style: Theme.of(context).textTheme.button.copyWith(color: Theme.of(context).primaryIconTheme.color))),
           BottomNavigationBarItem(
-            backgroundColor: Theme.of(context).primaryColor,
-            icon: Icon(Icons.music_note, color: Theme.of(context).primaryIconTheme.color),
-            title: Text('Coros', style: Theme.of(context).textTheme.button.copyWith(
-              color: Theme.of(context).primaryIconTheme.color
-            ))
-          ),
+              backgroundColor: Theme.of(context).primaryColor,
+              icon: Icon(Icons.music_note, color: Theme.of(context).primaryIconTheme.color),
+              title: Text('Coros', style: Theme.of(context).textTheme.button.copyWith(color: Theme.of(context).primaryIconTheme.color))),
         ],
       ),
-      floatingActionButton: currentPage == 0 ? FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context, 
-            MaterialPageRoute(
-              builder: (BuildContext context) => QuickBuscador()
-            ));
-        },
-        child: Icon(Icons.dialpad),
-      ) : null,
+      floatingActionButton: currentPage == 0
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => QuickBuscador()));
+              },
+              child: Icon(Icons.dialpad),
+            )
+          : null,
     );
   }
 }
