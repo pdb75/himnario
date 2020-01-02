@@ -679,6 +679,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     if(sheetAvailable) {
       modalButtons.add(CupertinoActionSheetAction(
         onPressed: () {
+          Future.delayed(Duration(milliseconds: 500)).then((_) => sheetController.reset());
           setState(() => sheet = !sheet);
           Navigator.of(context).pop();
         },
@@ -747,62 +748,60 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             ),
           ),
 
-          Opacity(
-            opacity: sheet ? 1.0 : 0.0,
-            child: AnimatedContainer(
-              curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
-              duration: Duration(milliseconds: 500),
-              transform: Matrix4.skew(
-                sheet ? 0.0 : -1.0, 
-                sheet ? 0.0 : -1.0
-              ),
-              // transform: Matrix4.translationValues(
-              //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
-              //   sheetOutDragging ? sheetOffset :
-              //   sheet ? 0.0 :MediaQuery.of(context).size.width, 
-              //   0.0, 
-              //   0.0
-              // ),
-              child: OrientationBuilder(
-                builder: (BuildContext context, Orientation orientation) {
-                  if (currentOrientation == null) {
-                    currentOrientation = orientation;
-                  }
-                  if (currentOrientation != orientation) {
-                    currentOrientation = null;
-                    sheetController = PhotoViewController();
-                    sheet = false;
-                  }
-                  return currentOrientation == null ? Container() : PhotoView(
-                    controller: sheetController,
-                    imageProvider: FileImage(sheetFile),
-                    basePosition: Alignment.topCenter,
-                    initialScale: orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
-                    loadingChild: Container(
-                      width: double.infinity,
-                      height: double.infinity,
-                      color: Colors.white,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          CupertinoActivityIndicator(),
-                          SizedBox(height: 20.0,),
-                          Text(descargado ? 'Cargando partitura' : 'Descargando partitura', style: TextStyle(
-                              color: Colors.black,
-                            ),
-                            textScaleFactor: 1.2,
-                          )
-                        ],
-                      ),
-                    ),
-                    backgroundDecoration: BoxDecoration(
-                      color: Colors.white
-                    )
-                  );
-                },
-              )
+          AnimatedContainer(
+            curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
+            duration: Duration(milliseconds: sheet ? 500 : 1500),
+            transform: Matrix4.translationValues(
+              sheet ? 0.0 : 5000, 
+              0.0, 
+              0.0
             ),
+            // transform: Matrix4.translationValues(
+            //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
+            //   sheetOutDragging ? sheetOffset :
+            //   sheet ? 0.0 :MediaQuery.of(context).size.width, 
+            //   0.0, 
+            //   0.0
+            // ),
+            child: OrientationBuilder(
+              builder: (BuildContext context, Orientation orientation) {
+                if (currentOrientation == null) {
+                  currentOrientation = orientation;
+                }
+                if (currentOrientation != orientation) {
+                  currentOrientation = null;
+                  sheetController = PhotoViewController();
+                  sheet = false;
+                }
+                return currentOrientation == null ? Container() : PhotoView(
+                  controller: sheetController,
+                  imageProvider: FileImage(sheetFile),
+                  basePosition: Alignment.topCenter,
+                  initialScale: orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
+                  loadingChild: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        CupertinoActivityIndicator(),
+                        SizedBox(height: 20.0,),
+                        Text(descargado ? 'Cargando partitura' : 'Descargando partitura', style: TextStyle(
+                            color: Colors.black,
+                          ),
+                          textScaleFactor: 1.2,
+                        )
+                      ],
+                    ),
+                  ),
+                  backgroundDecoration: BoxDecoration(
+                    color: Colors.white
+                  )
+                );
+              },
+            )
           ),
           
           Align(

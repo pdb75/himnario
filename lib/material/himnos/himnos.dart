@@ -10,7 +10,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info/package_info.dart';
-import 'package:dio/dio.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:http/http.dart' as http;
 
@@ -40,7 +39,6 @@ class _HimnosPageState extends State<HimnosPage> {
   SharedPreferences prefs;
   int currentPage;
   bool cargando;
-  double downloadProgress;
 
   @override
   void initState() {
@@ -92,14 +90,7 @@ class _HimnosPageState extends State<HimnosPage> {
           ));
           setState(() => cargando = true);
           print('descargando');
-          Response request = await Dio(BaseOptions(
-            baseUrl: "http://104.131.104.212:8085",
-            // connectTimeout: 5000,
-            // receiveTimeout: 3000,
-          )).get('/db', options: Options(responseType: ResponseType.bytes), onReceiveProgress: (int total, int sent) {
-            setState(() => downloadProgress = total / sent);
-          });
-          setState(() => downloadProgress = null);
+          http.Response request = await http.get('http://104.131.104.212:8085/db');
 
           // Favoritos
           List<int> favoritos = List<int>();
@@ -125,7 +116,7 @@ class _HimnosPageState extends State<HimnosPage> {
           db = null;
 
           File(path).deleteSync();
-          File(path).writeAsBytesSync(request.data);
+          File(path).writeAsBytesSync(request.bodyBytes);
 
           db = await openDatabase(path);
 
@@ -378,7 +369,6 @@ class _HimnosPageState extends State<HimnosPage> {
             child: LinearProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor),
               backgroundColor: Colors.white,
-              value: downloadProgress != null && downloadProgress > 0.0 ? downloadProgress : null,
             ),
           ),
         ),

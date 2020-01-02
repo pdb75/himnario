@@ -662,7 +662,10 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
 
           // Activar modo partituras
           sheetAvailable ? IconButton(
-            onPressed: () => setState(() => sheet = !sheet),
+            onPressed: () {
+              Future.delayed(Duration(milliseconds: 500)).then((_) => sheetController.reset());
+              setState(() => sheet = !sheet);
+            },
             icon: Icon(Icons.music_note),
           ) : Container(),
           
@@ -741,10 +744,11 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           // ),
           AnimatedContainer(
             curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
-            duration: Duration(milliseconds: 500),
-            transform: Matrix4.skew(
-              sheet ? 0.0 : -1.0, 
-              sheet ? 0.0 : -1.0
+            duration: Duration(milliseconds: sheet ? 500 : 1500),
+            transform: Matrix4.translationValues(
+              sheet ? 0.0 : 5000, 
+              0.0, 
+              0.0
             ),
             // transform: Matrix4.translationValues(
             //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
