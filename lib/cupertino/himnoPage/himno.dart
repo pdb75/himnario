@@ -175,13 +175,17 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   }
 
   Future<Null> checkPartitura(String path) async {
-    sheetFile = File(path + '/${widget.numero}.jpg');
+    File aux = File(path + '/${widget.numero}.jpg');
     if (descargado) {
-      http.Response res = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}/disponible');
-      if (res.statusCode == 200) {
+      if (await aux.exists()) {
         if (mounted) setState(() => sheetAvailable = true);
-        http.Response image = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}');
-        await sheetFile.writeAsBytes(image.bodyBytes);
+      } else {
+        http.Response res = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}/disponible');
+        if (res.statusCode == 200) {
+          if (mounted) setState(() => sheetAvailable = true);
+          http.Response image = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}');
+          await aux.writeAsBytes(image.bodyBytes);
+        }
       }
     }
     else {
@@ -189,9 +193,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       if (res.statusCode == 200) {
         if (mounted) setState(() => sheetAvailable = true);
         http.Response image = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}');
-        await sheetFile.writeAsBytes(image.bodyBytes);
+        await aux.writeAsBytes(image.bodyBytes);
       }
     }
+    setState(() => sheetFile = aux);
     return null;
   }
 
@@ -775,7 +780,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                         children: <Widget>[
                           CupertinoActivityIndicator(),
                           SizedBox(height: 20.0,),
-                          Text('Descargando partitura', style: TextStyle(
+                          Text(descargado ? 'Cargando partitura' : 'Descargando partitura', style: TextStyle(
                               color: Colors.black,
                             ),
                             textScaleFactor: 1.2,
