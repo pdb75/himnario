@@ -147,6 +147,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         while(success != 1) {
           http.Response res = await http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible');
           if(res.body == 'no') {
+            setState(() => vozDisponible = false);
             return null;
           }
           HttpClient cliente = HttpClient();
