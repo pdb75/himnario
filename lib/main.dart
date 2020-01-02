@@ -24,18 +24,17 @@ void main() async {
     if (temaJson == null)
       tema = ThemeData(
         primarySwatch: MaterialColor(Colors.black.value, {
-            50:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .1),
-            100:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .2),
-            200:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .3),
-            300:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .4),
-            400:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .5),
-            500:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .6),
-            600:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .7),
-            700:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .8),
-            800:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .9),
-            900:Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, 1),
-          }
-        ),
+          50: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .1),
+          100: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .2),
+          200: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .3),
+          300: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .4),
+          400: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .5),
+          500: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .6),
+          600: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .7),
+          700: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .8),
+          800: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, .9),
+          900: Color.fromRGBO(Colors.black.red, Colors.black.green, Colors.black.blue, 1),
+        }),
         fontFamily: prefs.getString('fuente') ?? 'Merriweather',
       );
     else {
@@ -46,21 +45,20 @@ void main() async {
         accentColor: dark ? Color.fromRGBO(json['red'], json['green'], json['blue'], 1) : null,
         cardColor: dark ? Color.fromRGBO(33, 33, 33, 1) : null,
         primarySwatch: MaterialColor(json['value'], {
-            50:Color.fromRGBO(json['red'], json['green'], json['blue'], .1),
-            100:Color.fromRGBO(json['red'], json['green'], json['blue'], .2),
-            200:Color.fromRGBO(json['red'], json['green'], json['blue'], .3),
-            300:Color.fromRGBO(json['red'], json['green'], json['blue'], .4),
-            400:Color.fromRGBO(json['red'], json['green'], json['blue'], .5),
-            500:Color.fromRGBO(json['red'], json['green'], json['blue'], .6),
-            600:Color.fromRGBO(json['red'], json['green'], json['blue'], .7),
-            700:Color.fromRGBO(json['red'], json['green'], json['blue'], .8),
-            800:Color.fromRGBO(json['red'], json['green'], json['blue'], .9),
-            900:Color.fromRGBO(json['red'], json['green'], json['blue'], 1),
-          }
-        ),
+          50: Color.fromRGBO(json['red'], json['green'], json['blue'], .1),
+          100: Color.fromRGBO(json['red'], json['green'], json['blue'], .2),
+          200: Color.fromRGBO(json['red'], json['green'], json['blue'], .3),
+          300: Color.fromRGBO(json['red'], json['green'], json['blue'], .4),
+          400: Color.fromRGBO(json['red'], json['green'], json['blue'], .5),
+          500: Color.fromRGBO(json['red'], json['green'], json['blue'], .6),
+          600: Color.fromRGBO(json['red'], json['green'], json['blue'], .7),
+          700: Color.fromRGBO(json['red'], json['green'], json['blue'], .8),
+          800: Color.fromRGBO(json['red'], json['green'], json['blue'], .9),
+          900: Color.fromRGBO(json['red'], json['green'], json['blue'], 1),
+        }),
         fontFamily: prefs.getString('fuente') ?? 'Merriweather',
       );
-    } 
+    }
   }
   bool isInDebugMode = false;
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,14 +70,24 @@ void main() async {
     } else {
       // In production mode report to the application zone to report to
       // Crashlytics.
-      Zone.current.handleUncaughtError(details.exception, details.stack);
+      if (details.exception.toString() == "FileSystemException: Cannot open file, path = '/' (OS Error: Is a directory, errno = 21)" ||
+          details.exception.toString() == "PlatformException(error, Unsupported value: java.lang.RuntimeException: Unable to access resource, null)") {
+        FlutterError.dumpErrorToConsole(details);
+      } else {
+        Zone.current.handleUncaughtError(details.exception, details.stack);
+      }
     }
   };
 
   await FlutterCrashlytics().initialize();
 
   runZoned<Future<Null>>(() async {
-    runApp(MyApp(tema: tema, mainColor: mainColor, font: font, brightness: dark ? Brightness.dark : Brightness.light,));
+    runApp(MyApp(
+      tema: tema,
+      mainColor: mainColor,
+      font: font,
+      brightness: dark ? Brightness.dark : Brightness.light,
+    ));
   }, onError: (error, stackTrace) async {
     // Whenever an error occurs, call the `reportCrash` function. This will send
     // Dart errors to our dev console or Crashlytics depending on the environment.
@@ -88,7 +96,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-
   MyApp({this.tema, this.mainColor, this.font, this.brightness});
 
   final ThemeData tema;
@@ -98,27 +105,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Platform.isAndroid ? DynamicTheme(
-      data: (Brightness brightness) => tema,
-      themedWidgetBuilder: (BuildContext context, ThemeData theme) =>
-      MaterialApp(
-        // debugShowCheckedModeBanner: false,
-        // showSemanticsDebugger: false,
-        title: 'Himnos y Cánticos del Evangelio',
-        theme: theme,
-        home: HimnosPage(),
-      )
-    ) : CupertinoApp(
-        // debugShowCheckedModeBanner: false,
-        theme: CupertinoThemeData(
-        primaryColor: Colors.black,
-      ),
-      title: 'Himnos y Cánticos del Evangelio',
-      home: CupertinoHimnosPage(
-        mainColor: mainColor,
-        font: font,
-        brightness: brightness
-      ),
-    );
+    return Platform.isAndroid
+        ? DynamicTheme(
+            data: (Brightness brightness) => tema,
+            themedWidgetBuilder: (BuildContext context, ThemeData theme) => MaterialApp(
+                  // debugShowCheckedModeBanner: false,
+                  // showSemanticsDebugger: false,
+                  title: 'Himnos y Cánticos del Evangelio',
+                  theme: theme,
+                  home: HimnosPage(),
+                ))
+        : CupertinoApp(
+            // debugShowCheckedModeBanner: false,
+            theme: CupertinoThemeData(
+              primaryColor: Colors.black,
+            ),
+            title: 'Himnos y Cánticos del Evangelio',
+            home: CupertinoHimnosPage(mainColor: mainColor, font: font, brightness: brightness),
+          );
   }
 }

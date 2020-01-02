@@ -211,7 +211,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
         await aux.writeAsBytes(image.bodyBytes);
       }
     }
-    setState(() => sheetFile = aux);
+    if (mounted) setState(() => sheetFile = aux);
     return null;
   }
 
@@ -663,7 +663,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           // Activar modo partituras
           sheetAvailable ? IconButton(
             onPressed: () {
-              Future.delayed(Duration(milliseconds: 500)).then((_) => sheetController.reset());
+              // Future.delayed(Duration(milliseconds: 500)).then((_) => sheetController.reset());
               setState(() => sheet = !sheet);
             },
             icon: Icon(Icons.music_note),
@@ -742,62 +742,68 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           //     ),
           //   ),
           // ),
-          AnimatedContainer(
-            curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
-            duration: Duration(milliseconds: sheet ? 500 : 1500),
-            transform: Matrix4.translationValues(
-              sheet ? 0.0 : 5000, 
-              0.0, 
-              0.0
-            ),
-            // transform: Matrix4.translationValues(
-            //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
-            //   sheetOutDragging ? sheetOffset :
-            //   sheet ? 0.0 :MediaQuery.of(context).size.width, 
-            //   0.0, 
-            //   0.0
-            // ),
-            child: OrientationBuilder(
-              builder: (BuildContext context, Orientation orientation) {
-                if (currentOrientation == null) {
-                  currentOrientation = orientation;
-                }
-                if (currentOrientation != orientation) {
-                  currentOrientation = null;
-                  sheetController = PhotoViewController();
-                  sheet = false;
-                }
-                return currentOrientation == null ? Container() : PhotoView(
-                  controller: sheetController,
-                  imageProvider: FileImage(sheetFile),
-                  basePosition: Alignment.topCenter,
-                  initialScale: orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
-                  loadingChild: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                        ),
-                        SizedBox(height: 20.0,),
-                        Text(descargado ? 'Cargando partitura' : 'Descargando partitura', style: TextStyle(
-                            color: Colors.black,
+          WillPopScope(
+            onWillPop: () async {
+              setState(() => sheet = !sheet);
+              return sheet;
+            },
+            child: AnimatedContainer(
+              curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
+              duration: Duration(milliseconds: sheet ? 500 : 1500),
+              transform: Matrix4.translationValues(
+                sheet ? 0.0 : 5000, 
+                0.0, 
+                0.0
+              ),
+              // transform: Matrix4.translationValues(
+              //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
+              //   sheetOutDragging ? sheetOffset :
+              //   sheet ? 0.0 :MediaQuery.of(context).size.width, 
+              //   0.0, 
+              //   0.0
+              // ),
+              child: OrientationBuilder(
+                builder: (BuildContext context, Orientation orientation) {
+                  if (currentOrientation == null) {
+                    currentOrientation = orientation;
+                  }
+                  if (currentOrientation != orientation) {
+                    currentOrientation = null;
+                    sheetController = PhotoViewController();
+                    sheet = false;
+                  }
+                  return currentOrientation == null ? Container() : PhotoView(
+                    controller: sheetController,
+                    imageProvider: FileImage(sheetFile),
+                    basePosition: Alignment.topCenter,
+                    initialScale: orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
+                    loadingChild: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      color: Colors.white,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                           ),
-                          textScaleFactor: 1.2,
-                        )
-                      ],
+                          SizedBox(height: 20.0,),
+                          Text(descargado ? 'Cargando partitura' : 'Descargando partitura', style: TextStyle(
+                              color: Colors.black,
+                            ),
+                            textScaleFactor: 1.2,
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                  backgroundDecoration: BoxDecoration(
-                    color: Colors.white
-                  )
-                );
-              },
-            )
+                    backgroundDecoration: BoxDecoration(
+                      color: Colors.white
+                    )
+                  );
+                },
+              )
+            ),
           ),
           // GestureDetector(
           //   onHorizontalDragStart: !sheet ? null : (DragStartDetails details) {

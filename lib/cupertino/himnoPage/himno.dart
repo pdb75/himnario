@@ -201,7 +201,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         await aux.writeAsBytes(image.bodyBytes);
       }
     }
-    setState(() => sheetFile = aux);
+    if (mounted) setState(() => sheetFile = aux);
     return null;
   }
 
