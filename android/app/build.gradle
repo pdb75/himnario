@@ -62,9 +62,9 @@ android {
         applicationId "com.br572.himnario"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 64
-        versionName "6.4"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        versionCode 65
+        versionName "6.5"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {

@@ -55,7 +55,6 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
   List<File> archivos;
   bool favorito;
   bool acordes;
-  bool swipeAnimation;
   double initfontSizeProtrait;
   double initfontSizeLandscape;
   double initposition;
@@ -66,25 +65,21 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
 
   SharedPreferences prefs;
 
-  // Sheet variables
+    // Sheet variables
   bool sheet;
-  // bool sheetDragging;
-  // bool sheetOutDragging;
-  // double initSheetOffset;
-  // double sheetOffset;
+  bool sheetAvailable;
+  File sheetFile;
   PhotoViewController sheetController;
   Orientation currentOrientation;
 
   @override
   void initState() {
     max = 0;
-    super.initState();
     Screen.keepOn(true);
     acordes = false;
     cliente = HttpClient();
     descargado = false;
     cargando = true;
-    swipeAnimation = true;
     archivos = List<File>(5);
     stringVoces = ['Soprano', 'Tenor', 'ContraAlto', 'Bajo', 'Todos'];
     audioVoces = [AudioPlayer(),AudioPlayer(),AudioPlayer(),AudioPlayer(),AudioPlayer()];
@@ -116,11 +111,11 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
 
     // Sheet init
     sheet = false;
-    // sheetDragging = false;
-    // sheetOutDragging = false;
-    // sheetOffset = 0.0;
-    // initSheetOffset = 0.0;
-    // sheetController = PhotoViewController();
+    sheetAvailable = false;
+    sheetFile = File('/');
+    sheetController = PhotoViewController();
+
+    super.initState();
   }
 
   Future<Database> initDB() async {
@@ -153,7 +148,12 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     String path = (await getApplicationDocumentsDirectory()).path;
     if(cliente != null && mounted) 
       for (int i = 0; i < audioVoces.length; ++i) {
-        int success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
+        int success = -1;
+        try {
+          success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
+        } catch(e) {
+          print(e);
+        }
         while(success != 1) {
           HttpClient cliente = HttpClient();
           HttpClientRequest request = await cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'));
@@ -183,14 +183,30 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     } else if(archivos[0] == null && !descargado)
         deleteVocesFiles();
     return null;
-    
+  }
+
+  Future<Null> checkPartitura(String path) async {
+    sheetFile = File(path + '/${widget.numero}.jpg');
+    if (descargado) {
+      http.Response res = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}/disponible');
+      if (res.statusCode == 200) {
+        if (mounted) setState(() => sheetAvailable = true);
+        http.Response image = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}');
+        await sheetFile.writeAsBytes(image.bodyBytes);
+      }
+    }
+    else {
+      http.Response res = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}/disponible');
+      if (res.statusCode == 200) {
+        if (mounted) setState(() => sheetAvailable = true);
+        http.Response image = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}');
+        await sheetFile.writeAsBytes(image.bodyBytes);
+      }
+    }
+    return null;
   }
 
   Future<Null> getHimno() async {
-    setState(() => swipeAnimation = true);
-    // Future.delayed(Duration(milliseconds: 1500))
-    //     .then((_) => setState(() => swipeAnimation = false));
-
     prefs = await SharedPreferences.getInstance();
     String databasesPath = (await getApplicationDocumentsDirectory()).path;
     String path = databasesPath + "/himnos.db";
@@ -241,6 +257,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           setState(() => vozDisponible = false);
       }).catchError((onError) => print(onError));
     } else initVocesDownloaded();
+    checkPartitura(databasesPath);
     await db.close();
     return null;
 
@@ -334,6 +351,8 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     if(vozDisponible) {
       if(archivos[0] == null && !descargado)
         deleteVocesFiles();
+      if (sheetFile.existsSync() && !descargado)
+        sheetFile.deleteSync();
       for (int i = 0; i < audioVoces.length; ++i) {
         audioVoces[i].release();
         if(archivos[i] != null && !descargado) 
@@ -633,10 +652,10 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           ) : Container(),
 
           // Activar modo partituras
-          // IconButton(
-          //   onPressed: () => setState(() => sheet = !sheet),
-          //   icon: Icon(Icons.music_note),
-          // ),
+          sheetAvailable ? IconButton(
+            onPressed: () => setState(() => sheet = !sheet),
+            icon: Icon(Icons.music_note),
+          ) : Container(),
           
           IconButton(
             onPressed: toggleFavorito,
@@ -711,52 +730,60 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           //     ),
           //   ),
           // ),
-          WillPopScope(
-            onWillPop: () {
-              bool aux = !sheet;
-              if (sheet) {
-                setState(() => sheet = false);
-              }
-              return Future(() => aux);
-            },
-            child: IgnorePointer(
-              ignoring: !sheet,
-              child: AnimatedContainer(
-                curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
-                duration: Duration(milliseconds: 500),
-                transform: Matrix4.skew(
-                  sheet ? 0.0 : -1.0, 
-                  sheet ? 0.0 : -1.0
-                ),
-                // transform: Matrix4.translationValues(
-                //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
-                //   sheetOutDragging ? sheetOffset :
-                //   sheet ? 0.0 :MediaQuery.of(context).size.width, 
-                //   0.0, 
-                //   0.0
-                // ),
-                child: OrientationBuilder(
-                  builder: (BuildContext context, Orientation orientation) {
-                    if (currentOrientation == null) {
-                      currentOrientation = orientation;
-                    }
-                    if (currentOrientation != orientation) {
-                      currentOrientation = null;
-                      sheetController = PhotoViewController();
-                      sheet = false;
-                    }
-                    return currentOrientation == null ? Container() : PhotoView(
-                      controller: sheetController,
-                      imageProvider: AssetImage('assets/1.jpg'),
-                      basePosition: orientation ==  Orientation.portrait ? Alignment.center : Alignment.topCenter,
-                      initialScale: PhotoViewComputedScale.covered,
-                      backgroundDecoration: BoxDecoration(
-                        color: Colors.white
-                      )
-                    );
-                  },
-                )
-              ),
+          AnimatedContainer(
+            curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
+            duration: Duration(milliseconds: 500),
+            transform: Matrix4.skew(
+              sheet ? 0.0 : -1.0, 
+              sheet ? 0.0 : -1.0
+            ),
+            // transform: Matrix4.translationValues(
+            //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
+            //   sheetOutDragging ? sheetOffset :
+            //   sheet ? 0.0 :MediaQuery.of(context).size.width, 
+            //   0.0, 
+            //   0.0
+            // ),
+            child: OrientationBuilder(
+              builder: (BuildContext context, Orientation orientation) {
+                if (currentOrientation == null) {
+                  currentOrientation = orientation;
+                }
+                if (currentOrientation != orientation) {
+                  currentOrientation = null;
+                  sheetController = PhotoViewController();
+                  sheet = false;
+                }
+                return currentOrientation == null ? Container() : PhotoView(
+                  controller: sheetController,
+                  imageProvider: NetworkImage('http://104.131.104.212:8085/partitura/${widget.numero}'),
+                  basePosition: Alignment.topCenter,
+                  initialScale: orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
+                  loadingChild: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                        ),
+                        SizedBox(height: 20.0,),
+                        Text('Descargando partitura', style: TextStyle(
+                            color: Colors.black,
+                          ),
+                          textScaleFactor: 1.2,
+                        )
+                      ],
+                    ),
+                  ),
+                  backgroundDecoration: BoxDecoration(
+                    color: Colors.white
+                  )
+                );
+              },
             )
           ),
           // GestureDetector(

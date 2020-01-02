@@ -378,7 +378,7 @@ class _HimnosPageState extends State<HimnosPage> {
             child: LinearProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor),
               backgroundColor: Colors.white,
-              value: downloadProgress,
+              value: downloadProgress != null && downloadProgress > 0.0 ? downloadProgress : null,
             ),
           ),
         ),

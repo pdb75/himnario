@@ -65,11 +65,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   int temaId;
   String subTema;
 
+  // Sheet variables
   bool sheet;
-  bool sheetDragging;
-  bool sheetOutDragging;
-  double initSheetOffset;
-  double sheetOffset;
+  bool sheetAvailable;
+  File sheetFile;
   PhotoViewController sheetController;
   Orientation currentOrientation;
   
@@ -107,10 +106,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     
     // Sheet init
     sheet = false;
-    sheetDragging = false;
-    sheetOutDragging = false;
-    sheetOffset = 0.0;
-    initSheetOffset = 0.0;
+    sheetAvailable = false;
+    sheetFile = File('/');
     sheetController = PhotoViewController();
   }
 
@@ -141,7 +138,12 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     String path = (await getApplicationDocumentsDirectory()).path;
     if(cliente != null && mounted) 
       for (int i = 0; i < audioVoces.length; ++i) {
-        int success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
+        int success = -1;
+        try {
+          success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
+        } catch(e) {
+          print(e);
+        }
         while(success != 1) {
           HttpClient cliente = HttpClient();
           HttpClientRequest request = await cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'));
@@ -169,6 +171,27 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       setState(() => cargando = false);
     } else if(archivos[0] == null && !descargado)
         deleteVocesFiles();
+    return null;
+  }
+
+  Future<Null> checkPartitura(String path) async {
+    sheetFile = File(path + '/${widget.numero}.jpg');
+    if (descargado) {
+      http.Response res = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}/disponible');
+      if (res.statusCode == 200) {
+        if (mounted) setState(() => sheetAvailable = true);
+        http.Response image = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}');
+        await sheetFile.writeAsBytes(image.bodyBytes);
+      }
+    }
+    else {
+      http.Response res = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}/disponible');
+      if (res.statusCode == 200) {
+        if (mounted) setState(() => sheetAvailable = true);
+        http.Response image = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}');
+        await sheetFile.writeAsBytes(image.bodyBytes);
+      }
+    }
     return null;
   }
 
@@ -223,6 +246,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           setState(() => vozDisponible = false);
       });
     } else initVocesDownloaded();
+    checkPartitura(databasesPath);
     await db.close();
     return null;
   }
@@ -315,6 +339,8 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     if(vozDisponible) {
       if(archivos[0] == null && !descargado)
         deleteVocesFiles();
+      if (sheetFile.existsSync() && !descargado)
+        sheetFile.deleteSync();
       for (int i = 0; i < audioVoces.length; ++i) {
         audioVoces[i].release();
         if(archivos[i] != null && !descargado) 
@@ -619,6 +645,35 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     for (Widget widget in buttonLayout)
       controlesLayout.add(widget);
 
+    List<Widget> modalButtons = [
+      CupertinoActionSheetAction(
+        isDestructiveAction: descargado,
+        onPressed: () {
+          toggleDescargado();
+          Navigator.of(context).pop();
+        },
+        child: Text(descargado ? 'Eliminar' : 'Descargar'),
+      ),
+      CupertinoActionSheetAction(
+        onPressed: () {
+          swithModes();
+          Navigator.of(context).pop();
+        },
+        child: Text(modoVoces ? 'Ocultar Voces' : 'Mostrar Voces'),
+      ),
+    ];
+
+    if(sheetAvailable) {
+      modalButtons.add(CupertinoActionSheetAction(
+        onPressed: () {
+          setState(() => sheet = !sheet);
+          Navigator.of(context).pop();
+        },
+        child: Text(sheet ? 'Ocultar Partitura' : 'Mostrar Partitura'),
+      ));
+    }
+
+
     return CupertinoPageScaffold(
       backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
       navigationBar: CupertinoNavigationBar(
@@ -653,23 +708,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text('Cancelar'),
                       ),
-                      actions: <Widget>[
-                        CupertinoActionSheetAction(
-                          isDestructiveAction: descargado,
-                          onPressed: () {
-                            toggleDescargado();
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(descargado ? 'Eliminar' : 'Descargar'),
-                        ),
-                        CupertinoActionSheetAction(
-                          onPressed: () {
-                            swithModes();
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(modoVoces ? 'Ocultar Voces' : 'Mostrar Voces'),
-                        ),
-                      ],
+                      actions: modalButtons,
                     )
                   );
                 } : null,
@@ -695,113 +734,63 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
             ),
           ),
 
-          // Partitura de Himno
-          
-          // GestureDetector(
-          //   onHorizontalDragStart: (DragStartDetails details) {
-          //     setState(() {
-          //        sheetDragging = true;
-          //        initSheetOffset = details.globalPosition.dx;
-          //     });
-          //   },
-          //   onHorizontalDragUpdate: (DragUpdateDetails details) {
-          //     setState(() {
-          //       sheetOffset = (initSheetOffset - details.globalPosition.dx);
-          //       sheet = details.delta.dx < -4;
-          //     });
-          //   },
-          //   onHorizontalDragEnd: (DragEndDetails details) {
-          //     setState(() {
-          //        sheetDragging = false;
-          //        sheet = sheet ? true : sheetOffset > MediaQuery.of(context).size.width/4;
-          //        sheetOffset = 0.0;
-          //        initSheetOffset = 0.0;
-          //     });
-          //   },
-          //   child: Align(
-          //     alignment: Alignment.centerRight,
-          //     child: Container(
-          //       height: double.infinity,
-          //       width: MediaQuery.of(context).orientation == Orientation.portrait ? 40.0 : 50,
-          //       color: Colors.transparent,
-          //     ),
-          //   ),
-          // ),
-          // WillPopScope(
-          //   onWillPop: () {
-          //     bool aux = !sheet;
-          //     if (sheet) {
-          //       setState(() => sheet = false);
-          //     }
-          //     return Future(() => aux);
-          //   },
-          //   child: AnimatedContainer(
-          //     curve: Curves.decelerate,
-          //     duration: Duration(milliseconds: sheetDragging || sheetOutDragging ? 1 : 500),
-          //     transform: Matrix4.translationValues(
-          //       sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
-          //       sheetOutDragging ? sheetOffset :
-          //       sheet ? 0.0 :MediaQuery.of(context).size.width, 
-          //       0.0, 
-          //       0.0
-          //     ),
-          //     child: OrientationBuilder(
-          //       builder: (BuildContext context, Orientation orientation) {
-          //         if (currentOrientation == null) {
-          //           currentOrientation = orientation;
-          //         }
-          //         if (currentOrientation != orientation) {
-          //           currentOrientation = null;
-          //           sheetController = PhotoViewController();
-          //           sheet = false;
-          //         }
-          //         return currentOrientation == null ? Container() : PhotoView(
-          //           controller: sheetController,
-          //           imageProvider: AssetImage('assets/1.jpg'),
-          //           basePosition: orientation ==  Orientation.portrait ? Alignment.center : Alignment.topCenter,
-          //           initialScale: orientation ==  Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
-          //           backgroundDecoration: BoxDecoration(
-          //             color: Colors.white
-          //           )
-          //         );
-          //       },
-          //     )
-          //   ),
-          // ),
-          // GestureDetector(
-          //   onHorizontalDragStart: !sheet ? null : (DragStartDetails details) {
-          //     setState(() {
-          //        sheetOutDragging = true;
-          //        initSheetOffset = details.globalPosition.dx;
-          //     });
-          //   },
-          //   onHorizontalDragUpdate: (DragUpdateDetails details) {
-          //     print(details.delta.dx);
-          //     setState(() {
-          //       sheetOffset = (details.globalPosition.dx - initSheetOffset);
-          //       sheet = sheetOutDragging && details.delta.dx < 4;
-          //     });
-          //   },
-          //   onHorizontalDragEnd: (DragEndDetails details) {
-          //     setState(() {
-          //        sheetOutDragging = false;
-          //        sheet = !sheet ? false : sheetOffset < MediaQuery.of(context).size.width/4;
-          //        sheetOffset = 0.0;
-          //        initSheetOffset = 0.0;
-          //        if (!sheet) {
-          //          sheetController.reset();
-          //        }
-          //     });
-          //   },
-          //   child: Align(
-          //     alignment: Alignment.centerLeft,
-          //     child: Container(
-          //       height: double.infinity,
-          //       width: MediaQuery.of(context).orientation == Orientation.portrait ? 40.0 : 50,
-          //       color: Colors.transparent,
-          //     ),
-          //   ),
-          // ),
+          Opacity(
+            opacity: sheet ? 1.0 : 0.0,
+            child: AnimatedContainer(
+              curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
+              duration: Duration(milliseconds: 500),
+              transform: Matrix4.skew(
+                sheet ? 0.0 : -1.0, 
+                sheet ? 0.0 : -1.0
+              ),
+              // transform: Matrix4.translationValues(
+              //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
+              //   sheetOutDragging ? sheetOffset :
+              //   sheet ? 0.0 :MediaQuery.of(context).size.width, 
+              //   0.0, 
+              //   0.0
+              // ),
+              child: OrientationBuilder(
+                builder: (BuildContext context, Orientation orientation) {
+                  if (currentOrientation == null) {
+                    currentOrientation = orientation;
+                  }
+                  if (currentOrientation != orientation) {
+                    currentOrientation = null;
+                    sheetController = PhotoViewController();
+                    sheet = false;
+                  }
+                  return currentOrientation == null ? Container() : PhotoView(
+                    controller: sheetController,
+                    imageProvider: FileImage(sheetFile),
+                    basePosition: Alignment.topCenter,
+                    initialScale: orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
+                    loadingChild: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      color: Colors.white,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          CupertinoActivityIndicator(),
+                          SizedBox(height: 20.0,),
+                          Text('Descargando partitura', style: TextStyle(
+                              color: Colors.black,
+                            ),
+                            textScaleFactor: 1.2,
+                          )
+                        ],
+                      ),
+                    ),
+                    backgroundDecoration: BoxDecoration(
+                      color: Colors.white
+                    )
+                  );
+                },
+              )
+            ),
+          ),
           
           Align(
             alignment: FractionalOffset.bottomCenter,

@@ -63,6 +63,7 @@ void main() async {
     } 
   }
   bool isInDebugMode = false;
+  WidgetsFlutterBinding.ensureInitialized();
 
   FlutterError.onError = (FlutterErrorDetails details) {
     if (isInDebugMode) {
