@@ -354,6 +354,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
   @override
   void dispose() async {
     super.dispose();
+    sheetController.dispose();
     switchModeController.dispose();
     Screen.keepOn(false);
     cliente = null;
@@ -744,8 +745,12 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           // ),
           WillPopScope(
             onWillPop: () async {
-              setState(() => sheet = !sheet);
-              return sheet;
+              bool goBack = true;
+              if (sheet) {
+                setState(() => sheet = !sheet);
+                goBack = false;
+              }
+              return goBack;
             },
             child: AnimatedContainer(
               curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
@@ -755,13 +760,6 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
                 0.0, 
                 0.0
               ),
-              // transform: Matrix4.translationValues(
-              //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
-              //   sheetOutDragging ? sheetOffset :
-              //   sheet ? 0.0 :MediaQuery.of(context).size.width, 
-              //   0.0, 
-              //   0.0
-              // ),
               child: OrientationBuilder(
                 builder: (BuildContext context, Orientation orientation) {
                   if (currentOrientation == null) {

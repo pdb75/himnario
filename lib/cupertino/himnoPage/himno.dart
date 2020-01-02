@@ -343,6 +343,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   @override
   void dispose() async {
     super.dispose();
+    sheetController.dispose();
     switchModeController.dispose();
     Screen.keepOn(false);
     cliente = null;
