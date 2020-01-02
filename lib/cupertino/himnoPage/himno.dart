@@ -145,6 +145,10 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           print(e);
         }
         while(success != 1) {
+          http.Response res = await http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible');
+          if(res.body == 'no') {
+            return null;
+          }
           HttpClient cliente = HttpClient();
           HttpClientRequest request = await cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'));
           HttpClientResponse response = await request.close();
@@ -659,14 +663,17 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
         },
         child: Text(descargado ? 'Eliminar' : 'Descargar'),
       ),
-      CupertinoActionSheetAction(
+    ];
+
+    if(vozDisponible) {
+      modalButtons.add(CupertinoActionSheetAction(
         onPressed: () {
           swithModes();
           Navigator.of(context).pop();
         },
         child: Text(modoVoces ? 'Ocultar Voces' : 'Mostrar Voces'),
-      ),
-    ];
+      ));
+    }
 
     if(sheetAvailable) {
       modalButtons.add(CupertinoActionSheetAction(
@@ -704,7 +711,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               ),
               CupertinoButton(
                 disabledColor: Colors.black.withOpacity(0.5),
-                onPressed: vozDisponible ? () {
+                onPressed: vozDisponible || sheetAvailable ? () {
                   showCupertinoModalPopup(
                     context: context,
                     builder: (BuildContext context) => CupertinoActionSheet(

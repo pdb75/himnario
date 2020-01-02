@@ -155,6 +155,10 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           print(e);
         }
         while(success != 1) {
+          http.Response res = await http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible');
+          if(res.body == 'no') {
+            return null;
+          }
           HttpClient cliente = HttpClient();
           HttpClientRequest request = await cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'));
           HttpClientResponse response = await request.close();
@@ -651,7 +655,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
-          vozDisponible ? IconButton(
+          vozDisponible || sheetAvailable ? IconButton(
             onPressed: toggleDescargado,
             icon: descargado ? Icon(Icons.delete,) : Icon(Icons.get_app,),
           ) : Container(),
