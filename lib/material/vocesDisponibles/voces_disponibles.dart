@@ -7,6 +7,8 @@ import 'package:sqflite/sqflite.dart';
 import '../models/himnos.dart';
 import '../components/scroller.dart';
 
+import '../../api/api.dart';
+
 class DisponiblesPage extends StatefulWidget {
   @override
   _DisponiblesPageState createState() => _DisponiblesPageState();
@@ -29,7 +31,7 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
     setState(() => cargando = true);
     String path = (await getApplicationDocumentsDirectory()).path;
     himnos = List<Himno>();
-    http.Response res = await http.get('http://104.131.104.212:8085/disponibles');
+    http.Response res = await http.get(VoicesApi.voicesAvaliable());
     openDatabase(path + '/himnos.db')
       .then((dbOpened) async {
         db = dbOpened;

@@ -70,8 +70,7 @@ void main() async {
     } else {
       // In production mode report to the application zone to report to
       // Crashlytics.
-      if (details.exception.toString() == "FileSystemException: Cannot open file, path = '/' (OS Error: Is a directory, errno = 21)" ||
-          details.exception.toString() == "PlatformException(error, Unsupported value: java.lang.RuntimeException: Unable to access resource, null)") {
+      if (details.exception is HttpException || details.exception.toString().contains('HttpException')) {
         FlutterError.dumpErrorToConsole(details);
       } else {
         Zone.current.handleUncaughtError(details.exception, details.stack);

@@ -26,6 +26,7 @@ import '../quickBuscador/quick_buscador.dart';
 import '../vocesDisponibles/voces_disponibles.dart';
 
 import '../models/tema.dart';
+import '../../api/api.dart';
 
 class CupertinoHimnosPage extends StatefulWidget {
   final int mainColor;
@@ -76,7 +77,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
         print('connected');
         String date = prefs.getString('latest');
         http.Response res = await http.post(
-          'http://104.131.104.212:8085/updates',
+          DatabaseApi.checkUpdates(),
           headers: {'Content-Type': 'application/json'},
           body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'}))
         );
@@ -86,8 +87,8 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
           if (date == null || date != latest[0]['updatedAt']) {
             setState(() => cargando = true);
             print('descargando');
-            http.Response request = await http.get('http://104.131.104.212:8085/db');
-            // print(await http.get('http://104.131.104.212:8085/updates'));
+            http.Response request = await http.get(DatabaseApi.getDb());
+            // print(await http.get(DatabaseApi.checkUpdates()));
 
             // Favoritos
             List<int> favoritos = List<int>();

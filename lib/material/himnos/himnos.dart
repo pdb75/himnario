@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:Himnario/material/aboutPage/aboutPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,6 +21,8 @@ import '../favoritosPage/favoritos_page.dart';
 import '../descargadosPage/descargados_page.dart';
 import '../quickBuscador/quick_buscador.dart';
 import '../vocesDisponibles/voces_disponibles.dart';
+
+import 'package:Himnario/api/api.dart';
 
 class HimnosPage extends StatefulWidget {
   @override
@@ -61,7 +62,7 @@ class _HimnosPageState extends State<HimnosPage> {
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         print('connected');
         String date = prefs.getString('latest');
-        http.Response res = await http.post('http://104.131.104.212:8085/updates',
+        http.Response res = await http.post(DatabaseApi.checkUpdates(),
             headers: {'Content-Type': 'application/json'}, body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'})));
         List<dynamic> latest = jsonDecode(res.body);
         print(latest.isEmpty);
@@ -90,7 +91,7 @@ class _HimnosPageState extends State<HimnosPage> {
           ));
           setState(() => cargando = true);
           print('descargando');
-          http.Response request = await http.get('http://104.131.104.212:8085/db');
+          http.Response request = await http.get(DatabaseApi.getDb());
 
           // Favoritos
           List<int> favoritos = List<int>();

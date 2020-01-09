@@ -21,6 +21,8 @@ import './components/boton_voz.dart';
 import '../models/himnos.dart';
 import './components/slider.dart';
 
+import 'package:Himnario/api/api.dart';
+
 class HimnoPage extends StatefulWidget {
 
   HimnoPage({this.numero, this.titulo});
@@ -67,6 +69,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
   // Sheet variables
   bool sheet;
+  bool sheetReady;
   bool sheetAvailable;
   File sheetFile;
   PhotoViewController sheetController;
@@ -75,7 +78,6 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   @override
   void initState() {
     max = 0;
-    super.initState();
     Screen.keepOn(true);
     acordes = false;
     cliente = HttpClient();
@@ -107,8 +109,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     // Sheet init
     sheet = false;
     sheetAvailable = false;
-    sheetFile = File('/');
+    sheetFile = File('/a.jpg');
     sheetController = PhotoViewController();
+    sheetReady = false;
+
+    super.initState();
   }
 
   Future<Database> initDB() async {
@@ -135,23 +140,24 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       cargando = true;
       vozDisponible = true;
     });
+
     String path = (await getApplicationDocumentsDirectory()).path;
     if(cliente != null && mounted) 
       for (int i = 0; i < audioVoces.length; ++i) {
         int success = -1;
-        try {
+
+        if (File(path + '/${widget.numero}-${stringVoces[i]}.mp3').existsSync()) {
           success = await audioVoces[i].setUrl(path + '/${widget.numero}-${stringVoces[i]}.mp3', isLocal: true);
-        } catch(e) {
-          print(e);
         }
+
         while(success != 1) {
-          http.Response res = await http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible');
-          if(res.body == 'no') {
+          http.Response res = await http.get(VoicesApi.voiceAvailable(widget.numero));
+          if(res.statusCode == 404) {
             setState(() => vozDisponible = false);
             return null;
           }
           HttpClient cliente = HttpClient();
-          HttpClientRequest request = await cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'));
+          HttpClientRequest request = await cliente.getUrl(Uri.parse(VoicesApi.getVoice(widget.numero, stringVoces[i])));
           HttpClientResponse response = await request.close();
           Uint8List bytes = await consolidateHttpClientResponseBytes(response);
           File archivo = File(path + '/${widget.numero}-${stringVoces[i]}.mp3');
@@ -185,23 +191,23 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       if (await aux.exists()) {
         if (mounted) setState(() => sheetAvailable = true);
       } else {
-        http.Response res = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}/disponible');
+        http.Response res = await http.get(SheetsApi.sheetAvailable(widget.numero));
         if (res.statusCode == 200) {
           if (mounted) setState(() => sheetAvailable = true);
-          http.Response image = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}');
+          http.Response image = await http.get(SheetsApi.getSheet(widget.numero));
           await aux.writeAsBytes(image.bodyBytes);
         }
       }
     }
     else {
-      http.Response res = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}/disponible');
+      http.Response res = await http.get(SheetsApi.sheetAvailable(widget.numero));
       if (res.statusCode == 200) {
         if (mounted) setState(() => sheetAvailable = true);
-        http.Response image = await http.get('http://104.131.104.212:8085/partitura/${widget.numero}');
+        http.Response image = await http.get(SheetsApi.getSheet(widget.numero));
         await aux.writeAsBytes(image.bodyBytes);
       }
     }
-    if (mounted) setState(() => sheetFile = aux);
+    if (mounted) setState(() {sheetFile = aux; sheetReady = aux.existsSync();});
     return null;
   }
 
@@ -246,9 +252,9 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     });
 
     if (descargadoQuery.isEmpty && mounted) {
-      http.get('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/disponible')
+      http.get(VoicesApi.voiceAvailable(widget.numero))
       .then((res) {
-        if(res.body == 'si') {
+        if(res.statusCode == 200) {
           initVoces();
           setState(() => vozDisponible = true);
         }
@@ -265,14 +271,14 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
     setState(() => cargando = true);
     String path = (await getApplicationDocumentsDirectory()).path;
     List<bool> done = [false, false, false, false, false];
-    cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/Soprano/duracion'))
+    cliente.getUrl(Uri.parse(VoicesApi.getVoiceDuration(widget.numero, 'Soprano')))
       .then((request) => request.close())
       .then((response) => consolidateHttpClientResponseBytes(response))
       .then((bytes) async {
         totalDuration = (double.parse(Utf8Decoder().convert(bytes))*1000).ceil();
       });
     for(int i = 0; i < audioVoces.length; ++i) {
-      cliente.getUrl(Uri.parse('http://104.131.104.212:8085/himno/${widget.numero}/${stringVoces[i]}'))
+      cliente.getUrl(Uri.parse(VoicesApi.getVoice(widget.numero, stringVoces[i])))
         .then((request) => request.close())
         .then((response) => consolidateHttpClientResponseBytes(response))
         .then((bytes) async {
@@ -774,7 +780,24 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                   sheetController = PhotoViewController();
                   sheet = false;
                 }
-                return currentOrientation == null ? Container() : PhotoView(
+                return currentOrientation == null ? Container() : !sheetReady ? Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        CupertinoActivityIndicator(),
+                        SizedBox(height: 20.0,),
+                        Text(descargado ? 'Cargando partitura' : 'Descargando partitura', style: TextStyle(
+                            color: Colors.black,
+                          ),
+                          textScaleFactor: 1.2,
+                        )
+                      ],
+                    ),
+                  ) : PhotoView(
                   controller: sheetController,
                   imageProvider: FileImage(sheetFile),
                   basePosition: Alignment.topCenter,
