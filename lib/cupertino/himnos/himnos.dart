@@ -70,6 +70,42 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     initDB();
   }
 
+  Future<Null> getAnuncios(SharedPreferences prefs) async {
+    http.Response request = await http.get(DatabaseApi.getAnuncios());
+    Map<String, dynamic> json = jsonDecode(request.body);
+    List<String> anuncios = prefs.getStringList('anuncios') == null ? [] : prefs.getStringList('anuncios');
+
+    for (dynamic anuncio in json['anuncios']) {
+      if (!anuncios.contains(anuncio['id'].toString())) {
+        await showCupertinoDialog(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+            title: Text(anuncio['titulo']),
+            content: Text('\n' + anuncio['contenido']),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                onPressed: () {
+                  anuncios.add(anuncio['id'].toString());
+                  Navigator.of(context).pop();
+                },
+                isDestructiveAction: true,
+                child: Text('No volver a mostrar'),
+              ),
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Cerrar'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+
+    prefs.setStringList('anuncios', anuncios);
+
+    return null;
+  }
+
   Future<Null> checkUpdates(SharedPreferences prefs, Database db) async {
     try {
       final result = await InternetAddress.lookup('google.com');
@@ -156,6 +192,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     } else db = await openDatabase(path);
     // if ((await (Connectivity().checkConnectivity()) == ConnectivityResult.none))
     await fetchCategorias();
+    getAnuncios(prefs);
     checkUpdates(prefs, db);
     return null;
   }

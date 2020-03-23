@@ -1,22 +1,23 @@
 class VoicesApi {
-  static String _base = 'http://104.131.104.212:5001';
+  static String _base = 'http://104.131.104.212:8085';
 
-  static String voicesAvaliable() => _base + '/availables';
-  static String voiceAvailable(int number) => _base + '/$number/available';
-  static String getVoice(int number, String voice) => _base + '/$number/$voice';
-  static String getVoiceDuration(int number, String voice) => _base + '/$number/$voice/duration';
+  static String voicesAvaliable() => _base + '/disponibles';
+  static String voiceAvailable(int number) => _base + '/himno/$number/Soprano/disponible';
+  static String getVoice(int number, String voice) => _base + '/himno/$number/$voice';
+  static String getVoiceDuration(int number, String voice) => _base + '/himno/$number/$voice/duracion';
 }
 
 class SheetsApi {
-  static String _base = 'http://104.131.104.212:5002';
+  static String _base = 'http://104.131.104.212:8085';
 
-  static String sheetAvailable(int number) => _base + '/$number/available';
-  static String getSheet(int number) => _base + '/$number';
+  static String sheetAvailable(int number) => _base + '/partitura/$number/disponible';
+  static String getSheet(int number) => _base + '/partitura/$number';
 }
 
 class DatabaseApi {
-  static String _base = 'http://104.131.104.212:5003';
+  static String _base = 'http://104.131.104.212:8085';
 
   static String getDb() => _base + '/db';
   static String checkUpdates() => _base + '/updates';
+  static String getAnuncios() => _base + '/anuncios';
 }

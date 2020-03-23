@@ -39,6 +39,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
   AnimationController cancionDuracion;
   StreamSubscription positionSubscription;
   StreamSubscription completeSubscription;
+  PhotoViewScaleStateController scaleController;
   List<AudioPlayer> audioVoces;
   List<String> stringVoces;
   int currentVoice;
@@ -98,6 +99,11 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
       vsync: this
     )..addListener(() {
       setState(() {});
+    });
+    scaleController = PhotoViewScaleStateController()..addIgnorableListener(() {
+      if (scaleController.scaleState == PhotoViewScaleState.covering) {
+        scaleController.scaleState = PhotoViewScaleState.originalSize;
+      }
     });
     doneCount = 0;
     currentVoice = 4;
@@ -187,7 +193,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
 
   Future<Null> checkPartitura(String path) async {
     File aux = File(path + '/${widget.numero}.jpg');
-    if (descargado) {
+    if (descargado || await aux.exists()) {
       if (await aux.exists()) {
         if (mounted) setState(() => sheetAvailable = true);
       } else {
@@ -763,6 +769,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
               0.0, 
               0.0
             ),
+            height: MediaQuery.of(context).size.height - ( modoVoces ? 200 : 0),
             // transform: Matrix4.translationValues(
             //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
             //   sheetOutDragging ? sheetOffset :
@@ -801,6 +808,7 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
                   controller: sheetController,
                   imageProvider: FileImage(sheetFile),
                   basePosition: Alignment.topCenter,
+                  scaleStateController: scaleController,
                   initialScale: orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
                   loadingChild: Container(
                     width: double.infinity,
