@@ -164,7 +164,13 @@ class _BuscadorState extends State<Buscador> {
                   fontFamily: ScopedModel.of<TemaModel>(context).font,
                 ),
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(50.0), color: Colors.white),
-            suffix: cargando ? CupertinoActivityIndicator() : null,
+            suffix: cargando
+                ? ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                        Colors.white, WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? BlendMode.difference : BlendMode.darken),
+                    child: CupertinoActivityIndicator(),
+                  )
+                : null,
           )),
       child: widget.type == BuscadorType.Himnos
           ? ScopedModel<TemaModel>(
