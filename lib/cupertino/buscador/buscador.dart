@@ -168,7 +168,7 @@ class _BuscadorState extends State<Buscador> {
                 ? ColorFiltered(
                     colorFilter: ColorFilter.mode(
                         Colors.white, WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? BlendMode.difference : BlendMode.darken),
-                    child: CupertinoActivityIndicator(),
+                    child: Container(margin: EdgeInsets.only(right: 10.0), child: CupertinoActivityIndicator()),
                   )
                 : null,
           )),
