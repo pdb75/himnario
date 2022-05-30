@@ -17,6 +17,8 @@ void main() async {
   int mainColor = prefs.getInt('mainColor');
   String font = prefs.getString('font');
   bool dark = prefs.getString('brightness') == Brightness.dark.toString() ? true : false;
+  String fontFamily = prefs.getString('fuente') ?? 'Merriweather';
+  if (fontFamily == 'Raleway') fontFamily = 'Merriweather';
 
   if (Platform.isAndroid) {
     String temaJson = prefs.getString('temaPrincipal');
