@@ -10,7 +10,6 @@ class FuentesPage extends StatefulWidget {
   _FuentesPageState createState() => _FuentesPageState();
 }
 
-
 class _FuentesPageState extends State<FuentesPage> {
   SharedPreferences prefs;
   List<String> fuentes;
@@ -20,19 +19,16 @@ class _FuentesPageState extends State<FuentesPage> {
   @override
   void initState() {
     super.initState();
-    fuentes = ['Josefin Sans', 'Lato', 'Merriweather', 'Montserrat', 'Open Sans', 'Poppins', 'Raleway', 'Roboto Mono', 'Rubik', 'Source Sans Pro', '.SF Pro Text'];
-    for(int i = 0; i < fuentes.length; ++i)
-      if (ScopedModel.of<TemaModel>(context).font == fuentes[i])
-    currentValue = i;
+    fuentes = ['Josefin Sans', 'Lato', 'Merriweather', 'Montserrat', 'Open Sans', 'Poppins', 'Raleway', 'Roboto Mono', 'Rubik', 'Source Sans Pro'];
+    for (int i = 0; i < fuentes.length; ++i) if (ScopedModel.of<TemaModel>(context).font == fuentes[i]) currentValue = i;
     SharedPreferences.getInstance().then((prefsInstance) => prefs = prefsInstance);
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> botones = List<Widget>();
-    for(int i = 0; i < fuentes.length; ++i) {
-      botones.add(
-        CupertinoButton(
+    for (int i = 0; i < fuentes.length; ++i) {
+      botones.add(CupertinoButton(
           onPressed: () => setState(() => value = i),
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -41,8 +37,8 @@ class _FuentesPageState extends State<FuentesPage> {
               Text(
                 fuentes[i],
                 style: TextStyle(
-                  fontFamily: fuentes[i]
-                ),
+                    fontFamily: fuentes[i],
+                    color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black),
               ),
               IgnorePointer(
                 child: CupertinoSwitch(
@@ -51,9 +47,7 @@ class _FuentesPageState extends State<FuentesPage> {
                 ),
               )
             ],
-          )
-        )
-      );
+          )));
     }
     return CupertinoAlertDialog(
       title: Text('Seleccionar Fuente'),
@@ -64,13 +58,15 @@ class _FuentesPageState extends State<FuentesPage> {
       ),
       actions: <Widget>[
         FlatButton(
-          child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
+          child: Text('Cancelar',
+              style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black)),
           onPressed: () => Navigator.of(context).pop(),
         ),
         FlatButton(
-          child: Text('Guardar', style: Theme.of(context).textTheme.button,),
+          child: Text('Guardar',
+              style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black)),
           onPressed: () {
-            if(value != null) {
+            if (value != null) {
               ScopedModel.of<TemaModel>(context).setFont(fuentes[value]);
               prefs.setString('font', fuentes[value]);
             }

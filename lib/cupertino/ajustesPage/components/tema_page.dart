@@ -13,7 +13,6 @@ class TemasPage extends StatefulWidget {
   _TemasPageState createState() => _TemasPageState();
 }
 
-
 class _TemasPageState extends State<TemasPage> {
   List<String> temasNombre;
   List<ThemeData> temasTema;
@@ -46,41 +45,44 @@ class _TemasPageState extends State<TemasPage> {
         Column(
           children: <Widget>[
             CupertinoButton(
-              onPressed: () => setState(() {
-                dark = !dark;
-                Brightness brightness = dark ? Brightness.dark : Brightness.light;
-                ScopedModel.of<TemaModel>(context).setBrightness(brightness);
-              }),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(right: 10.0),
-                        child: Icon(CupertinoIcons.brightness),
-                      ),
-                      Text(
-                        'Tema Oscuro',
-                      ),
-                    ],
-                  ),
-                  IgnorePointer(
-                    child: CupertinoSwitch(
-                      onChanged: (e) => e,
-                      value: dark,
+                onPressed: () => setState(() {
+                      dark = !dark;
+                      Brightness brightness = dark ? Brightness.dark : Brightness.light;
+                      ScopedModel.of<TemaModel>(context).setBrightness(brightness);
+                    }),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(right: 10.0),
+                          child: Icon(
+                            CupertinoIcons.brightness,
+                            color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        Text('Tema Oscuro',
+                            style:
+                                TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black)),
+                      ],
                     ),
-                  )
-                ],
-              )
-            ),
+                    IgnorePointer(
+                      child: CupertinoSwitch(
+                        onChanged: (e) => e,
+                        value: dark,
+                      ),
+                    )
+                  ],
+                )),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 FlatButton(
-                  child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
+                  child: Text('Cancelar',
+                      style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black)),
                   onPressed: () {
                     ScopedModel.of<TemaModel>(context).setMainColor(originalColor);
                     ScopedModel.of<TemaModel>(context).setBrightness(originalDark ? Brightness.dark : Brightness.light);
@@ -88,7 +90,10 @@ class _TemasPageState extends State<TemasPage> {
                   },
                 ),
                 FlatButton(
-                  child: Text('Guardar', style: Theme.of(context).textTheme.button,),
+                  child: Text(
+                    'Guardar',
+                    style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black),
+                  ),
                   onPressed: () {
                     Brightness brightness = dark ? Brightness.dark : Brightness.light;
                     ScopedModel.of<TemaModel>(context).setMainColor(pickerColor);
@@ -96,7 +101,7 @@ class _TemasPageState extends State<TemasPage> {
 
                     prefs.setInt('mainColor', pickerColor.value);
                     prefs.setString('brightness', brightness.toString());
-                    print((pickerColor.red*0.299 + pickerColor.green*0.587 + pickerColor.blue*0.114));
+                    print((pickerColor.red * 0.299 + pickerColor.green * 0.587 + pickerColor.blue * 0.114));
 
                     setState(() {});
                     Navigator.of(context).pop();

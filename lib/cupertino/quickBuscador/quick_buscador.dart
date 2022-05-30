@@ -56,7 +56,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
     max = 0;
     setState(() => cargando = true);
     if (query.isNotEmpty) {
-      List<Map<String,dynamic>> himnoQuery = await executeQuery('select himnos.id, himnos.titulo from himnos where himnos.id = $query');
+      List<Map<String, dynamic>> himnoQuery = await executeQuery('select himnos.id, himnos.titulo from himnos where himnos.id = $query');
       if (himnoQuery.isEmpty || int.parse(query) > 517)
         setState(() {
           estrofas = List<Parrafo>();
@@ -64,20 +64,21 @@ class _QuickBuscadorState extends State<QuickBuscador> {
           cargando = false;
         });
       else {
-        List<Map<String,dynamic>> parrafos = await executeQuery('select * from parrafos where himno_id = $query');
-        for (Map<String,dynamic> parrafo in parrafos) {
+        List<Map<String, dynamic>> parrafos = await executeQuery('select * from parrafos where himno_id = $query');
+        for (Map<String, dynamic> parrafo in parrafos) {
           for (String linea in parrafo['parrafo'].split('\n')) {
             if (linea.length > max) max = linea.length;
           }
         }
         setState(() {
-          himno = Himno(titulo: himnoQuery[0]['titulo'], numero:himnoQuery[0]['id']);
+          himno = Himno(titulo: himnoQuery[0]['titulo'], numero: himnoQuery[0]['id']);
           estrofas = Parrafo.fromJson(parrafos);
           cargando = false;
-          fontSize = (MediaQuery.of(context).size.width - 30)/max + 8;
+          fontSize = (MediaQuery.of(context).size.width - 30) / max + 8;
         });
       }
-    } else setState(() {
+    } else
+      setState(() {
         estrofas = List<Parrafo>();
         himno = Himno(titulo: 'Ingrese un número', numero: -1);
         cargando = false;
@@ -91,7 +92,7 @@ class _QuickBuscadorState extends State<QuickBuscador> {
         db = await openReadOnlyDatabase(path);
       }
       result = await db.rawQuery(query);
-    } catch(e) {
+    } catch (e) {
       print(e);
     }
     return result;
@@ -105,89 +106,95 @@ class _QuickBuscadorState extends State<QuickBuscador> {
 
   @override
   Widget build(BuildContext context) {
-    return done ? 
-    HimnoPage(titulo: himno.titulo, numero: himno.numero) :
-    CupertinoPageScaffold(
-      backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
-      navigationBar: CupertinoNavigationBar(
-        actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-        backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
-        middle: Padding(
-          padding: EdgeInsets.only(right: 0.0),
-          child: CupertinoTextField(
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            cursorColor: Colors.black,
-            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-              color: ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? null : Colors.black,
-              fontFamily: ScopedModel.of<TemaModel>(context).font,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50.0),
-              color: Colors.white
-            ),
-            suffix: Container(
-              width: MediaQuery.of(context).size.width - 200,
-              margin: EdgeInsets.only(right: 6.0),
-              child: Text(
-                himno.titulo ?? '',
-                softWrap: false,
-                textAlign: TextAlign.end,
-                style: TextStyle(
-                  color: ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? CupertinoTheme.of(context).textTheme.textStyle.color : Colors.black,
-                  fontFamily: ScopedModel.of<TemaModel>(context).font,
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            onSubmitted: himno.numero != -1 && himno.numero > 517 ? (String query) {
-              setState(() => done = !done);
-            } : null,
-            onChanged: onChanged,
-          ),
-        )
-      ),
-      child: SafeArea(
-        child: (!cargando ? 
-          estrofas.isNotEmpty ? GestureDetector(
-            onTap: () => setState(() => done = !done),
-            child: Container(
-              height: double.infinity,
-              width: double.infinity,
-              color: Colors.transparent,
-              child: Column(
-                children: <Widget>[
-                  HimnoText(
-                    estrofas: estrofas,
-                    fontSize: fontSize,
-                    alignment: prefs.getString('alignment'),
-                  )
-                ],
-              ),
-            ),
-          ) : himno.numero == -2 ? Center(
-            child: Text(
-              'Himno no encontrado', 
-              textAlign: TextAlign.center,
-              style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-                fontFamily: ScopedModel.of<TemaModel>(context).font
-              ),
-              textScaleFactor: 1.5,
-            ),
-          ) 
-        : Center(child: Text(
-          'Ingrese el número del himno', 
-          textAlign: TextAlign.center,
-          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-            fontFamily: ScopedModel.of<TemaModel>(context).font
-          ),
-          textScaleFactor: 1.5,
-        ),) :
-        Container())
-      ),
-    );
+    return done
+        ? HimnoPage(titulo: himno.titulo, numero: himno.numero)
+        : CupertinoPageScaffold(
+            backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
+            navigationBar: CupertinoNavigationBar(
+                actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
+                middle: Padding(
+                  padding: EdgeInsets.only(right: 0.0),
+                  child: CupertinoTextField(
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    cursorColor: Colors.black,
+                    style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                          color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
+                              ? Colors.black
+                              : (ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? null : Colors.black),
+                          fontFamily: ScopedModel.of<TemaModel>(context).font,
+                        ),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(50.0), color: Colors.white),
+                    suffix: Container(
+                      width: MediaQuery.of(context).size.width - 200,
+                      margin: EdgeInsets.only(right: 6.0),
+                      child: Text(
+                        himno.titulo ?? '',
+                        softWrap: false,
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                          color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
+                              ? Colors.black
+                              : (ScopedModel.of<TemaModel>(context).brightness == Brightness.light
+                                  ? CupertinoTheme.of(context).textTheme.textStyle.color
+                                  : Colors.black),
+                          fontFamily: ScopedModel.of<TemaModel>(context).font,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    onSubmitted: himno.numero != -1 && himno.numero > 517
+                        ? (String query) {
+                            setState(() => done = !done);
+                          }
+                        : null,
+                    onChanged: onChanged,
+                  ),
+                )),
+            child: SafeArea(
+                child: (!cargando
+                    ? estrofas.isNotEmpty
+                        ? GestureDetector(
+                            onTap: () => setState(() => done = !done),
+                            child: Container(
+                              height: double.infinity,
+                              width: double.infinity,
+                              color: Colors.transparent,
+                              child: Column(
+                                children: <Widget>[
+                                  HimnoText(
+                                    estrofas: estrofas,
+                                    fontSize: fontSize,
+                                    alignment: prefs.getString('alignment'),
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        : himno.numero == -2
+                            ? Center(
+                                child: Text(
+                                  'Himno no encontrado',
+                                  textAlign: TextAlign.center,
+                                  style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                      color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+                                      fontFamily: ScopedModel.of<TemaModel>(context).font),
+                                  textScaleFactor: 1.5,
+                                ),
+                              )
+                            : Center(
+                                child: Text(
+                                  'Ingrese el número del himno',
+                                  textAlign: TextAlign.center,
+                                  style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                      color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+                                      fontFamily: ScopedModel.of<TemaModel>(context).font),
+                                  textScaleFactor: 1.5,
+                                ),
+                              )
+                    : Container())),
+          );
   }
 }

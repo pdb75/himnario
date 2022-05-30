@@ -34,7 +34,7 @@ class CupertinoHimnosPage extends StatefulWidget {
   final Brightness brightness;
 
   CupertinoHimnosPage({this.mainColor, this.font, this.brightness});
-  
+
   @override
   _CupertinoHimnosPageState createState() => _CupertinoHimnosPageState();
 }
@@ -61,7 +61,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     );
     tema = TemaModel();
     tema.setMainColor(Color(widget.mainColor ?? 4294309365));
-    tema.setFont(widget.font ?? '.SF Pro Text');
+    tema.setFont(widget.font ?? 'Merriweather');
     tema.setBrightness(widget.brightness);
     expanded = <bool>[false, false, false, false, false, false];
     currentPage = 0;
@@ -112,59 +112,53 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         print('connected');
         String date = prefs.getString('latest');
-        http.Response res = await http.post(
-          DatabaseApi.checkUpdates(),
-          headers: {'Content-Type': 'application/json'},
-          body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'}))
-        );
+        http.Response res = await http.post(DatabaseApi.checkUpdates(),
+            headers: {'Content-Type': 'application/json'},
+            body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'})));
         List<dynamic> latest = jsonDecode(res.body);
         print(latest.isEmpty);
-        if (latest.isNotEmpty)
-          if (date == null || date != latest[0]['updatedAt']) {
-            setState(() => cargando = true);
-            print('descargando');
-            http.Response request = await http.get(DatabaseApi.getDb());
-            // print(await http.get(DatabaseApi.checkUpdates()));
+        if (latest.isNotEmpty) if (date == null || date != latest[0]['updatedAt']) {
+          setState(() => cargando = true);
+          print('descargando');
+          http.Response request = await http.get(DatabaseApi.getDb());
+          // print(await http.get(DatabaseApi.checkUpdates()));
 
-            // Favoritos
-            List<int> favoritos = List<int>();
-            // Descargados
-            List<List<int>> descargados = List<List<int>>();
-            // transpose
-            List<Himno> transposedHImnos = List<Himno>();
+          // Favoritos
+          List<int> favoritos = List<int>();
+          // Descargados
+          List<List<int>> descargados = List<List<int>>();
+          // transpose
+          List<Himno> transposedHImnos = List<Himno>();
 
-            db = db.isOpen ? db : await openDatabase(path);
+          db = db.isOpen ? db : await openDatabase(path);
 
-            await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
-            await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+          await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+          await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
 
-            for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
-              favoritos.add(favorito['himno_id']);
-            }
-            for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
-              descargados.add([descargado['himno_id'], descargado['duracion']]);
-            }
-            transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
-
-            await db.close();
-            db = null;
-
-            File(path).deleteSync();
-            File(path).writeAsBytesSync(request.bodyBytes);
-
-            db = await openDatabase(path);
-
-            await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
-            await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
-            for (int favorito in favoritos)
-              await db.rawInsert('insert into favoritos values ($favorito)');
-            for (List<int> descargado in descargados)
-              await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
-            for (Himno himno in transposedHImnos)
-              await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
-
-            prefs.setString('latest', latest[0]['updatedAt']);
+          for (Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
+            favoritos.add(favorito['himno_id']);
           }
+          for (Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+            descargados.add([descargado['himno_id'], descargado['duracion']]);
+          }
+          transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
+
+          await db.close();
+          db = null;
+
+          File(path).deleteSync();
+          File(path).writeAsBytesSync(request.bodyBytes);
+
+          db = await openDatabase(path);
+
+          await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+          await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
+          for (int favorito in favoritos) await db.rawInsert('insert into favoritos values ($favorito)');
+          for (List<int> descargado in descargados) await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
+          for (Himno himno in transposedHImnos) await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
+
+          prefs.setString('latest', latest[0]['updatedAt']);
+        }
         setState(() => cargando = false);
         print('termino de actualizar');
         return null;
@@ -189,7 +183,8 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
       await copiarBase(path, version == null, version == null ? 0.0 : double.parse(version));
       prefs.setString('version', actualVersion);
       prefs.setString('latest', null);
-    } else db = await openDatabase(path);
+    } else
+      db = await openDatabase(path);
     // if ((await (Connectivity().checkConnectivity()) == ConnectivityResult.none))
     await fetchCategorias();
     getAnuncios(prefs);
@@ -209,28 +204,32 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     if (!fistRun) {
       print('abriendo base de datos');
       try {
-        if(version < 2.2) {
+        if (version < 2.2) {
           print('Old Version db path');
           db = await openDatabase(await getDatabasesPath() + '/himnos.db');
-        }
-        else {
+        } else {
           print('New Version db path');
           db = await openDatabase((await getApplicationDocumentsDirectory()).path + '/himnos.db');
         }
-        for(Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
+        for (Map<String, dynamic> favorito in (await db.rawQuery('select * from favoritos'))) {
           favoritos.add(favorito['himno_id']);
         }
         try {
-          for(Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
+          for (Map<String, dynamic> descargado in (await db.rawQuery('select * from descargados'))) {
             descargados.add([descargado['himno_id'], descargado['duracion']]);
           }
-        } catch(e) {print(e);}
+        } catch (e) {
+          print(e);
+        }
         try {
-          if (version > 2.4)
-            transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
-        } catch (e) {print(e);}
+          if (version > 2.4) transposedHImnos = Himno.fromJson((await db.rawQuery('select * from himnos where transpose != 0')));
+        } catch (e) {
+          print(e);
+        }
         await db.close();
-      } catch(e) {print(e);}
+      } catch (e) {
+        print(e);
+      }
     }
     ByteData data = await rootBundle.load("assets/himnos_coros.sqlite");
     List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
@@ -240,12 +239,9 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     if (!fistRun) {
       await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
       await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
-      for (int favorito in favoritos)
-        await db.rawInsert('insert into favoritos values ($favorito)');
-      for (List<int> descargado in descargados)
-        await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
-      for (Himno himno in transposedHImnos)
-        await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
+      for (int favorito in favoritos) await db.rawInsert('insert into favoritos values ($favorito)');
+      for (List<int> descargado in descargados) await db.rawInsert('insert into descargados values (${descargado[0]}, ${descargado[1]})');
+      for (Himno himno in transposedHImnos) await db.rawQuery('update himnos set transpose = ${himno.transpose} where id = ${himno.numero}');
     } else {
       await db.execute('CREATE TABLE IF NOT EXISTS favoritos(himno_id int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
       await db.execute('CREATE TABLE IF NOT EXISTS descargados(himno_id int, duracion int, FOREIGN KEY (himno_id) REFERENCES himnos(id))');
@@ -254,7 +250,6 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
   }
 
   Future<Null> fetchCategorias([bool refresh = true]) async {
-
     db = await openDatabase(path);
 
     List<Map<String, dynamic>> temas = await db.rawQuery('select * from temas');
@@ -263,11 +258,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     for (Categoria categoria in categorias) {
       List<Map<String, dynamic>> subTemas = await db.rawQuery('select * from sub_temas where tema_id = ${categoria.id}');
       for (var x in subTemas) {
-        categoria.subCategorias.add(SubCategoria(
-          id: x['id'],
-          subCategoria: x['sub_tema'],
-          categoriaId: x['tema_id']
-        ));
+        categoria.subCategorias.add(SubCategoria(id: x['id'], subCategoria: x['sub_tema'], categoriaId: x['tema_id']));
       }
     }
 
@@ -278,7 +269,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     for (Himno coro in coros) {
       coro.favorito = favoritosList.contains(coro.numero);
     }
-    
+
     setState(() {});
 
     return null;
@@ -286,94 +277,91 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
 
   void showMenu() {
     showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        cancelButton: CupertinoActionSheetAction(
-          isDestructiveAction: true,
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('Cancelar'),
-        ),
-        actions: <Widget>[
-          CupertinoActionSheetAction(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await db.close();
-              Navigator.push(
-                context,
-                CupertinoPageRoute(builder: (BuildContext context) => ScopedModel<TemaModel>(
-                  model: tema,
-                  child: FavoritosPage(),
-                ))
-              );
-            },
-            child: Text('Favoritos')
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await db.close();
-              Navigator.push(
-                context,
-                CupertinoPageRoute(builder: (BuildContext context) => ScopedModel<TemaModel>(
-                  model: tema,
-                  child: DescargadosPage(),
-                ))
-              );
-            },
-            child: Text('Himnos Descargados')
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await db.close();
-              Navigator.push(
-                context,
-                CupertinoPageRoute(builder: (BuildContext context) => ScopedModel<TemaModel>(
-                  model: tema,
-                  child: DisponiblesPage(),
-                ))
-              );
-            },
-            child: Text('Voces Disponibles')
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await db.close();
-              Navigator.push(
-                context,
-                CupertinoPageRoute(builder: (BuildContext context) => ScopedModel<TemaModel>(
-                  model: tema,
-                  child: AjustesPage(),
-                ))
-              );
-            },
-            child: Text('Ajustes')
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () => LaunchReview.launch(
-              writeReview: false,
-              iOSAppId: "1444422315"
-            ),
-            child: Text('Feedback')
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(context).pop();
-              launch('https://sites.google.com/view/himnos-privacy-policy/');
-            },
-            child: Text('Politicas de privacidad')
-          ),
-        ],
-      )
-    );
+        context: context,
+        builder: (BuildContext context) => CupertinoActionSheet(
+              cancelButton: CupertinoActionSheetAction(
+                isDestructiveAction: true,
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Cancelar',
+                ),
+              ),
+              actions: <Widget>[
+                CupertinoActionSheetAction(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await db.close();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (BuildContext context) => ScopedModel<TemaModel>(
+                                    model: tema,
+                                    child: FavoritosPage(),
+                                  )));
+                    },
+                    child: Text('Favoritos',
+                        style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black))),
+                CupertinoActionSheetAction(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await db.close();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (BuildContext context) => ScopedModel<TemaModel>(
+                                    model: tema,
+                                    child: DescargadosPage(),
+                                  )));
+                    },
+                    child: Text('Himnos Descargados',
+                        style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black))),
+                CupertinoActionSheetAction(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await db.close();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (BuildContext context) => ScopedModel<TemaModel>(
+                                    model: tema,
+                                    child: DisponiblesPage(),
+                                  )));
+                    },
+                    child: Text('Voces Disponibles',
+                        style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black))),
+                CupertinoActionSheetAction(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await db.close();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (BuildContext context) => ScopedModel<TemaModel>(
+                                    model: tema,
+                                    child: AjustesPage(),
+                                  )));
+                    },
+                    child: Text('Ajustes',
+                        style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black))),
+                CupertinoActionSheetAction(
+                    onPressed: () => LaunchReview.launch(writeReview: false, iOSAppId: "1444422315"),
+                    child: Text('Feedback',
+                        style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black))),
+                CupertinoActionSheetAction(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      launch('https://sites.google.com/view/himnos-privacy-policy/');
+                    },
+                    child: Text('Politicas de privacidad',
+                        style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black))),
+              ],
+            ));
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -381,9 +369,8 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
       model: tema,
       child: CupertinoTabScaffold(
         tabBuilder: (BuildContext context, int index) {
-          if(index == 0) {
-            return 
-              CupertinoPageScaffold(
+          if (index == 0) {
+            return CupertinoPageScaffold(
                 backgroundColor: tema.getScaffoldBackgroundColor(),
                 navigationBar: CupertinoNavigationBar(
                   backgroundColor: tema.getTabBackgroundColor(),
@@ -392,191 +379,249 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                   leading: CupertinoButton(
                     onPressed: showMenu,
                     padding: EdgeInsets.only(bottom: 2.0),
-                    child: Icon(Icons.menu, size: 30.0,),
+                    child: Icon(
+                      Icons.menu,
+                      size: 30.0,
+                    ),
                   ),
                   trailing: CupertinoButton(
                     onPressed: () {
                       Navigator.push(
-                        context,
-                        CupertinoPageRoute(builder: (BuildContext context) => ScopedModel<TemaModel>(
-                          model: tema,
-                          child: Buscador(id: 0, subtema: false, type: BuscadorType.Himnos),
-                        ))
-                      );
+                          context,
+                          CupertinoPageRoute(
+                              builder: (BuildContext context) => ScopedModel<TemaModel>(
+                                    model: tema,
+                                    child: Buscador(id: 0, subtema: false, type: BuscadorType.Himnos),
+                                  )));
                     },
                     padding: EdgeInsets.only(bottom: 2.0),
                     child: Icon(CupertinoIcons.search, size: 30.0),
                   ),
                   middle: Text(
                     'Himnos del Evangelio',
-                    style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                      color: tema.getTabTextColor(),
-                      fontFamily: tema.font
-                    ),
+                    style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(color: tema.getTabTextColor(), fontFamily: tema.font),
                   ),
                 ),
                 child: SafeArea(
-                  bottom: true,
-                  child: Stack(
-                  children: <Widget>[
-                    categorias.isNotEmpty ? CustomScrollView(
-                      slivers: <Widget>[
-                        CupertinoSliverRefreshControl(
-                          onRefresh: () => checkUpdates(prefs, db),
-                        ),
-                        SliverPadding(
-                          padding: EdgeInsets.only(bottom: 90.0),
-                          sliver: SliverList(
-                            delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-                              return index == 0 ? 
-                              CupertinoButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context, 
-                                    CupertinoPageRoute(
-                                      builder: (BuildContext context) => ScopedModel<TemaModel>(
-                                        model: tema,
-                                        child: TemaPage(id: 0, tema: 'Todos',),
-                                      )
-                                    ));
-                                },
-                                child: Text('Todos', 
-                                  style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                    color: tema.getScaffoldTextColor(),
-                                    fontFamily: tema.font
+                    bottom: true,
+                    child: Stack(
+                      children: <Widget>[
+                        categorias.isNotEmpty
+                            ? CustomScrollView(
+                                slivers: <Widget>[
+                                  CupertinoSliverRefreshControl(
+                                    onRefresh: () => checkUpdates(prefs, db),
                                   ),
-                                ),
-                              )
-                              :
-                              categorias[index-1].subCategorias.isEmpty ? CupertinoButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context, 
-                                    CupertinoPageRoute(
-                                      builder: (BuildContext context) => ScopedModel<TemaModel>(
-                                        model: tema,
-                                        child: TemaPage(id: index, tema: categorias[index-1].categoria),
-                                      )
-                                    ));
-                                },
-                                child: Text(categorias[index-1].categoria, 
-                                  style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                    color: tema.getScaffoldTextColor(),
-                                    fontFamily: tema.font
-                                  )
-                                ),
-                              ) : 
-                              Column(
-                                children: <Widget>[
-                                  CupertinoButton(
-                                    child: Stack(
-                                      // mainAxisSize: MainAxisSize.max,
-                                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Align(
-                                          alignment: Alignment.center,
-                                          child: Text(categorias[index-1].categoria, 
-                                            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                              color: tema.getScaffoldTextColor(),
-                                              fontFamily: tema.font
-                                            )
-                                          ),
-                                        ),
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Icon(
-                                            expanded[index - 1] ? CupertinoIcons.up_arrow : CupertinoIcons.down_arrow,
-                                            color: tema.getScaffoldTextColor(),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    onPressed: () {
-                                      List<bool> aux = expanded;
-                                      for (int i = 0; i < aux.length; ++i)
-                                        if (i == index-1)
-                                          aux[i] = !aux[i];
-                                      setState(() => expanded = aux);
-                                    }
-                                  ),
-                                  AnimatedContainer(
-                                    duration: Duration(milliseconds: 400),
-                                    curve: Curves.easeInOutSine,
-                                    height: expanded[index - 1] ? categorias[index-1].subCategorias.length * 50.0 : 0.0,
-                                    child: AnimatedOpacity(
-                                      opacity: expanded[index - 1] ? 1.0 : 0.0,
-                                      duration: Duration(milliseconds: 400),
-                                      curve: Curves.easeInOutSine,
-                                      child: Column(
-                                        children: categorias[index-1].subCategorias.map((subCategoria) =>
-                                        CupertinoButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context, 
-                                              CupertinoPageRoute(
-                                                builder: (BuildContext context) => ScopedModel<TemaModel>(
-                                                  model: tema,
-                                                  child: TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria),
-                                                )
-                                              ));
+                                  SliverPadding(
+                                      padding: EdgeInsets.only(bottom: 90.0),
+                                      sliver: SliverList(
+                                        delegate: SliverChildBuilderDelegate(
+                                          (BuildContext context, int index) {
+                                            return index == 0
+                                                ? CupertinoButton(
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          CupertinoPageRoute(
+                                                              builder: (BuildContext context) => ScopedModel<TemaModel>(
+                                                                    model: tema,
+                                                                    child: TemaPage(
+                                                                      id: 0,
+                                                                      tema: 'Todos',
+                                                                    ),
+                                                                  )));
+                                                    },
+                                                    child: Text(
+                                                      'Todos',
+                                                      style: CupertinoTheme.of(context)
+                                                          .textTheme
+                                                          .textStyle
+                                                          .copyWith(color: tema.getScaffoldTextColor(), fontFamily: tema.font),
+                                                    ),
+                                                  )
+                                                : categorias[index - 1].subCategorias.isEmpty
+                                                    ? CupertinoButton(
+                                                        onPressed: () {
+                                                          Navigator.push(
+                                                              context,
+                                                              CupertinoPageRoute(
+                                                                  builder: (BuildContext context) => ScopedModel<TemaModel>(
+                                                                        model: tema,
+                                                                        child: TemaPage(id: index, tema: categorias[index - 1].categoria),
+                                                                      )));
+                                                        },
+                                                        child: Text(categorias[index - 1].categoria,
+                                                            style: CupertinoTheme.of(context)
+                                                                .textTheme
+                                                                .textStyle
+                                                                .copyWith(color: tema.getScaffoldTextColor(), fontFamily: tema.font)),
+                                                      )
+                                                    : Column(
+                                                        children: <Widget>[
+                                                          CupertinoButton(
+                                                              child: Stack(
+                                                                // mainAxisSize: MainAxisSize.max,
+                                                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                children: <Widget>[
+                                                                  Align(
+                                                                    alignment: Alignment.center,
+                                                                    child: Text(categorias[index - 1].categoria,
+                                                                        style: CupertinoTheme.of(context)
+                                                                            .textTheme
+                                                                            .textStyle
+                                                                            .copyWith(color: tema.getScaffoldTextColor(), fontFamily: tema.font)),
+                                                                  ),
+                                                                  Align(
+                                                                    alignment: Alignment.centerRight,
+                                                                    child: Icon(
+                                                                      expanded[index - 1] ? CupertinoIcons.up_arrow : CupertinoIcons.down_arrow,
+                                                                      color: tema.getScaffoldTextColor(),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              onPressed: () {
+                                                                List<bool> aux = expanded;
+                                                                for (int i = 0; i < aux.length; ++i) if (i == index - 1) aux[i] = !aux[i];
+                                                                setState(() => expanded = aux);
+                                                              }),
+                                                          AnimatedContainer(
+                                                            duration: Duration(milliseconds: 400),
+                                                            curve: Curves.easeInOutSine,
+                                                            height: expanded[index - 1] ? categorias[index - 1].subCategorias.length * 50.0 : 0.0,
+                                                            child: AnimatedOpacity(
+                                                              opacity: expanded[index - 1] ? 1.0 : 0.0,
+                                                              duration: Duration(milliseconds: 400),
+                                                              curve: Curves.easeInOutSine,
+                                                              child: Column(
+                                                                  children: categorias[index - 1]
+                                                                      .subCategorias
+                                                                      .map((subCategoria) => CupertinoButton(
+                                                                            onPressed: () {
+                                                                              Navigator.push(
+                                                                                  context,
+                                                                                  CupertinoPageRoute(
+                                                                                      builder: (BuildContext context) => ScopedModel<TemaModel>(
+                                                                                            model: tema,
+                                                                                            child: TemaPage(
+                                                                                                id: subCategoria.id,
+                                                                                                subtema: true,
+                                                                                                tema: subCategoria.subCategoria),
+                                                                                          )));
+                                                                            },
+                                                                            child: Container(
+                                                                              width: double.infinity,
+                                                                              child: Text(subCategoria.subCategoria,
+                                                                                  textAlign: TextAlign.center,
+                                                                                  style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                                                                      color: tema.getScaffoldTextColor(),
+                                                                                      fontFamily: tema.font,
+                                                                                      fontWeight: FontWeight.w400,
+                                                                                      fontSize: 15.0)),
+                                                                            ),
+                                                                          ))
+                                                                      .toList()),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
                                           },
-                                          child: Container(
-                                            width: double.infinity,
-                                            child: Text(
-                                              subCategoria.subCategoria,
-                                              textAlign: TextAlign.center,
-                                              style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                                color: tema.getScaffoldTextColor(),
-                                                fontFamily: tema.font,
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 15.0
-                                              )
-                                            ),
-                                          ),
-                                        )).toList()
-                                      ),
-                                    ),
-                                  ),
+                                          childCount: categorias.length + 1,
+                                        ),
+                                      ))
                                 ],
-                              );
-                            },
-                            childCount: categorias.length + 1,
-                            ),
-                          )
-                        )
-                      ],
-                    ) : Container(),
-                    Positioned(
-                      right: -50.0,
-                      bottom: 30.0,
-                      child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5.0),
-                            color: tema.getAccentColor()
+                              )
+                            : Container(),
+                        Positioned(
+                          right: -50.0,
+                          bottom: 30.0,
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.0), color: tema.getAccentColor()),
+                            width: 100.0,
+                            height: 54.0,
+                            child: Padding(
+                                padding: EdgeInsets.only(right: 50.0),
+                                child: CupertinoButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                            builder: (BuildContext context) => ScopedModel<TemaModel>(
+                                                  model: tema,
+                                                  child: QuickBuscador(),
+                                                )));
+                                  },
+                                  child: Icon(
+                                    Icons.dialpad,
+                                    color: tema.getAccentColorText(),
+                                  ),
+                                )),
                           ),
-                          width: 100.0,
-                          height: 54.0,
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 50.0),
-                            child: CupertinoButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context, 
-                                  CupertinoPageRoute(
-                                    builder: (BuildContext context) => ScopedModel<TemaModel>(
-                                      model: tema,
-                                      child: QuickBuscador(),
-                                    )
-                                  )
-                                );
-                              },
-                              child: Icon(
-                                Icons.dialpad,
-                                color: tema.getAccentColorText(),
-                            ),
-                          )
                         ),
-                      ),
+                        Positioned(
+                          left: -50.0,
+                          bottom: 30.0,
+                          child: AnimatedContainer(
+                            transform: cargando ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
+                            curve: Curves.easeOutSine,
+                            duration: Duration(milliseconds: 1000),
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.0), color: tema.getAccentColor()),
+                            width: 100.0,
+                            height: 54.0,
+                            child: Padding(
+                                padding: EdgeInsets.only(left: 50.0),
+                                child: CupertinoActivityIndicator(
+                                  animating: true,
+                                )),
+                          ),
+                        ),
+                      ],
+                    ))
+                // ),
+                );
+          } else
+            return CupertinoPageScaffold(
+                backgroundColor: tema.getScaffoldBackgroundColor(),
+                navigationBar: CupertinoNavigationBar(
+                  backgroundColor: tema.getTabBackgroundColor(),
+                  actionsForegroundColor: tema.getTabTextColor(),
+                  transitionBetweenRoutes: false,
+                  leading: CupertinoButton(
+                    onPressed: showMenu,
+                    padding: EdgeInsets.only(bottom: 2.0),
+                    child: Icon(
+                      Icons.menu,
+                      size: 30.0,
+                    ),
+                  ),
+                  trailing: CupertinoButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (BuildContext context) =>
+                                ScopedModel<TemaModel>(model: tema, child: Buscador(id: 0, subtema: false, type: BuscadorType.Coros)),
+                          ));
+                    },
+                    padding: EdgeInsets.only(bottom: 2.0),
+                    child: Icon(CupertinoIcons.search, size: 30.0),
+                  ),
+                  middle: Text(
+                    'Coros',
+                    style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(color: tema.getTabTextColor(), fontFamily: tema.font),
+                  ),
+                ),
+                child: Stack(
+                  children: <Widget>[
+                    ScopedModel<TemaModel>(
+                      model: tema,
+                      child: CorosScroller(
+                          cargando: cargando,
+                          himnos: coros,
+                          initDB: fetchCategorias,
+                          mensaje: '',
+                          iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
+                          refresh: () => checkUpdates(prefs, db)),
                     ),
                     Positioned(
                       left: -50.0,
@@ -585,119 +630,40 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                         transform: cargando ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
                         curve: Curves.easeOutSine,
                         duration: Duration(milliseconds: 1000),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5.0),
-                          color: tema.getAccentColor()
-                        ),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.0), color: tema.getAccentColor()),
                         width: 100.0,
                         height: 54.0,
                         child: Padding(
-                          padding: EdgeInsets.only(left: 50.0),
-                          child: CupertinoActivityIndicator(
-                            animating: true,
-                          )
-                        ),
+                            padding: EdgeInsets.only(left: 50.0),
+                            child: CupertinoActivityIndicator(
+                              animating: true,
+                            )),
                       ),
                     ),
                   ],
-                )
-                )
-              // ),
-            );
-          }
-          else return CupertinoPageScaffold(
-              backgroundColor: tema.getScaffoldBackgroundColor(),
-              navigationBar: CupertinoNavigationBar(
-                backgroundColor: tema.getTabBackgroundColor(),
-                actionsForegroundColor: tema.getTabTextColor(),
-                transitionBetweenRoutes: false,
-                leading: CupertinoButton(
-                  onPressed: showMenu,
-                  padding: EdgeInsets.only(bottom: 2.0),
-                  child: Icon(Icons.menu, size: 30.0,),
-                ),
-                trailing: CupertinoButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute(builder: (BuildContext context) => ScopedModel<TemaModel>(
-                        model: tema,
-                        child: Buscador(id: 0, subtema: false, type: BuscadorType.Coros)),
-                      )
-                    );
-                  },
-                  padding: EdgeInsets.only(bottom: 2.0),
-                  child: Icon(CupertinoIcons.search, size: 30.0),
-                ),
-                middle: Text(
-                  'Coros',
-                  style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                    color: tema.getTabTextColor(),
-                    fontFamily: tema.font
-                  ),
-                ),
-              ),
-              child: Stack(
-                children: <Widget>[
-                  ScopedModel<TemaModel>(
-                    model: tema,
-                    child: CorosScroller(
-                      cargando: cargando,
-                      himnos: coros,
-                      initDB: fetchCategorias,
-                      mensaje: '',
-                      iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
-                      refresh: () => checkUpdates(prefs, db)
-                    ),
-                  ),
-                  Positioned(
-                    left: -50.0,
-                    bottom: 30.0,
-                    child: AnimatedContainer(
-                      transform: cargando ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
-                      curve: Curves.easeOutSine,
-                      duration: Duration(milliseconds: 1000),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.0),
-                        color: tema.getAccentColor()
-                      ),
-                      width: 100.0,
-                      height: 54.0,
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 50.0),
-                        child: CupertinoActivityIndicator(
-                          animating: true,
-                        )
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            );
+                ));
         },
         tabBar: CupertinoTabBar(
           backgroundColor: tema.getTabBackgroundColor(),
           activeColor: tema.getTabTextColor(),
-          inactiveColor: tema.mainColorContrast == Colors.white || tema.brightness == Brightness.dark ? Colors.white.withOpacity(0.5) : Colors.black.withOpacity(0.5),
+          inactiveColor: tema.mainColorContrast == Colors.white || tema.brightness == Brightness.dark
+              ? Colors.white.withOpacity(0.5)
+              : Colors.black.withOpacity(0.5),
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.library_music),
-              title: Text('Himnos',
-                style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(
-                  color: tema.brightness == Brightness.light ? tema.mainColorContrast : Colors.white,
-                  fontFamily: tema.font
-                )
-              )
-            ),
+                icon: Icon(Icons.library_music),
+                title: Text('Himnos',
+                    style: CupertinoTheme.of(context)
+                        .textTheme
+                        .tabLabelTextStyle
+                        .copyWith(color: tema.brightness == Brightness.light ? tema.mainColorContrast : Colors.white, fontFamily: tema.font))),
             BottomNavigationBarItem(
-              icon: Icon(Icons.music_note),
-              title: Text('Coros',
-                style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(
-                  color: tema.brightness == Brightness.light ? tema.mainColorContrast : Colors.white,
-                  fontFamily: tema.font
-                )
-              )
-            ),
+                icon: Icon(Icons.music_note),
+                title: Text('Coros',
+                    style: CupertinoTheme.of(context)
+                        .textTheme
+                        .tabLabelTextStyle
+                        .copyWith(color: tema.brightness == Brightness.light ? tema.mainColorContrast : Colors.white, fontFamily: tema.font))),
           ],
         ),
       ),

@@ -10,14 +10,9 @@ import '../models/himnos.dart';
 import '../components/scroller.dart';
 import '../components/corosScroller.dart';
 
-enum BuscadorType{
-  Himnos,
-  Coros,
-  Todos
-}
+enum BuscadorType { Himnos, Coros, Todos }
 
 class Buscador extends StatefulWidget {
-
   Buscador({this.id, this.subtema = false, this.type = BuscadorType.Todos});
 
   final int id;
@@ -32,7 +27,7 @@ class _BuscadorState extends State<Buscador> {
   List<Himno> himnos;
   bool cargando;
   String path;
-  Database db; 
+  Database db;
 
   @override
   void initState() {
@@ -50,18 +45,19 @@ class _BuscadorState extends State<Buscador> {
 
     if (refresh) {
       List<Himno> himnostemp = List<Himno>();
-      List<Map<String,dynamic>> data = await executeQuery('select himnos.id, himnos.titulo, himnos.transpose from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
-      List<Map<String,dynamic>> favoritosQuery = await executeQuery('select * from favoritos');
+      List<Map<String, dynamic>> data = await executeQuery(
+          'select himnos.id, himnos.titulo, himnos.transpose from himnos${widget.type == BuscadorType.Coros ? ' where id > 517' : widget.type == BuscadorType.Himnos ? ' where id <= 517' : ''} order by himnos.id ASC');
+      List<Map<String, dynamic>> favoritosQuery = await executeQuery('select * from favoritos');
       List<int> favoritos = List<int>();
-      for(dynamic favorito in favoritosQuery) {
+      for (dynamic favorito in favoritosQuery) {
         favoritos.add(favorito['himno_id']);
       }
-      List<Map<String,dynamic>> descargasQuery = await executeQuery('select * from descargados');
+      List<Map<String, dynamic>> descargasQuery = await executeQuery('select * from descargados');
       List<int> descargas = List<int>();
-      for(dynamic descarga in descargasQuery) {
+      for (dynamic descarga in descargasQuery) {
         descargas.add(descarga['himno_id']);
       }
-      for(dynamic himno in data) {
+      for (dynamic himno in data) {
         himnostemp.add(Himno(
           numero: himno['id'],
           titulo: himno['titulo'],
@@ -91,27 +87,32 @@ class _BuscadorState extends State<Buscador> {
       palabra = palabra.replaceAll('í', 'i');
       palabra = palabra.replaceAll('ó', 'o');
       palabra = palabra.replaceAll('ú', 'u');
-      if(queryTitulo.isEmpty)
-        queryTitulo += "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(himnos.id || ' ' || himnos.titulo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
-      else queryTitulo += " and REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(himnos.id || ' ' || himnos.titulo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
+      if (queryTitulo.isEmpty)
+        queryTitulo +=
+            "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(himnos.id || ' ' || himnos.titulo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
+      else
+        queryTitulo +=
+            " and REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(himnos.id || ' ' || himnos.titulo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
 
-      if(queryParrafo.isEmpty)
+      if (queryParrafo.isEmpty)
         queryParrafo += " REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(parrafo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
-      else queryParrafo += " and REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(parrafo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
+      else
+        queryParrafo += " and REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(parrafo,'á','a'), 'é','e'),'í','i'),'ó','o'),'ú','u') like '%$palabra%'";
     }
-    
-    List<Map<String,dynamic>> data = await executeQuery("select himnos.id, himnos.titulo, himnos.transpose from himnos join parrafos on parrafos.himno_id = himnos.id where${widget.type == BuscadorType.Coros ? ' himnos.id > 517 and' : widget.type == BuscadorType.Himnos ? ' himnos.id <= 517 and' : ''} ($queryTitulo or $queryParrafo) group by himnos.id order by himnos.id ASC");
-    List<Map<String,dynamic>> favoritosQuery = await executeQuery('select * from favoritos');
+
+    List<Map<String, dynamic>> data = await executeQuery(
+        "select himnos.id, himnos.titulo, himnos.transpose from himnos join parrafos on parrafos.himno_id = himnos.id where${widget.type == BuscadorType.Coros ? ' himnos.id > 517 and' : widget.type == BuscadorType.Himnos ? ' himnos.id <= 517 and' : ''} ($queryTitulo or $queryParrafo) group by himnos.id order by himnos.id ASC");
+    List<Map<String, dynamic>> favoritosQuery = await executeQuery('select * from favoritos');
     List<int> favoritos = List<int>();
-    for(dynamic favorito in favoritosQuery) {
+    for (dynamic favorito in favoritosQuery) {
       favoritos.add(favorito['himno_id']);
     }
-    List<Map<String,dynamic>> descargasQuery = await executeQuery('select * from descargados');
+    List<Map<String, dynamic>> descargasQuery = await executeQuery('select * from descargados');
     List<int> descargas = List<int>();
-    for(dynamic descarga in descargasQuery) {
+    for (dynamic descarga in descargasQuery) {
       descargas.add(descarga['himno_id']);
     }
-    for(dynamic himno in data) {
+    for (dynamic himno in data) {
       himnostemp.add(Himno(
         numero: himno['id'],
         titulo: himno['titulo'],
@@ -132,7 +133,7 @@ class _BuscadorState extends State<Buscador> {
         db = await openReadOnlyDatabase(path);
       }
       result = await db.rawQuery(query);
-    } catch(e) {
+    } catch (e) {
       print(e);
     }
     return result;
@@ -150,44 +151,44 @@ class _BuscadorState extends State<Buscador> {
     return CupertinoPageScaffold(
       backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
       navigationBar: CupertinoNavigationBar(
-        actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-        backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
-        middle: CupertinoTextField(
-          autofocus: true,
-          onChanged: fetchHimnos,
-          cursorColor: Colors.black,
-          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            color: ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? null : Colors.black,
-            fontFamily: ScopedModel.of<TemaModel>(context).font,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50.0),
-            color: Colors.white
-          ),
-          suffix: cargando ? CupertinoActivityIndicator() : null,
-        )
-      ),
-      child: widget.type == BuscadorType.Himnos ? ScopedModel<TemaModel>(
-        model: tema,
-        child: Scroller(
-          cargando: cargando,
-          himnos: himnos,
-          buscador: true,
-          initDB: initDB,
-          iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
-          mensaje: 'No se han encontrado coincidencias',
-        ),
-      ) : ScopedModel<TemaModel>(
-        model: tema,
-        child: CorosScroller(
-          cargando: cargando,
-          himnos: himnos,
-          buscador: true,
-          initDB: initDB,
-          iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
-          mensaje: 'No se han encontrado coincidencias',
-        ),
-      ),
+          actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+          backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
+          middle: CupertinoTextField(
+            autofocus: true,
+            onChanged: fetchHimnos,
+            cursorColor: Colors.black,
+            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                  color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
+                      ? Colors.black
+                      : (ScopedModel.of<TemaModel>(context).brightness == Brightness.light ? null : Colors.black),
+                  fontFamily: ScopedModel.of<TemaModel>(context).font,
+                ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(50.0), color: Colors.white),
+            suffix: cargando ? CupertinoActivityIndicator() : null,
+          )),
+      child: widget.type == BuscadorType.Himnos
+          ? ScopedModel<TemaModel>(
+              model: tema,
+              child: Scroller(
+                cargando: cargando,
+                himnos: himnos,
+                buscador: true,
+                initDB: initDB,
+                iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
+                mensaje: 'No se han encontrado coincidencias',
+              ),
+            )
+          : ScopedModel<TemaModel>(
+              model: tema,
+              child: CorosScroller(
+                cargando: cargando,
+                himnos: himnos,
+                buscador: true,
+                initDB: initDB,
+                iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
+                mensaje: 'No se han encontrado coincidencias',
+              ),
+            ),
     );
   }
 }

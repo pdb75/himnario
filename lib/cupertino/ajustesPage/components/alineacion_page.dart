@@ -7,7 +7,6 @@ class AlineacionesPage extends StatefulWidget {
   AlineacionesPageState createState() => AlineacionesPageState();
 }
 
-
 class AlineacionesPageState extends State<AlineacionesPage> {
   List<List<dynamic>> alignments;
   SharedPreferences prefs;
@@ -33,44 +32,39 @@ class AlineacionesPageState extends State<AlineacionesPage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> botones = List<Widget>();
-    if(prefs != null)
-      for(int i = 0; i < alignments.length; ++i) {
-        if (prefs.getString('alignment') == alignments[i][0])
-          currentValue = i;
-        if(prefs.getString('alignment') == null && i == 0)
-          currentValue = i;
-        
-      botones.add(
-        CupertinoButton(
-          onPressed: () => setState(() => value = i),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(right: 10.0),
-                    child: Icon(alignments[i][1]),
-                  ),
-                  Text(
-                    alignments[i][0],
-                  ),
-                ],
-              ),
-              IgnorePointer(
-                child: CupertinoSwitch(
-                  onChanged: (e) => e,
-                  value: value == null ? currentValue == i : value == i,
+    if (prefs != null)
+      for (int i = 0; i < alignments.length; ++i) {
+        if (prefs.getString('alignment') == alignments[i][0]) currentValue = i;
+        if (prefs.getString('alignment') == null && i == 0) currentValue = i;
+
+        botones.add(CupertinoButton(
+            onPressed: () => setState(() => value = i),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(right: 10.0),
+                      child: Icon(alignments[i][1],
+                          color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black),
+                    ),
+                    Text(alignments[i][0],
+                        style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black)),
+                  ],
                 ),
-              )
-            ],
-          )
-        )
-      );
-    }
-    
+                IgnorePointer(
+                  child: CupertinoSwitch(
+                    onChanged: (e) => e,
+                    value: value == null ? currentValue == i : value == i,
+                  ),
+                )
+              ],
+            )));
+      }
+
     return CupertinoAlertDialog(
       title: Text('Seleccionar Alineación'),
       content: SingleChildScrollView(
@@ -80,13 +74,19 @@ class AlineacionesPageState extends State<AlineacionesPage> {
       ),
       actions: <Widget>[
         FlatButton(
-          child: Text('Cancelar', style: Theme.of(context).textTheme.button,),
+          child: Text(
+            'Cancelar',
+            style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         FlatButton(
-          child: Text('Guardar', style: Theme.of(context).textTheme.button,),
+          child: Text(
+            'Guardar',
+            style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black),
+          ),
           onPressed: () {
-            if(value != null) {
+            if (value != null) {
               prefs.setString('alignment', alignments[value][0]);
             }
             setState(() {});
