@@ -562,7 +562,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                           left: -50.0,
                           bottom: 30.0,
                           child: AnimatedContainer(
-                            transform: cargando || true ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
+                            transform: cargando ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
                             curve: Curves.easeOutSine,
                             duration: Duration(milliseconds: 1000),
                             decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.0), color: tema.getAccentColor()),
