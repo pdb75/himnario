@@ -9,3 +9,4 @@ screenshots/
 build/
 
 .flutter-plugins
+.fvm/flutter_sdk
