@@ -562,7 +562,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                           left: -50.0,
                           bottom: 30.0,
                           child: AnimatedContainer(
-                            transform: cargando ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
+                            transform: cargando || true ? Matrix4.translationValues(0.0, 0.0, 0.0) : Matrix4.translationValues(-50.0, 0.0, 0.0),
                             curve: Curves.easeOutSine,
                             duration: Duration(milliseconds: 1000),
                             decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.0), color: tema.getAccentColor()),
@@ -570,8 +570,12 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                             height: 54.0,
                             child: Padding(
                                 padding: EdgeInsets.only(left: 50.0),
-                                child: CupertinoActivityIndicator(
-                                  animating: true,
+                                child: ColorFiltered(
+                                  colorFilter: ColorFilter.mode(Colors.white,
+                                      WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? BlendMode.difference : BlendMode.darken),
+                                  child: CupertinoActivityIndicator(
+                                    animating: true,
+                                  ),
                                 )),
                           ),
                         ),
