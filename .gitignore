@@ -11,3 +11,4 @@ build/
 .flutter-plugins
 .fvm/flutter_sdk
 android/key.properties
+.flutter-plugins-dependencies

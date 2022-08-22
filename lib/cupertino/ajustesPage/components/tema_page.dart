@@ -72,7 +72,7 @@ class _TemasPageState extends State<TemasPage> {
                     IgnorePointer(
                       child: CupertinoSwitch(
                         onChanged: (e) => e,
-                        value: dark,
+                        value: dark ?? false,
                       ),
                     )
                   ],
@@ -112,12 +112,15 @@ class _TemasPageState extends State<TemasPage> {
           ],
         )
       ],
-      content: MaterialPicker(
-        pickerColor: pickerColor,
-        onColorChanged: (Color color) => setState(() {
-          pickerColor = color;
-          ScopedModel.of<TemaModel>(context).setMainColor(color);
-        }),
+      content: Container(
+        height: 440.0,
+        child: MaterialPicker(
+          pickerColor: pickerColor,
+          onColorChanged: (Color color) => setState(() {
+            pickerColor = color;
+            ScopedModel.of<TemaModel>(context).setMainColor(color);
+          }),
+        ),
       ),
     );
   }

@@ -570,8 +570,12 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                             height: 54.0,
                             child: Padding(
                                 padding: EdgeInsets.only(left: 50.0),
-                                child: CupertinoActivityIndicator(
-                                  animating: true,
+                                child: ColorFiltered(
+                                  colorFilter: ColorFilter.mode(Colors.white,
+                                      WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? BlendMode.difference : BlendMode.darken),
+                                  child: CupertinoActivityIndicator(
+                                    animating: true,
+                                  ),
                                 )),
                           ),
                         ),
