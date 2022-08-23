@@ -74,9 +74,10 @@ class _HimnosPageState extends State<HimnosPage> {
                   anuncios.add(anuncio['id'].toString());
                   Navigator.of(context).pop();
                 },
-                child: Text('No volver a mostrar', style: TextStyle(
-                  color: Colors.red
-                ),),
+                child: Text(
+                  'No volver a mostrar',
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
               FlatButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -100,7 +101,8 @@ class _HimnosPageState extends State<HimnosPage> {
         print('connected');
         String date = prefs.getString('latest');
         http.Response res = await http.post(DatabaseApi.checkUpdates(),
-            headers: {'Content-Type': 'application/json'}, body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'})));
+            headers: {'Content-Type': 'application/json'},
+            body: utf8.encode(json.encode({'latest': date != null ? date : '2018-08-19 05:01:46.447 +00:00'})));
         List<dynamic> latest = jsonDecode(res.body);
         print(latest.isEmpty);
         if (latest.isNotEmpty) if (date == null || date != latest[0]['updatedAt']) {
@@ -116,7 +118,10 @@ class _HimnosPageState extends State<HimnosPage> {
                 ),
                 Text(
                   'Actualizando Base de Datos',
-                  style: Theme.of(context).textTheme.button.copyWith(color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black),
+                  style: Theme.of(context)
+                      .textTheme
+                      .button
+                      .copyWith(color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black),
                 )
               ],
             ),
@@ -214,7 +219,7 @@ class _HimnosPageState extends State<HimnosPage> {
     print('actualVersion: $actualVersion');
     print('newVersion: $version');
     if (version == null || version != actualVersion) {
-      await copiarBase(path, version == null, version == null ? 0.0 : double.parse(version));
+      await copiarBase(path, version == null, version == null ? 0.0 : parseVersion(version));
       prefs.setString('version', actualVersion);
       prefs.setString('latest', null);
     } else
@@ -224,6 +229,18 @@ class _HimnosPageState extends State<HimnosPage> {
     getAnuncios(prefs);
     checkUpdates(prefs, db);
     return null;
+  }
+
+  double parseVersion(String version) {
+    try {
+      return double.parse(version);
+    } catch (e) {
+      List<String> parts = version.split('.');
+      String temp = parts[0] + '.';
+
+      parts.removeAt(0);
+      return double.parse(temp + parts.join(''));
+    }
   }
 
   Future<Null> copiarBase(String dbPath, bool fistRun, double version) async {
@@ -375,7 +392,9 @@ class _HimnosPageState extends State<HimnosPage> {
               onTap: () => LaunchReview.launch(),
             ),
             ListTile(
-                leading: Icon(Icons.info_outline), title: Text('Políticas de privacidad'), onTap: () => launch('https://sites.google.com/view/himnos-privacy-policy/')),
+                leading: Icon(Icons.info_outline),
+                title: Text('Políticas de privacidad'),
+                onTap: () => launch('https://sites.google.com/view/himnos-privacy-policy/')),
             // ListTile(s
           ],
         ),
@@ -394,7 +413,8 @@ class _HimnosPageState extends State<HimnosPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (BuildContext context) => Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros)));
+                      builder: (BuildContext context) =>
+                          Buscador(id: 0, subtema: false, type: currentPage == 0 ? BuscadorType.Himnos : BuscadorType.Coros)));
             },
             icon: Icon(Icons.search),
           ),
@@ -406,7 +426,8 @@ class _HimnosPageState extends State<HimnosPage> {
             curve: Curves.easeInOutSine,
             height: cargando || categorias.isEmpty ? 4.0 : 0.0,
             child: LinearProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor),
               backgroundColor: Colors.white,
             ),
           ),
@@ -452,7 +473,9 @@ class _HimnosPageState extends State<HimnosPage> {
                                     child: ListTile(
                                       onTap: () {
                                         Navigator.push(
-                                            context, MaterialPageRoute(builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index - 1].categoria)));
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (BuildContext context) => TemaPage(id: index, tema: categorias[index - 1].categoria)));
                                       },
                                       title: Text(categorias[index - 1].categoria),
                                     ))
@@ -487,8 +510,8 @@ class _HimnosPageState extends State<HimnosPage> {
                                                             Navigator.push(
                                                                 context,
                                                                 MaterialPageRoute(
-                                                                    builder: (BuildContext context) =>
-                                                                        TemaPage(id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)));
+                                                                    builder: (BuildContext context) => TemaPage(
+                                                                        id: subCategoria.id, subtema: true, tema: subCategoria.subCategoria)));
                                                           },
                                                           title: Text(subCategoria.subCategoria),
                                                         ))

@@ -180,7 +180,7 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     print('actualVersion: $actualVersion');
     print('newVersion: $version');
     if (version == null || version != actualVersion) {
-      await copiarBase(path, version == null, version == null ? 0.0 : double.parse(version));
+      await copiarBase(path, version == null, version == null ? 0.0 : parseVersion(version));
       prefs.setString('version', actualVersion);
       prefs.setString('latest', null);
     } else
@@ -190,6 +190,18 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
     getAnuncios(prefs);
     checkUpdates(prefs, db);
     return null;
+  }
+
+  double parseVersion(String version) {
+    try {
+      return double.parse(version);
+    } catch (e) {
+      List<String> parts = version.split('.');
+      String temp = parts[0] + '.';
+
+      parts.removeAt(0);
+      return double.parse(temp + parts.join(''));
+    }
   }
 
   Future<Null> copiarBase(String dbPath, bool fistRun, double version) async {
