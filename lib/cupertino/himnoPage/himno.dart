@@ -693,31 +693,12 @@ class _HimnoPageState extends State<HimnoPage> with TickerProviderStateMixin {
           transitionBetweenRoutes: true,
           actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
           backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
-          middle: Tooltip(
-            message: '${widget.numero} - ${widget.titulo}',
-            child: Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    '${widget.titulo}',
-                    overflow: TextOverflow.ellipsis,
-                    style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                          color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-                          fontFamily: ScopedModel.of<TemaModel>(context).font,
-                        ),
-                  ),
-                  Text(
-                    '${widget.numero}',
-                    textScaleFactor: 0.9,
-                    style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                        color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-                        fontFamily: ScopedModel.of<TemaModel>(context).font,
-                        fontStyle: FontStyle.italic),
-                  ),
-                ],
-              ),
-            ),
+          middle: Text(
+            '${widget.numero} - ${widget.titulo}',
+            style: CupertinoTheme.of(context)
+                .textTheme
+                .textStyle
+                .copyWith(color: ScopedModel.of<TemaModel>(context).getTabTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
           ),
           trailing: prefs != null
               ? Transform.translate(

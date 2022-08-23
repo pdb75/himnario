@@ -158,16 +158,12 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
         navigationBar: CupertinoNavigationBar(
             actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
             backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
-            middle: Tooltip(
-              message: widget.titulo,
-              child: Text(
-                widget.titulo,
-                overflow: TextOverflow.ellipsis,
-                style: CupertinoTheme.of(context)
-                    .textTheme
-                    .textStyle
-                    .copyWith(color: ScopedModel.of<TemaModel>(context).getTabTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
-              ),
+            middle: Text(
+              widget.titulo,
+              style: CupertinoTheme.of(context)
+                  .textTheme
+                  .textStyle
+                  .copyWith(color: ScopedModel.of<TemaModel>(context).getTabTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
             ),
             trailing: prefs != null
                 ? Transform.translate(
