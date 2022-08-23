@@ -693,6 +693,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
                     Text(
                       '${widget.numero}',
                       textScaleFactor: 0.8,
+                      style: TextStyle(fontStyle: FontStyle.italic),
                     ),
                   ],
                 ),
