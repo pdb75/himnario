@@ -1,4 +1,4 @@
-# #!/bin/sh
+#!/bin/sh
 
 # # by default, the execution directory of this script is the ci_scripts directory
 # # CI_WORKSPACE is the directory of your cloned repo
