@@ -28,7 +28,7 @@ export PATH="$GEM_HOME/bin:$PATH"
 time gem install bundle
 time bundle install
 
-echo "🟩 Install Simulator runtime"
-time xcodebuild -downloadAllPlatforms
+# echo "🟩 Install Simulator runtime"
+# time xcodebuild -downloadAllPlatforms
 
 exit 0
