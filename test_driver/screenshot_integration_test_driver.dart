@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:integration_test/integration_test_driver_extended.dart';
 
 Future<void> main() async {
-  String path = Platform.environment['SCREENSHOT_PATH'];
+  String path = Platform.environment['SCREENSHOT_PATH']!;
   String platform = Platform.environment['PLATFORM'] ?? '';
   assert(platform == 'android' || platform == 'ios');
   bool isAndroid = platform.toLowerCase().trim() == 'android';

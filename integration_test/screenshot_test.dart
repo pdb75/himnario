@@ -23,7 +23,7 @@ Future<void> main() async {
   final IntegrationTestWidgetsFlutterBinding binding = IntegrationTestWidgetsFlutterBinding();
 
   testWidgets('screenshot', (WidgetTester tester) async {
-    // await binding.convertFlutterSurfaceToImage();
+    await binding.convertFlutterSurfaceToImage();
 
     await tester.pumpWidget(MyApp());
 

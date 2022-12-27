@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.005015">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: app_store_connect_api_key" time="0.003234">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: bundle exec fastlane deliver init --api_key_path /tmp/ios_api_token.json -a com.bgra572.himnario" time="13.198966">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>
