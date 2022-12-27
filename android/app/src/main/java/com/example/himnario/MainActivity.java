@@ -1,4 +1,4 @@
-package com.example.himnario;
+package com.br572.himnario;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

@@ -1,0 +1,2 @@
+- Tamaño y disposición de títulos 
+- Hotfix

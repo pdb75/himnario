@@ -1,0 +1,39 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+require 'yaml'
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy_beta do
+    pubspec = YAML.load(File.read("../../pubspec.yaml"))
+    version_code = Integer(pubspec["version"].split('+').pop())
+    version_name = pubspec["version"].split('+').first()
+
+    upload_to_play_store(
+      track: 'Closed Beta',
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+      version_code: version_code,
+      version_name: version_name,
+    )
+    # slack(message: 'Successfully distributed a new beta build')
+  end
+
+end
