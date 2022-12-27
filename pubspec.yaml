@@ -7,191 +7,200 @@ description: Himnario con musica
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
 # Read more about versioning at semver.org.
-version: 6.9.4+694
+version: 6.9.5+695
 
 dependencies:
-    flutter:
-        sdk: flutter
+  flutter:
+    sdk: flutter
 
-    # The following adds the Cupertino Icons font to your application.
-    # Use with the CupertinoIcons class for iOS style icons.
-    cupertino_icons: ^0.1.2
-    audioplayers: ^0.13.6
-    shared_preferences: ^0.5.6
-    sqflite:
-    flutter_crashlytics: ^0.2.1+1
-    screen: ^0.0.5
-    http:
-    flutter_colorpicker: ^0.2.6
-    url_launcher:
-    scoped_model: ^1.0.1
-    photo_view: ^0.4.2
-    # image_picker: ^0.6.1+2
-    launch_review: ^2.0.0
-    package_info: ^0.4.0+5
-    dynamic_theme:
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^0.1.2
+  audioplayers: ^0.13.6
+  shared_preferences: ^0.5.6
+  sqflite:
+  flutter_crashlytics: ^0.2.1+1
+  screen: ^0.0.5
+  http:
+  flutter_colorpicker: ^0.2.6
+  url_launcher:
+  scoped_model: ^1.0.1
+  photo_view: ^0.4.2
+  # image_picker: ^0.6.1+2
+  launch_review: ^2.0.0
+  package_info: ^0.4.0+5
+  dynamic_theme:
 
 dev_dependencies:
-    flutter_test:
-        sdk: flutter
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    # sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
-    # The following line ensures that the Material Icons font is
-    # included with your application, so that you can use the icons in
-    # the material Icons class.
-    uses-material-design: true
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
 
-    # To add assets to your application, add an assets section, like this:
-    assets:
-        - assets/himnos_coros.sqlite
-        - assets/notation.png
-        - assets/logo.png
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/himnos_coros.sqlite
+    - assets/notation.png
+    - assets/logo.png
 
-    # An image asset can refer to one or more resolution-specific "variants", see
-    # https://flutter.io/assets-and-images/#resolution-aware.
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.io/assets-and-images/#resolution-aware.
 
-    # For details regarding adding assets from package dependencies, see
-    # https://flutter.io/assets-and-images/#from-packages
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.io/assets-and-images/#from-packages
 
-    # To add custom fonts to your application, add a fonts section here,
-    # in this "flutter" section. Each entry in this list should have a
-    # "family" key with the font family name, and a "fonts" key with a
-    # list giving the asset and other descriptors for the font. For
-    # example:
-    # w100 => Thin
-    # w200 => Extra-Light
-    # w300 => Light
-    # w400 => Normal
-    # w500 => Medium
-    # w600 => Semi-Bold
-    # w700 => Bold
-    # w800 => Extra-Bold
-    # w900 => Black
-    fonts:
-        - family: Josefin Sans
-          fonts:
-              - asset: assets/fonts/Josefin_Sans/JosefinSans-Regular.ttf
-              - asset: assets/fonts/Josefin_Sans/JosefinSans-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Josefin_Sans/JosefinSans-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Josefin_Sans/JosefinSans-SemiBold.ttf
-                weight: 500
-              - asset: assets/fonts/Josefin_Sans/JosefinSans-Bold.ttf
-                weight: 700
-        - family: Lato
-          fonts:
-              - asset: assets/fonts/Lato/Lato-Regular.ttf
-              - asset: assets/fonts/Lato/Lato-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Lato/Lato-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Lato/Lato-Bold.ttf
-                weight: 500
-              - asset: assets/fonts/Lato/Lato-Bold.ttf
-                weight: 700
-        - family: Merriweather
-          fonts:
-              - asset: assets/fonts/Merriweather/Merriweather-Regular.ttf
-              - asset: assets/fonts/Merriweather/Merriweather-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Merriweather/Merriweather-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Merriweather/Merriweather-Bold.ttf
-                weight: 500
-              - asset: assets/fonts/Merriweather/Merriweather-Bold.ttf
-                weight: 700
-        - family: Montserrat
-          fonts:
-              - asset: assets/fonts/Montserrat/Montserrat-Regular.ttf
-              - asset: assets/fonts/Montserrat/Montserrat-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Montserrat/Montserrat-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Montserrat/Montserrat-Medium.ttf
-                weight: 500
-              - asset: assets/fonts/Montserrat/Montserrat-Bold.ttf
-                weight: 700
-        - family: Open Sans
-          fonts:
-              - asset: assets/fonts/Open_Sans/OpenSans-Regular.ttf
-              - asset: assets/fonts/Open_Sans/OpenSans-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Open_Sans/OpenSans-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Open_Sans/OpenSans-SemiBold.ttf
-                weight: 500
-              - asset: assets/fonts/Open_Sans/OpenSans-Bold.ttf
-                weight: 700
-        - family: Poppins
-          fonts:
-              - asset: assets/fonts/Poppins/Poppins-Regular.ttf
-              - asset: assets/fonts/Poppins/Poppins-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Poppins/Poppins-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Poppins/Poppins-Medium.ttf
-                weight: 500
-              - asset: assets/fonts/Poppins/Poppins-Bold.ttf
-                weight: 700
-        - family: Raleway
-          fonts:
-              - asset: assets/fonts/Raleway/Raleway-Regular.ttf
-              - asset: assets/fonts/Raleway/Raleway-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Raleway/Raleway-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Raleway/Raleway-Medium.ttf
-                weight: 500
-              - asset: assets/fonts/Raleway/Raleway-Bold.ttf
-                weight: 700
-        - family: Roboto Mono
-          fonts:
-              - asset: assets/fonts/Roboto_Mono/RobotoMono-Regular.ttf
-              - asset: assets/fonts/Roboto_Mono/RobotoMono-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Roboto_Mono/RobotoMono-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Roboto_Mono/RobotoMono-Medium.ttf
-                weight: 500
-              - asset: assets/fonts/Roboto_Mono/RobotoMono-Bold.ttf
-                weight: 700
-        - family: Rubik
-          fonts:
-              - asset: assets/fonts/Rubik/Rubik-Regular.ttf
-              - asset: assets/fonts/Rubik/Rubik-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Rubik/Rubik-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Rubik/Rubik-Medium.ttf
-                weight: 500
-              - asset: assets/fonts/Rubik/Rubik-Bold.ttf
-                weight: 700
-        - family: Source Sans Pro
-          fonts:
-              - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf
-              - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Italic.ttf
-                style: italic
-              - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Lightitalic.ttf
-                style: italic
-                weight: 300
-              - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-SemiBold.ttf
-                weight: 500
-              - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Bold.ttf
-                weight: 700
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # w100 => Thin
+  # w200 => Extra-Light
+  # w300 => Light
+  # w400 => Normal
+  # w500 => Medium
+  # w600 => Semi-Bold
+  # w700 => Bold
+  # w800 => Extra-Bold
+  # w900 => Black
+  fonts:
+    - family: Josefin Sans
+      fonts:
+        - asset: assets/fonts/Josefin_Sans/JosefinSans-Regular.ttf
+        - asset: assets/fonts/Josefin_Sans/JosefinSans-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Josefin_Sans/JosefinSans-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Josefin_Sans/JosefinSans-SemiBold.ttf
+          weight: 500
+        - asset: assets/fonts/Josefin_Sans/JosefinSans-Bold.ttf
+          weight: 700
+    - family: Lato
+      fonts:
+        - asset: assets/fonts/Lato/Lato-Regular.ttf
+        - asset: assets/fonts/Lato/Lato-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Lato/Lato-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Lato/Lato-Bold.ttf
+          weight: 500
+        - asset: assets/fonts/Lato/Lato-Bold.ttf
+          weight: 700
+    - family: Merriweather
+      fonts:
+        - asset: assets/fonts/Merriweather/Merriweather-Regular.ttf
+        - asset: assets/fonts/Merriweather/Merriweather-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Merriweather/Merriweather-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Merriweather/Merriweather-Bold.ttf
+          weight: 500
+        - asset: assets/fonts/Merriweather/Merriweather-Bold.ttf
+          weight: 700
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat/Montserrat-Regular.ttf
+        - asset: assets/fonts/Montserrat/Montserrat-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Montserrat/Montserrat-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Montserrat/Montserrat-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat/Montserrat-Bold.ttf
+          weight: 700
+    - family: Open Sans
+      fonts:
+        - asset: assets/fonts/Open_Sans/OpenSans-Regular.ttf
+        - asset: assets/fonts/Open_Sans/OpenSans-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Open_Sans/OpenSans-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Open_Sans/OpenSans-SemiBold.ttf
+          weight: 500
+        - asset: assets/fonts/Open_Sans/OpenSans-Bold.ttf
+          weight: 700
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins/Poppins-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Poppins/Poppins-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Poppins/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
+          weight: 700
+    - family: Raleway
+      fonts:
+        - asset: assets/fonts/Raleway/Raleway-Regular.ttf
+        - asset: assets/fonts/Raleway/Raleway-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Raleway/Raleway-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Raleway/Raleway-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Raleway/Raleway-Bold.ttf
+          weight: 700
+    - family: Roboto Mono
+      fonts:
+        - asset: assets/fonts/Roboto_Mono/RobotoMono-Regular.ttf
+        - asset: assets/fonts/Roboto_Mono/RobotoMono-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Roboto_Mono/RobotoMono-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Roboto_Mono/RobotoMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto_Mono/RobotoMono-Bold.ttf
+          weight: 700
+    - family: Rubik
+      fonts:
+        - asset: assets/fonts/Rubik/Rubik-Regular.ttf
+        - asset: assets/fonts/Rubik/Rubik-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Rubik/Rubik-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Rubik/Rubik-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Rubik/Rubik-Bold.ttf
+          weight: 700
+    - family: Source Sans Pro
+      fonts:
+        - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf
+        - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Lightitalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-SemiBold.ttf
+          weight: 500
+        - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Bold.ttf
+          weight: 700
 
-    # For details regarding fonts from package dependencies,
-    # see https://flutter.io/custom-fonts/#from-packages
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.io/custom-fonts/#from-packages
+
+fastlane_screenshot_automation:
+  ios_package_name: com.bgra572.himnario
+  flutter_version: 1.22.6
+  android_beta_track: Closed Beta
+  android_package_name: com.br572.himnario
+  android_json_key_file_path: ../fastlane-user.json

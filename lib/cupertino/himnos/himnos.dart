@@ -356,6 +356,14 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                     child: Text('Ajustes',
                         style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black))),
                 CupertinoActionSheetAction(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      launch(
+                          'https://www.paypal.com/donate/?business=Y9VB93FT2L67G&no_recurring=0&item_name=Aporte+para+poder+financiar+la+infraestructura+de+la+aplicaci%C3%B3n%2C+como+tambi%C3%A9n+para+poder+seguir+trabajando+en+futuras+mejoras&currency_code=USD');
+                    },
+                    child: Text('Donaciones',
+                        style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black))),
+                CupertinoActionSheetAction(
                     onPressed: () => LaunchReview.launch(writeReview: false, iOSAppId: "1444422315"),
                     child: Text('Feedback',
                         style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black))),
