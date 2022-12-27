@@ -1,0 +1,1 @@
+Este Himnario ademas de poder leer los himnos, tiene la opción de poder escuchar las 4 voces de cada himno (Soprano, Tenor, Contra Alto, Bajo) a medida que se vayan agregando. Ademas de una sección de Coros con acordes.
