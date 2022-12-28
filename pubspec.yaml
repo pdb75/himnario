@@ -79,7 +79,7 @@ flutter:
         - asset: assets/fonts/Josefin_Sans/JosefinSans-Regular.ttf
         - asset: assets/fonts/Josefin_Sans/JosefinSans-Italic.ttf
           style: italic
-        - asset: assets/fonts/Josefin_Sans/JosefinSans-Lightitalic.ttf
+        - asset: assets/fonts/Josefin_Sans/JosefinSans-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Josefin_Sans/JosefinSans-SemiBold.ttf
@@ -91,7 +91,7 @@ flutter:
         - asset: assets/fonts/Lato/Lato-Regular.ttf
         - asset: assets/fonts/Lato/Lato-Italic.ttf
           style: italic
-        - asset: assets/fonts/Lato/Lato-Lightitalic.ttf
+        - asset: assets/fonts/Lato/Lato-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Lato/Lato-Bold.ttf
@@ -103,7 +103,7 @@ flutter:
         - asset: assets/fonts/Merriweather/Merriweather-Regular.ttf
         - asset: assets/fonts/Merriweather/Merriweather-Italic.ttf
           style: italic
-        - asset: assets/fonts/Merriweather/Merriweather-Lightitalic.ttf
+        - asset: assets/fonts/Merriweather/Merriweather-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Merriweather/Merriweather-Bold.ttf
@@ -115,7 +115,7 @@ flutter:
         - asset: assets/fonts/Montserrat/Montserrat-Regular.ttf
         - asset: assets/fonts/Montserrat/Montserrat-Italic.ttf
           style: italic
-        - asset: assets/fonts/Montserrat/Montserrat-Lightitalic.ttf
+        - asset: assets/fonts/Montserrat/Montserrat-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Montserrat/Montserrat-Medium.ttf
@@ -127,7 +127,7 @@ flutter:
         - asset: assets/fonts/Open_Sans/OpenSans-Regular.ttf
         - asset: assets/fonts/Open_Sans/OpenSans-Italic.ttf
           style: italic
-        - asset: assets/fonts/Open_Sans/OpenSans-Lightitalic.ttf
+        - asset: assets/fonts/Open_Sans/OpenSans-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Open_Sans/OpenSans-SemiBold.ttf
@@ -139,7 +139,7 @@ flutter:
         - asset: assets/fonts/Poppins/Poppins-Regular.ttf
         - asset: assets/fonts/Poppins/Poppins-Italic.ttf
           style: italic
-        - asset: assets/fonts/Poppins/Poppins-Lightitalic.ttf
+        - asset: assets/fonts/Poppins/Poppins-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Poppins/Poppins-Medium.ttf
@@ -151,7 +151,7 @@ flutter:
         - asset: assets/fonts/Raleway/Raleway-Regular.ttf
         - asset: assets/fonts/Raleway/Raleway-Italic.ttf
           style: italic
-        - asset: assets/fonts/Raleway/Raleway-Lightitalic.ttf
+        - asset: assets/fonts/Raleway/Raleway-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Raleway/Raleway-Medium.ttf
@@ -163,7 +163,7 @@ flutter:
         - asset: assets/fonts/Roboto_Mono/RobotoMono-Regular.ttf
         - asset: assets/fonts/Roboto_Mono/RobotoMono-Italic.ttf
           style: italic
-        - asset: assets/fonts/Roboto_Mono/RobotoMono-Lightitalic.ttf
+        - asset: assets/fonts/Roboto_Mono/RobotoMono-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Roboto_Mono/RobotoMono-Medium.ttf
@@ -175,7 +175,7 @@ flutter:
         - asset: assets/fonts/Rubik/Rubik-Regular.ttf
         - asset: assets/fonts/Rubik/Rubik-Italic.ttf
           style: italic
-        - asset: assets/fonts/Rubik/Rubik-Lightitalic.ttf
+        - asset: assets/fonts/Rubik/Rubik-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Rubik/Rubik-Medium.ttf
@@ -187,7 +187,7 @@ flutter:
         - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf
         - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Italic.ttf
           style: italic
-        - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-Lightitalic.ttf
+        - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-LightItalic.ttf
           style: italic
           weight: 300
         - asset: assets/fonts/Source_Sans_Pro/SourceSansPro-SemiBold.ttf
