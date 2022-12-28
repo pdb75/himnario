@@ -13,3 +13,4 @@ build/
 android/key.properties
 .flutter-plugins-dependencies
 fastlane-user.json
+himnario.jks

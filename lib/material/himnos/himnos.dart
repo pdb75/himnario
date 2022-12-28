@@ -390,7 +390,7 @@ class _HimnosPageState extends State<HimnosPage> {
               leading: Icon(Icons.payments),
               title: Text('Donaciones'),
               onTap: () => launch(
-                  'https://www.paypal.com/donate/?business=Y9VB93FT2L67G&no_recurring=0&item_name=Aporte+para+poder+financiar+la+infraestructura+de+la+aplicaci%C3%B3n%2C+como+tambi%C3%A9n+para+poder+seguir+trabajando+en+futuras+mejoras&currency_code=USD'),
+                  'https://www.paypal.com/donate/?business=Y9VB93FT2L67G&no_recurring=0&item_name=Ay%C3%BAdame+a+financiar+la+infraestructura+de+la+aplicaci%C3%B3n+y+a+poder+trabajar+en+nuevos+proyectos+relacionados.&currency_code=USD'),
             ),
             ListTile(
               leading: Icon(Icons.feedback),
