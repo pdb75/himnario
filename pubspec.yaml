@@ -7,7 +7,7 @@ description: Himnario con musica
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
 # Read more about versioning at semver.org.
-version: 6.9.5+695
+version: 6.9.5+696
 
 dependencies:
   flutter:
