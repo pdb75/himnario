@@ -11,6 +11,10 @@ jobs:
     steps:
       # Cloning project repository
       - uses: actions/checkout@v3
+      
+      # Setup Android SDK
+      - name: Setup Android SDK Tools
+        uses: android-actions/setup-android@v2.0.2
 
       # Setup Flutter
       - name: Retrieve cached Flutter installation
@@ -65,13 +69,8 @@ jobs:
       - name: Building Appbundle
         run: flutter build appbundle
         
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.0'
-          bundler-cache: true
-
       - name: Deploy Appbundle to PlayStore on Beta
-        uses: maierj/fastlane-action@v3.0.0
+        uses: maierj/fastlane-action@v2.3.0
         with:
           lane: deploy_beta
           subdirectory: android
