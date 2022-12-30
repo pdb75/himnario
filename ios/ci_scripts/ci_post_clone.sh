@@ -22,6 +22,9 @@ time HOMEBREW_NO_AUTO_UPDATE=1 brew install cocoapods
 echo "🟩 Install CocoaPods dependencies"
 time cd ios && pod install
 
+echo "🟩 Build in release mode"
+time flutter build ios --release
+
 # echo "🟩 Install fastlane"
 # export GEM_HOME=~/.gem
 # export PATH="$GEM_HOME/bin:$PATH"
