@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/himnos.dart';
+import 'package:Himnario/models/himnos.dart';
 
 class HimnoText extends StatelessWidget {
   final String alignment;

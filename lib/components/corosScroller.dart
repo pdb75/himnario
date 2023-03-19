@@ -1,27 +1,28 @@
-import 'package:Himnario/cupertino/models/tema.dart';
-import 'package:flutter/material.dart';
+import 'package:Himnario/helpers/isAndroid.dart';
+import 'package:Himnario/models/tema.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+import 'package:Himnario/models/himnos.dart';
+import 'package:Himnario/material/coroPage/coro.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-import '../models/himnos.dart';
-import '../coroPage/coro.dart';
-
 class CorosScroller extends StatefulWidget {
-  CorosScroller({
-    this.himnos,
-    this.mensaje = '',
-    this.iPhoneX = false,
-    this.iPhoneXBottomPadding = 0.0,
-    this.buscador = false,
-    this.refresh,
-  });
-
   final List<Himno> himnos;
   final String mensaje;
   final bool iPhoneX;
   final double iPhoneXBottomPadding;
   final bool buscador;
-  final Function refresh;
+  final Function onRefresh;
+
+  CorosScroller({
+    this.himnos,
+    this.mensaje = '',
+    this.buscador = false,
+    this.iPhoneX = false,
+    this.iPhoneXBottomPadding = 0.0,
+    this.onRefresh,
+  });
 
   @override
   _CorosScrollerState createState() => _CorosScrollerState();
@@ -36,14 +37,27 @@ class _CorosScrollerState extends State<CorosScroller> {
   @override
   void initState() {
     super.initState();
+
+    // iOS specific
     iPhoneXPadding = widget.iPhoneX ? 20.0 : 0.0;
+
     scrollController = ScrollController(initialScrollOffset: 0.0);
     scrollController.addListener(() {
-      double maxScrollPosition = MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 + iPhoneXPadding;
+      double maxScrollPosition = isAndroid()
+          ? MediaQuery.of(context).size.height - 60 - 130.0
+          : MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 + iPhoneXPadding;
       double maxScrollExtent = scrollController.position.maxScrollExtent == 0.0 ? 1.0 : scrollController.position.maxScrollExtent;
-      if (!dragging) setState(() => scrollPosition = 72.0 + iPhoneXPadding + ((scrollController.offset / maxScrollExtent) * (maxScrollPosition)));
+      if (!dragging)
+        setState(() {
+          if (isAndroid()) {
+            scrollPosition = 15.0 + ((scrollController.offset / maxScrollExtent) * (maxScrollPosition));
+          } else {
+            scrollPosition = 72.0 + iPhoneXPadding + ((scrollController.offset / maxScrollExtent) * (maxScrollPosition));
+          }
+        });
     });
-    scrollPosition = 72.0 + iPhoneXPadding;
+
+    scrollPosition = isAndroid() ? (105.0 - 90.0) : (72.0 + iPhoneXPadding);
     dragging = false;
   }
 
@@ -51,15 +65,144 @@ class _CorosScrollerState extends State<CorosScroller> {
   void didUpdateWidget(CorosScroller oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.himnos != widget.himnos && widget.buscador) {
-      scrollPosition = 72.0 + iPhoneXPadding;
+      scrollPosition = isAndroid() ? (105.0 - 90.0) : (72.0 + iPhoneXPadding);
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget materialScroller() {
+    int length = widget.himnos.length == 0 ? 1 : widget.himnos.length;
+
+    return Stack(
+      children: <Widget>[
+        widget.himnos.isEmpty
+            ? Container(
+                child: Center(
+                  child: Text(
+                    widget.mensaje,
+                    textAlign: TextAlign.center,
+                    textScaleFactor: 1.5,
+                  ),
+                ),
+              )
+            : ListView.builder(
+                controller: scrollController,
+                itemCount: widget.himnos.length,
+                itemBuilder: (BuildContext context, int index) => Column(
+                  children: <Widget>[
+                    Container(
+                      color: (scrollPosition - 15) ~/ ((MediaQuery.of(context).size.height - 60 - 129) / length) == index && dragging
+                          ? (Theme.of(context).brightness == Brightness.light ? Theme.of(context).primaryColor : Theme.of(context).accentColor)
+                          : Theme.of(context).scaffoldBackgroundColor,
+                      child: ListTile(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) => CoroPage(
+                                numero: widget.himnos[index].numero,
+                                titulo: widget.himnos[index].titulo,
+                                transpose: widget.himnos[index].transpose,
+                              ),
+                            ),
+                          );
+                        },
+                        leading: widget.himnos[index].favorito
+                            ? Icon(
+                                Icons.star,
+                                color: Theme.of(context).accentColor,
+                              )
+                            : null,
+                        title: Container(
+                          width: widget.himnos[index].favorito ? MediaQuery.of(context).size.width - 90 : MediaQuery.of(context).size.width - 50,
+                          child: Text(
+                            ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
+                            softWrap: true,
+                            style: Theme.of(context).textTheme.subhead.copyWith(
+                                color: (scrollPosition - 15) ~/ ((MediaQuery.of(context).size.height - 60 - 129) / length) == index && dragging
+                                    ? (Theme.of(context).brightness == Brightness.light
+                                        ? Theme.of(context).primaryIconTheme.color
+                                        : Theme.of(context).accentTextTheme.body1.color)
+                                    : Theme.of(context).textTheme.subhead.color),
+                          ),
+                        ),
+                        trailing: widget.himnos[index].descargado
+                            ? Icon(
+                                Icons.get_app,
+                                color: Theme.of(context).accentColor,
+                              )
+                            : null,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+        widget.himnos.length * 60.0 > MediaQuery.of(context).size.height - 60
+            ? Align(
+                alignment: FractionalOffset.centerRight,
+                child: GestureDetector(
+                  onVerticalDragStart: (DragStartDetails details) {
+                    double position;
+                    if (details.globalPosition.dy > MediaQuery.of(context).size.height - 60 - 25.0) {
+                      position = MediaQuery.of(context).size.height - 60 - 115.0;
+                    } else if (details.globalPosition.dy < 105) {
+                      position = 15.0;
+                    } else
+                      position = details.globalPosition.dy - 90;
+                    setState(() {
+                      scrollPosition = position;
+                      dragging = true;
+                    });
+                    int currentHimno = ((position - 15) ~/ ((MediaQuery.of(context).size.height - 60 - 129) / length) + 1);
+                    if (currentHimno > widget.himnos.length - (MediaQuery.of(context).size.height - 60 - 115.0) ~/ 56.0)
+                      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+                    else
+                      scrollController.jumpTo((position - 15) ~/ ((MediaQuery.of(context).size.height - 60 - 129) / length) * 56.0);
+                  },
+                  onVerticalDragUpdate: (DragUpdateDetails details) {
+                    double position;
+                    if (details.globalPosition.dy > MediaQuery.of(context).size.height - 60 - 25.0) {
+                      position = MediaQuery.of(context).size.height - 60 - 115.0;
+                    } else if (details.globalPosition.dy < 105) {
+                      position = 15.0;
+                    } else
+                      position = details.globalPosition.dy - 90;
+                    setState(() {
+                      scrollPosition = position;
+                    });
+                    int currentHimno = ((position - 15) ~/ ((MediaQuery.of(context).size.height - 60 - 129) / length) + 1);
+                    if (currentHimno > widget.himnos.length - (MediaQuery.of(context).size.height - 60 - 115.0) ~/ 56.0)
+                      scrollController.animateTo(scrollController.position.maxScrollExtent,
+                          curve: Curves.easeInOut, duration: Duration(milliseconds: 200));
+                    else
+                      scrollController.jumpTo((position - 15) ~/ ((MediaQuery.of(context).size.height - 60 - 129) / length) * 56.0);
+                  },
+                  onVerticalDragEnd: (DragEndDetails details) {
+                    setState(() {
+                      dragging = false;
+                    });
+                  },
+                  child: Container(
+                    height: double.infinity,
+                    width: 40.0,
+                    child: CustomPaint(
+                      painter: SideScroller(context,
+                          himnos: widget.himnos,
+                          position: scrollPosition,
+                          dragging: dragging,
+                          numero: dragging ? (scrollPosition - 15) ~/ ((MediaQuery.of(context).size.height - 60 - 129) / length) : -1),
+                    ),
+                  ),
+                ),
+              )
+            : Container()
+      ],
+    );
+  }
+
+  Widget cupertinoScroller() {
     final TemaModel tema = ScopedModel.of<TemaModel>(context);
     int length = widget.himnos.length == 0 ? 1 : widget.himnos.length;
-    if (scrollPosition == double.infinity || scrollPosition == double.nan) scrollPosition = 72.0 + iPhoneXPadding;
+
     return Stack(
       children: <Widget>[
         widget.himnos.isEmpty
@@ -81,7 +224,7 @@ class _CorosScrollerState extends State<CorosScroller> {
                   controller: scrollController,
                   slivers: <Widget>[
                     CupertinoSliverRefreshControl(
-                      onRefresh: widget.refresh,
+                      onRefresh: widget.onRefresh,
                     ),
                     SliverList(
                       key: PageStorageKey('Scroller Tema'),
@@ -102,8 +245,6 @@ class _CorosScrollerState extends State<CorosScroller> {
                                 height: 55.0,
                                 child: CupertinoButton(
                                   onPressed: () async {
-                                    double aux = scrollController.offset;
-                                    print(widget.himnos[index].numero > 517);
                                     await Navigator.push(
                                       context,
                                       CupertinoPageRoute(
@@ -122,28 +263,29 @@ class _CorosScrollerState extends State<CorosScroller> {
                                   child: Stack(
                                     children: <Widget>[
                                       Align(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') +
-                                                '${widget.himnos[index].titulo}'),
-                                            softWrap: true,
-                                            textAlign: TextAlign.start,
-                                            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                                  color: (scrollPosition - 72.0 - iPhoneXPadding) ~/
-                                                                  ((MediaQuery.of(context).size.height -
-                                                                          85.0 -
-                                                                          widget.iPhoneXBottomPadding -
-                                                                          72.0 -
-                                                                          iPhoneXPadding +
-                                                                          0.5) /
-                                                                      length) ==
-                                                              index &&
-                                                          dragging
-                                                      ? tema.mainColorContrast
-                                                      : tema.getScaffoldTextColor(),
-                                                  fontFamily: ScopedModel.of<TemaModel>(context).font,
-                                                ),
-                                          )),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') +
+                                              '${widget.himnos[index].titulo}'),
+                                          softWrap: true,
+                                          textAlign: TextAlign.start,
+                                          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                                color: (scrollPosition - 72.0 - iPhoneXPadding) ~/
+                                                                ((MediaQuery.of(context).size.height -
+                                                                        85.0 -
+                                                                        widget.iPhoneXBottomPadding -
+                                                                        72.0 -
+                                                                        iPhoneXPadding +
+                                                                        0.5) /
+                                                                    length) ==
+                                                            index &&
+                                                        dragging
+                                                    ? tema.mainColorContrast
+                                                    : tema.getScaffoldTextColor(),
+                                                fontFamily: ScopedModel.of<TemaModel>(context).font,
+                                              ),
+                                        ),
+                                      ),
                                       Align(
                                         alignment: Alignment.center,
                                         child: Row(
@@ -241,10 +383,10 @@ class _CorosScrollerState extends State<CorosScroller> {
                           offset: Offset(0.0, -65.0),
                           child: CustomPaint(
                             painter: SideScroller(
+                              context,
                               tema: tema,
                               himnos: widget.himnos,
                               position: scrollPosition,
-                              context: context,
                               dragging: dragging,
                               iPhoneXPadding: iPhoneXPadding,
                               numero: dragging
@@ -261,6 +403,15 @@ class _CorosScrollerState extends State<CorosScroller> {
       ],
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    if (scrollPosition == double.infinity || scrollPosition == double.nan) {
+      scrollPosition = isAndroid() ? (105.0 - 90.0) : (72.0 + iPhoneXPadding);
+    }
+
+    return isAndroid() ? materialScroller() : cupertinoScroller();
+  }
 }
 
 class SideScroller extends CustomPainter {
@@ -274,22 +425,49 @@ class SideScroller extends CustomPainter {
   double iPhoneXPadding;
   TemaModel tema;
 
-  SideScroller({this.tema, this.position, BuildContext context, this.dragging, this.numero, this.himnos, this.iPhoneXPadding = 0.0}) {
-    textColor = tema.brightness == Brightness.light ? Colors.white : tema.getTabTextColor();
-    scrollBar = Paint()
-      ..color = dragging
-          ? (tema.brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor : tema.getTabBackgroundColor().withOpacity(1.0))
-          : Colors.grey.withOpacity(0.5)
-      ..strokeWidth = 5.0
-      ..strokeCap = StrokeCap.round;
+  SideScroller(
+    BuildContext context, {
+    this.position,
+    this.textColor,
+    this.dragging,
+    this.numero,
+    this.himnos,
+    this.iPhoneXPadding,
+    this.tema,
+  }) {
+    if (!isAndroid()) {
+      textColor = tema.brightness == Brightness.light ? Colors.white : tema.getTabTextColor();
+      scrollBar = Paint()
+        ..color = dragging
+            ? (tema.brightness == Brightness.light ? CupertinoTheme.of(context).primaryColor : tema.getTabBackgroundColor().withOpacity(1.0))
+            : Colors.grey.withOpacity(0.5)
+        ..strokeWidth = 5.0
+        ..strokeCap = StrokeCap.round;
+    } else {
+      scrollBar = Paint()
+        ..color = dragging ? (Theme.of(context).brightness == Brightness.light ? Colors.black : Theme.of(context).cardColor) : Colors.grey
+        ..strokeWidth = 10.0
+        ..strokeCap = StrokeCap.round;
+    }
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawLine(Offset(size.width - 5, position), Offset(size.width - 5, position + 30), scrollBar);
+    canvas.drawLine(
+      Offset(
+        size.width - (isAndroid() ? 15 : 5),
+        position,
+      ),
+      Offset(
+        size.width - (isAndroid() ? 15 : 5),
+        position + (isAndroid() ? 20 : 30),
+      ),
+      scrollBar,
+    );
     if (dragging) {
       String text = himnos[numero].numero <= 517 ? himnos[numero].numero.toString() : himnos[numero].titulo[0];
-      double textPosition = position < 155.0 + iPhoneXPadding ? 155 + iPhoneXPadding : position;
+      double textPosition = isAndroid() ? (position < 90.0 ? 90.0 : position) : (position < 155.0 + iPhoneXPadding ? 155 + iPhoneXPadding : position);
+
       for (int i = 0; i < text.length; ++i) canvas.drawCircle(Offset(size.width - 85 - 5 * i, textPosition - 40), 45.0, scrollBar);
       canvas.drawRect(Rect.fromCircle(center: Offset(size.width - 62, textPosition - 17), radius: 22.0), scrollBar);
       TextPainter(

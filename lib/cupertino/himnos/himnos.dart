@@ -637,16 +637,16 @@ class _CupertinoHimnosPageState extends State<CupertinoHimnosPage> {
                 ),
                 child: Stack(
                   children: <Widget>[
-                    ScopedModel<TemaModel>(
-                      model: tema,
-                      child: CorosScroller(
-                          cargando: cargando,
-                          himnos: coros,
-                          initDB: fetchCategorias,
-                          mensaje: '',
-                          iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
-                          refresh: () => checkUpdates(prefs, db)),
-                    ),
+                    // ScopedModel<TemaModel>(
+                    //   model: tema,
+                    //   child: CorosScroller(
+                    //       cargando: cargando,
+                    //       himnos: coros,
+                    //       initDB: fetchCategorias,
+                    //       mensaje: '',
+                    //       iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
+                    //       refresh: () => checkUpdates(prefs, db)),
+                    // ),
                     Positioned(
                       left: -50.0,
                       bottom: 30.0,

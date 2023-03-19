@@ -9,4 +9,8 @@
     "files.watcherExclude": {
         "**/.fvm": true
     },
+    "cSpell.words": [
+        "Parrafo",
+        "prefs"
+    ]
 }

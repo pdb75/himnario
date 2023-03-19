@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:Himnario/helpers/isAndroid.dart';
+import 'package:Himnario/views/main/mainPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
@@ -12,6 +14,7 @@ import 'material/himnos/himnos.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   ThemeData tema;
   SharedPreferences prefs = await SharedPreferences.getInstance();
   int mainColor = prefs.getInt('mainColor');
@@ -20,7 +23,7 @@ void main() async {
   String fontFamily = prefs.getString('fuente') ?? 'Merriweather';
   if (['Raleway', '.SF Pro Text'].contains(fontFamily)) fontFamily = 'Merriweather';
 
-  if (Platform.isAndroid) {
+  if (isAndroid()) {
     String temaJson = prefs.getString('temaPrincipal');
     if (temaJson == null)
       tema = ThemeData(
@@ -82,7 +85,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Platform.isAndroid
+    return isAndroid()
         ? DynamicTheme(
             data: (Brightness brightness) => tema,
             themedWidgetBuilder: (BuildContext context, ThemeData theme) => MaterialApp(
@@ -90,7 +93,7 @@ class MyApp extends StatelessWidget {
                   // showSemanticsDebugger: false,
                   title: 'Himnos y Cánticos del Evangelio',
                   theme: theme,
-                  home: HimnosPage(),
+                  home: MainPage(),
                 ))
         : CupertinoApp(
             // debugShowCheckedModeBanner: false,
@@ -98,7 +101,7 @@ class MyApp extends StatelessWidget {
               primaryColor: Colors.black,
             ),
             title: 'Himnos y Cánticos del Evangelio',
-            home: CupertinoHimnosPage(mainColor: mainColor, font: font, brightness: brightness),
+            home: MainPage(mainColor: mainColor, font: font, brightness: brightness),
           );
   }
 }

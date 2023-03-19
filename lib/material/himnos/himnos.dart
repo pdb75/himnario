@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
 
+import 'package:Himnario/models/categorias.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,7 +14,7 @@ import 'package:launch_review/launch_review.dart';
 import 'package:http/http.dart' as http;
 
 import '../components/corosScroller.dart';
-import '../models/himnos.dart';
+import 'package:Himnario/models/himnos.dart';
 import './tema.dart';
 import '../buscador/buscador.dart';
 import '../ajustesPage/ajustes_page.dart';
@@ -536,9 +537,7 @@ class _HimnosPageState extends State<HimnosPage> {
                 : (Theme.of(context).accentTextTheme.body1.color == Colors.white ? Colors.white : Theme.of(context).accentColor),
             onRefresh: () => checkUpdates(prefs, db),
             child: CorosScroller(
-              cargando: cargando,
               himnos: coros,
-              initDB: fetchCategorias,
               mensaje: '',
             ),
           )

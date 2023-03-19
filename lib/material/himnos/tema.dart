@@ -3,18 +3,17 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 
-import '../models/himnos.dart';
+import 'package:Himnario/models/himnos.dart';
 import '../buscador/buscador.dart';
 import '../components/scroller.dart';
 
 class TemaPage extends StatefulWidget {
-
   TemaPage({this.id, this.subtema = false, this.tema});
-  
+
   final int id;
   final bool subtema;
   final String tema;
-  
+
   @override
   _TemaPageState createState() => _TemaPageState();
 }
@@ -44,27 +43,29 @@ class _TemaPageState extends State<TemaPage> {
   Future<Null> fetchHimnos([bool refresh = false]) async {
     setState(() => cargando = true);
     himnos = refresh ? himnos : List<Himno>();
-    List<Map<String,dynamic>> data;
+    List<Map<String, dynamic>> data;
     if (widget.id == 0) {
       data = await db.rawQuery('select himnos.id, himnos.titulo from himnos where id <= 517 order by himnos.id ASC');
     } else {
-      if(widget.subtema) {
-        data = await db.rawQuery('select himnos.id, himnos.titulo from himnos join sub_tema_himnos on sub_tema_himnos.himno_id = himnos.id where sub_tema_himnos.sub_tema_id = ${widget.id} order by himnos.id ASC');
+      if (widget.subtema) {
+        data = await db.rawQuery(
+            'select himnos.id, himnos.titulo from himnos join sub_tema_himnos on sub_tema_himnos.himno_id = himnos.id where sub_tema_himnos.sub_tema_id = ${widget.id} order by himnos.id ASC');
       } else {
-        data = await db.rawQuery('select himnos.id, himnos.titulo from himnos join tema_himnos on himnos.id = tema_himnos.himno_id where tema_himnos.tema_id = ${widget.id} order by himnos.id ASC');
+        data = await db.rawQuery(
+            'select himnos.id, himnos.titulo from himnos join tema_himnos on himnos.id = tema_himnos.himno_id where tema_himnos.tema_id = ${widget.id} order by himnos.id ASC');
       }
     }
-    List<Map<String,dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
+    List<Map<String, dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos');
     List<int> favoritos = List<int>();
-    for(dynamic favorito in favoritosQuery) {
+    for (dynamic favorito in favoritosQuery) {
       favoritos.add(favorito['himno_id']);
     }
-    List<Map<String,dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
+    List<Map<String, dynamic>> descargasQuery = await db.rawQuery('select * from descargados');
     List<int> descargas = List<int>();
-    for(dynamic descarga in descargasQuery) {
+    for (dynamic descarga in descargasQuery) {
       descargas.add(descarga['himno_id']);
     }
-    for(dynamic himno in data) {
+    for (dynamic himno in data) {
       himnos.add(Himno(
         numero: himno['id'],
         titulo: himno['titulo'],
@@ -78,48 +79,50 @@ class _TemaPageState extends State<TemaPage> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Tooltip(
-          message: widget.tema,
-          child: Container(
-            width: double.infinity,
-            child: Text(widget.tema, textAlign: TextAlign.center,),
+        appBar: AppBar(
+          title: Tooltip(
+            message: widget.tema,
+            child: Container(
+              width: double.infinity,
+              child: Text(
+                widget.tema,
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(4.0),
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 100),
+              curve: Curves.easeInOutSine,
+              height: cargando ? 4.0 : 0.0,
+              child: LinearProgressIndicator(),
+            ),
+          ),
+          actions: <Widget>[
+            IconButton(
+              onPressed: () async {
+                await db.close();
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => Buscador(
+                              id: widget.id,
+                              subtema: widget.subtema,
+                              type: BuscadorType.Himnos,
+                            )));
+              },
+              icon: Icon(Icons.search),
+            ),
+          ],
         ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 100),
-            curve: Curves.easeInOutSine,
-            height: cargando ? 4.0 : 0.0,
-            child: LinearProgressIndicator(),
-          ),
-        ),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () async {
-              await db.close();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (BuildContext context) => Buscador(id: widget.id, subtema:widget.subtema, type: BuscadorType.Himnos,))
-              );
-            },
-            icon: Icon(Icons.search),
-          ),
-        ],
-      ),
-      body: Scroller(
-        himnos: himnos,
-        cargando: cargando,
-        initDB: initDB
-      )
-    );
+        body: Scroller(himnos: himnos, cargando: cargando, initDB: initDB));
   }
 }
