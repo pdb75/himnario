@@ -28,7 +28,9 @@ class _HimnosTabState extends State<HimnosTab> {
 
   @override
   void didUpdateWidget(HimnosTab oldWidget) {
-    if (widget.categorias.isNotEmpty) {
+    final tema = isAndroid() ? null : ScopedModel.of<TemaModel>(context);
+
+    if (widget.categorias.isNotEmpty && oldWidget.categorias.length != widget.categorias.length) {
       listTiles = [];
 
       // Todos
@@ -40,6 +42,7 @@ class _HimnosTabState extends State<HimnosTab> {
               id: 0,
               tema: 'Todos',
             ),
+            tema: tema,
           ),
         ),
       );
@@ -54,22 +57,23 @@ class _HimnosTabState extends State<HimnosTab> {
                 id: widget.categorias[i].id,
                 tema: widget.categorias[i].categoria,
               ),
+              tema: tema,
             ),
-            subCategorias: widget.categorias[i].subCategorias.isEmpty
-                ? []
-                : widget.categorias[i].subCategorias
-                    .map(
-                      (e) => HimnosListTile(
-                        title: e.subCategoria,
-                        route: getPageRoute(
-                          TemaPage(
-                            id: e.categoriaId,
-                            tema: e.subCategoria,
-                          ),
-                        ),
+            subCategorias: widget.categorias[i].subCategorias
+                .map(
+                  (e) => HimnosListTile(
+                    title: e.subCategoria,
+                    route: getPageRoute(
+                      TemaPage(
+                        id: e.id,
+                        tema: e.subCategoria,
+                        subtema: true,
                       ),
-                    )
-                    .toList(),
+                      tema: tema,
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         );
       }

@@ -32,34 +32,40 @@ class Scroller extends StatefulWidget {
 class _ScrollerState extends State<Scroller> {
   ScrollController scrollController;
   bool dragging = false;
-  double scrollPosition = 0.0;
+  double scrollPosition;
   double iPhoneXPadding;
 
   @override
   void initState() {
     super.initState();
+
+    // iOS specific
     iPhoneXPadding = widget.iPhoneX ? 20.0 : 0.0;
+
     scrollController = ScrollController(initialScrollOffset: 0.0);
     scrollController.addListener(() {
-      if (isAndroid()) {
-        scrollPosition = 105.0 - 90.0;
-        double maxScrollPosition = MediaQuery.of(context).size.height - 130.0;
-        double maxScrollExtent = scrollController.position.maxScrollExtent == 0.0 ? 1.0 : scrollController.position.maxScrollExtent;
-        if (!dragging) setState(() => scrollPosition = 15.0 + ((scrollController.offset / maxScrollExtent) * (maxScrollPosition)));
-      } else {
-        scrollPosition = 72.0 + iPhoneXPadding;
-        double maxScrollPosition = MediaQuery.of(context).size.height - (85.0 + 40.0) - widget.iPhoneXBottomPadding - 72.0 + iPhoneXPadding;
-        double maxScrollExtent = scrollController.position.maxScrollExtent == 0.0 ? 1.0 : scrollController.position.maxScrollExtent;
-        if (!dragging) setState(() => scrollPosition = 72.0 + iPhoneXPadding + ((scrollController.offset / maxScrollExtent) * (maxScrollPosition)));
-      }
+      double maxScrollPosition = isAndroid()
+          ? MediaQuery.of(context).size.height - 60 - 130.0
+          : MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 + iPhoneXPadding;
+      double maxScrollExtent = scrollController.position.maxScrollExtent == 0.0 ? 1.0 : scrollController.position.maxScrollExtent;
+      if (!dragging)
+        setState(() {
+          if (isAndroid()) {
+            scrollPosition = 15.0 + ((scrollController.offset / maxScrollExtent) * (maxScrollPosition));
+          } else {
+            scrollPosition = 72.0 + iPhoneXPadding + ((scrollController.offset / maxScrollExtent) * (maxScrollPosition));
+          }
+        });
     });
+
+    scrollPosition = isAndroid() ? (105.0 - 90.0) : (72.0 + iPhoneXPadding);
   }
 
   @override
   void didUpdateWidget(Scroller oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.himnos != widget.himnos && widget.buscador) {
-      scrollPosition = isAndroid() ? 105.0 - 90.0 : 72.0 + iPhoneXPadding;
+      scrollPosition = isAndroid() ? (105.0 - 90.0) : (72.0 + iPhoneXPadding);
     }
   }
 
