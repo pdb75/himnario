@@ -75,6 +75,8 @@ void main() async {
   );
 }
 
+final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
+
 class MyApp extends StatelessWidget {
   MyApp({this.tema, this.mainColor, this.font, this.brightness});
 
@@ -91,12 +93,14 @@ class MyApp extends StatelessWidget {
             themedWidgetBuilder: (BuildContext context, ThemeData theme) => MaterialApp(
                   // debugShowCheckedModeBanner: false,
                   // showSemanticsDebugger: false,
+                  navigatorObservers: [routeObserver],
                   title: 'Himnos y Cánticos del Evangelio',
                   theme: theme,
                   home: MainPage(),
                 ))
         : CupertinoApp(
             // debugShowCheckedModeBanner: false,
+            navigatorObservers: [routeObserver],
             theme: CupertinoThemeData(
               primaryColor: Colors.black,
             ),

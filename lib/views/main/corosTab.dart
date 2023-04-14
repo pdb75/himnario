@@ -1,15 +1,12 @@
 import 'dart:io';
 
-import 'package:Himnario/components/pageRoute.dart';
-import 'package:Himnario/cupertino/buscador/buscador.dart';
-import 'package:Himnario/cupertino/himnos/tema.dart';
-import 'package:Himnario/cupertino/quickBuscador/quick_buscador.dart';
 import 'package:Himnario/helpers/isAndroid.dart';
 import 'package:Himnario/components/corosScroller.dart';
 import 'package:Himnario/models/categorias.dart';
 import 'package:Himnario/models/himnos.dart';
 import 'package:Himnario/models/layout.dart';
 import 'package:Himnario/models/tema.dart';
+import 'package:Himnario/views/buscador/buscador.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';

@@ -122,4 +122,14 @@ class DB {
 
     return res;
   }
+
+  static dynamic rawDelete(String sql, [List<dynamic> arguments]) async {
+    Database db = await openDatabase(dbPath);
+
+    dynamic res = await db.rawDelete(sql, arguments);
+
+    await db.close();
+
+    return res;
+  }
 }

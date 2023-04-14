@@ -3,8 +3,15 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Future<void> showSimpleDialog(BuildContext context,
-    {String title = "", Widget content, String confirm = "Aceptar", String cancel = "Cancelar", Function onConfirm, Function onCancel}) async {
+Future<void> showSimpleDialog(
+  BuildContext context, {
+  String title = "",
+  Widget content,
+  String confirm = "Aceptar",
+  String cancel = "Cancelar",
+  Function onConfirm,
+  Function onCancel,
+}) async {
   if (onConfirm == null) {
     onConfirm = () {};
   }

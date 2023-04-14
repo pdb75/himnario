@@ -31,7 +31,7 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
     setState(() => cargando = true);
     String path = (await getApplicationDocumentsDirectory()).path;
     himnos = List<Himno>();
-    http.Response res = await http.get(VoicesApi.voicesAvaliable());
+    http.Response res = await http.get(VoicesApi.voicesAvailable());
     openDatabase(path + '/himnos.db').then((dbOpened) async {
       db = dbOpened;
       List<Map<String, dynamic>> data = await dbOpened.rawQuery(

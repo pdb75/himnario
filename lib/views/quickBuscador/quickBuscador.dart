@@ -3,16 +3,14 @@ import 'dart:async';
 import 'package:Himnario/db/db.dart';
 import 'package:Himnario/helpers/isAndroid.dart';
 import 'package:Himnario/models/tema.dart';
+import 'package:Himnario/views/himno/himno.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 
 import 'package:Himnario/models/himnos.dart';
 import 'package:Himnario/components/himno/estructuraHimno.dart';
-import 'package:Himnario/material/himnoPage/himno.dart';
 
 class QuickBuscador extends StatefulWidget {
   @override
@@ -225,47 +223,46 @@ class _QuickBuscadorState extends State<QuickBuscador> {
             ),
           )),
       child: SafeArea(
-          child: (!cargando
-              ? estrofas.isNotEmpty
-                  ? GestureDetector(
-                      onTap: () => setState(() => done = !done),
-                      child: Container(
-                        height: double.infinity,
-                        width: double.infinity,
-                        color: Colors.transparent,
-                        child: Column(
-                          children: <Widget>[
-                            HimnoText(
-                              estrofas: estrofas,
-                              fontSize: fontSize,
-                              alignment: alignment,
-                            )
-                          ],
-                        ),
+        child: (!cargando
+            ? estrofas.isNotEmpty
+                ? GestureDetector(
+                    onTap: () => setState(() => done = !done),
+                    child: Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      color: Colors.transparent,
+                      child: Column(
+                        children: <Widget>[
+                          HimnoText(
+                            estrofas: estrofas,
+                            fontSize: fontSize,
+                            alignment: alignment,
+                          )
+                        ],
                       ),
-                    )
-                  : himno.numero == -2
-                      ? Center(
-                          child: Text(
-                            'Himno no encontrado',
-                            textAlign: TextAlign.center,
-                            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-                                fontFamily: ScopedModel.of<TemaModel>(context).font),
-                            textScaleFactor: 1.5,
-                          ),
-                        )
-                      : Center(
-                          child: Text(
-                            'Ingrese el número del himno',
-                            textAlign: TextAlign.center,
-                            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-                                fontFamily: ScopedModel.of<TemaModel>(context).font),
-                            textScaleFactor: 1.5,
-                          ),
-                        )
-              : Container())),
+                    ),
+                  )
+                : himno.numero == -2
+                    ? Center(
+                        child: Text(
+                          'Himno no encontrado',
+                          textAlign: TextAlign.center,
+                          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                              color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
+                          textScaleFactor: 1.5,
+                        ),
+                      )
+                    : Center(
+                        child: Text(
+                          'Ingrese el número del himno',
+                          textAlign: TextAlign.center,
+                          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                              color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
+                          textScaleFactor: 1.5,
+                        ),
+                      )
+            : Container()),
+      ),
     );
   }
 

@@ -1,5 +1,5 @@
+import 'package:Himnario/helpers/isAndroid.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 
 class VoicesProgressBar extends StatefulWidget {
   final double currentProgress;
@@ -9,7 +9,14 @@ class VoicesProgressBar extends StatefulWidget {
   final bool smalldevice;
   final Brightness brightness;
 
-  VoicesProgressBar({this.brightness, this.currentProgress, this.duration, this.onSelected, this.onDragStart, this.smalldevice});
+  VoicesProgressBar({
+    this.currentProgress,
+    this.duration,
+    this.onSelected,
+    this.onDragStart,
+    this.smalldevice,
+    this.brightness,
+  });
 
   @override
   _VoicesProgressBarState createState() => _VoicesProgressBarState();
@@ -74,18 +81,20 @@ class _VoicesProgressBarState extends State<VoicesProgressBar> {
         widget.onSelected(draggingProgress);
       },
       child: CustomPaint(
-          painter: CustomSlider(
-              brightness: widget.brightness,
-              progress: dragging ? draggingProgress : widget.currentProgress,
-              dragging: dragging,
-              smalldevice: widget.smalldevice,
-              duration: widget.duration,
-              context: context),
-          child: Container(
-            // color: Theme.of(context).primaryColor,
-            height: 30.0,
-            width: MediaQuery.of(context).size.width - 20.0,
-          )),
+        painter: CustomSlider(
+          brightness: widget.brightness,
+          progress: dragging ? draggingProgress : widget.currentProgress,
+          dragging: dragging,
+          smalldevice: widget.smalldevice,
+          duration: widget.duration,
+          context: context,
+        ),
+        child: Container(
+          // color: Theme.of(context).primaryColor,
+          height: 30.0,
+          width: MediaQuery.of(context).size.width - 20.0,
+        ),
+      ),
     );
   }
 }
@@ -102,23 +111,29 @@ class CustomSlider extends CustomPainter {
   Brightness brightness;
 
   CustomSlider({
-    this.brightness,
     this.progress,
     this.context,
     this.dragging,
     this.duration,
     this.smalldevice,
+    this.brightness,
   }) {
     duration = duration == double.nan || duration == double.infinity ? 0.0 : duration;
     progress = progress == double.nan || progress == double.infinity ? 0.0 : progress;
     text = TextPainter(
-        textDirection: TextDirection.ltr,
-        textAlign: TextAlign.center,
-        text: TextSpan(
-            text: '${(duration * progress / 1000).floor()}s',
-            style: TextStyle(color: CupertinoTheme.of(context).primaryColor, fontSize: 40.0, fontWeight: FontWeight.bold)));
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        text: '${(duration * progress / 1000).floor()}s',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 40.0,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
     primaryColorPaint = Paint()
-      ..color = CupertinoTheme.of(context).primaryColor
+      ..color = Colors.black
       ..strokeWidth = 10.0;
     geryColorPaint = Paint()
       ..color = Colors.grey
@@ -132,14 +147,17 @@ class CustomSlider extends CustomPainter {
     canvas.drawLine(Offset(0.0, position), Offset(currentProgress, position), primaryColorPaint);
     canvas.drawLine(Offset(currentProgress, position), Offset(size.width, position), geryColorPaint);
     if (dragging) {
-      currentProgress = currentProgress > size.width - 90.0 ? size.width - 90.0 : currentProgress;
+      if (!isAndroid() || smalldevice)
+        currentProgress = currentProgress > size.width - 90.0 ? size.width - 90.0 : currentProgress;
+      else
+        currentProgress = currentProgress > size.width - 160.0 ? size.width - 160.0 : currentProgress;
       double height = 50.0;
       double radius = 70.0;
       canvas.drawLine(
           Offset(currentProgress, position + 5.0),
           Offset(currentProgress, -height),
           Paint()
-            ..color = primaryColorPaint.color
+            ..color = Colors.black
             ..strokeWidth = 6.0);
       canvas.skew(-0.2, 0.0);
       canvas.drawOval(

@@ -33,32 +33,32 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
     setState(() => cargando = true);
     String path = (await getApplicationDocumentsDirectory()).path;
     himnos = List<Himno>();
-    http.Response res = await http.get(VoicesApi.voicesAvaliable());
-    openDatabase(path + '/himnos.db')
-      .then((dbOpened) async {
-        db = dbOpened;
-        List<Map<String,dynamic>> data = await dbOpened.rawQuery("select himnos.id, himnos.titulo from himnos where himnos.id in ${(res.body.replaceFirst('[', '(')).replaceFirst(']', ')')} group by himnos.id order by himnos.id ASC");
-        List<Map<String,dynamic>> favoritosQuery = await dbOpened.rawQuery('select * from favoritos');
-        List<int> favoritos = List<int>();
-        for(dynamic favorito in favoritosQuery) {
-          favoritos.add(favorito['himno_id']);
-        }
-        List<Map<String,dynamic>> descargasQuery = await dbOpened.rawQuery('select * from descargados');
-        List<int> descargas = List<int>();
-        for(dynamic descarga in descargasQuery) {
-          descargas.add(descarga['himno_id']);
-        }
-        for(dynamic himno in data) {
-          himnos.add(Himno(
-            numero: himno['id'],
-            titulo: himno['titulo'],
-            descargado: descargas.contains(himno['id']),
-            favorito: favoritos.contains(himno['id']),
-          ));
-        }
-        await db.close();
-        setState(() => cargando = false);
-      });
+    http.Response res = await http.get(VoicesApi.voicesAvailable());
+    openDatabase(path + '/himnos.db').then((dbOpened) async {
+      db = dbOpened;
+      List<Map<String, dynamic>> data = await dbOpened.rawQuery(
+          "select himnos.id, himnos.titulo from himnos where himnos.id in ${(res.body.replaceFirst('[', '(')).replaceFirst(']', ')')} group by himnos.id order by himnos.id ASC");
+      List<Map<String, dynamic>> favoritosQuery = await dbOpened.rawQuery('select * from favoritos');
+      List<int> favoritos = List<int>();
+      for (dynamic favorito in favoritosQuery) {
+        favoritos.add(favorito['himno_id']);
+      }
+      List<Map<String, dynamic>> descargasQuery = await dbOpened.rawQuery('select * from descargados');
+      List<int> descargas = List<int>();
+      for (dynamic descarga in descargasQuery) {
+        descargas.add(descarga['himno_id']);
+      }
+      for (dynamic himno in data) {
+        himnos.add(Himno(
+          numero: himno['id'],
+          titulo: himno['titulo'],
+          descargado: descargas.contains(himno['id']),
+          favorito: favoritos.contains(himno['id']),
+        ));
+      }
+      await db.close();
+      setState(() => cargando = false);
+    });
   }
 
   @override
@@ -68,23 +68,22 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
       navigationBar: CupertinoNavigationBar(
         actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
         backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
-        middle: Text(
-          'Voces Disponibles',
-          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-            fontFamily: ScopedModel.of<TemaModel>(context).font,
-          )
-        ),
+        middle: Text('Voces Disponibles',
+            style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                  color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                  fontFamily: ScopedModel.of<TemaModel>(context).font,
+                )),
       ),
-      child: cargando ? Center(
-        child: CupertinoActivityIndicator(),
-      )
-      : Scroller(
-        himnos: himnos,
-        cargando: cargando,
-        initDB: initDB,
-        iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
-      )
+      child: cargando
+          ? Center(
+              child: CupertinoActivityIndicator(),
+            )
+          : Scroller(
+              himnos: himnos,
+              cargando: cargando,
+              initDB: initDB,
+              iPhoneX: MediaQuery.of(context).size.width >= 812.0 || MediaQuery.of(context).size.height >= 812.0,
+            ),
     );
   }
 }

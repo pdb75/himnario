@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 
 class VoicesProgressBar extends StatefulWidget {
   final double currentProgress;
   final int duration;
   final Function onSelected;
   final Function onDragStart;
-  final bool smalldevice;
-  final Brightness brightness;
+  final bool smallDevice;
 
-  VoicesProgressBar({this.brightness, this.currentProgress, this.duration, this.onSelected, this.onDragStart, this.smalldevice});
+  VoicesProgressBar({
+    this.currentProgress,
+    this.duration,
+    this.onSelected,
+    this.onDragStart,
+    this.smallDevice,
+  });
 
   @override
   _VoicesProgressBarState createState() => _VoicesProgressBarState();
@@ -75,12 +79,12 @@ class _VoicesProgressBarState extends State<VoicesProgressBar> {
       },
       child: CustomPaint(
           painter: CustomSlider(
-              brightness: widget.brightness,
-              progress: dragging ? draggingProgress : widget.currentProgress,
-              dragging: dragging,
-              smalldevice: widget.smalldevice,
-              duration: widget.duration,
-              context: context),
+            progress: dragging ? draggingProgress : widget.currentProgress,
+            dragging: dragging,
+            smallDevice: widget.smallDevice,
+            duration: widget.duration,
+            context: context,
+          ),
           child: Container(
             // color: Theme.of(context).primaryColor,
             height: 30.0,
@@ -95,32 +99,34 @@ class CustomSlider extends CustomPainter {
   bool dragging;
   int duration;
   Paint primaryColorPaint;
-  Paint geryColorPaint;
+  Paint greyColorPaint;
   TextPainter text;
   BuildContext context;
-  bool smalldevice;
-  Brightness brightness;
+  bool smallDevice;
 
   CustomSlider({
-    this.brightness,
     this.progress,
     this.context,
     this.dragging,
     this.duration,
-    this.smalldevice,
+    this.smallDevice,
   }) {
-    duration = duration == double.nan || duration == double.infinity ? 0.0 : duration;
-    progress = progress == double.nan || progress == double.infinity ? 0.0 : progress;
     text = TextPainter(
-        textDirection: TextDirection.ltr,
-        textAlign: TextAlign.center,
-        text: TextSpan(
-            text: '${(duration * progress / 1000).floor()}s',
-            style: TextStyle(color: CupertinoTheme.of(context).primaryColor, fontSize: 40.0, fontWeight: FontWeight.bold)));
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        text: '${(duration * progress / 1000).floor()}s',
+        style: TextStyle(
+          color: Theme.of(context).primaryColor,
+          fontSize: 40.0,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
     primaryColorPaint = Paint()
-      ..color = CupertinoTheme.of(context).primaryColor
+      ..color = Theme.of(context).primaryColor
       ..strokeWidth = 10.0;
-    geryColorPaint = Paint()
+    greyColorPaint = Paint()
       ..color = Colors.grey
       ..strokeWidth = 10.0;
   }
@@ -130,16 +136,19 @@ class CustomSlider extends CustomPainter {
     double currentProgress = size.width * progress;
     double position = size.height * 0.65;
     canvas.drawLine(Offset(0.0, position), Offset(currentProgress, position), primaryColorPaint);
-    canvas.drawLine(Offset(currentProgress, position), Offset(size.width, position), geryColorPaint);
+    canvas.drawLine(Offset(currentProgress, position), Offset(size.width, position), greyColorPaint);
     if (dragging) {
-      currentProgress = currentProgress > size.width - 90.0 ? size.width - 90.0 : currentProgress;
+      if (smallDevice)
+        currentProgress = progress >= 0.76 ? size.width * 0.76 : currentProgress;
+      else
+        currentProgress = progress >= 0.6 ? size.width * 0.6 : currentProgress;
       double height = 50.0;
       double radius = 70.0;
       canvas.drawLine(
           Offset(currentProgress, position + 5.0),
           Offset(currentProgress, -height),
           Paint()
-            ..color = primaryColorPaint.color
+            ..color = Theme.of(context).primaryColor
             ..strokeWidth = 6.0);
       canvas.skew(-0.2, 0.0);
       canvas.drawOval(
@@ -148,7 +157,7 @@ class CustomSlider extends CustomPainter {
       canvas.drawOval(
           Rect.fromPoints(
               Offset(currentProgress - radius * 0.1, -(height - radius * 0.35)), Offset(currentProgress + radius * 1.1, -(height + radius * 0.65))),
-          Paint()..color = Colors.white);
+          Paint()..color = Theme.of(context).indicatorColor);
       canvas.skew(0.2, 0.0);
       text.layout(maxWidth: 100.0, minWidth: 100.0);
       text.paint(canvas, Offset(currentProgress + radius * -0.05, -(height + radius * 0.47)));

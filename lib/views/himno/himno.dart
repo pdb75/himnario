@@ -2,6 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:Himnario/helpers/isAndroid.dart';
+import 'package:Himnario/models/himnos.dart';
+import 'package:Himnario/models/tema.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -9,6 +13,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:scoped_model/scoped_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:screen/screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +21,6 @@ import 'package:photo_view/photo_view.dart';
 
 import './components/bodyHimno.dart';
 import './components/boton_voz.dart';
-import '../models/himnos.dart';
 import './components/slider.dart';
 
 import 'package:Himnario/api/api.dart';
@@ -57,8 +61,8 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
   List<File> archivos;
   bool favorito;
   bool acordes;
-  double initfontSizeProtrait;
-  double initfontSizeLandscape;
+  double initFontSizePortrait;
+  double initFontSizeLandscape;
   double initposition;
   Database db;
   String tema;
@@ -90,8 +94,8 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     start = false;
     vozDisponible = false;
     favorito = false;
-    initfontSizeProtrait = 16.0;
-    initfontSizeLandscape = 16.0;
+    initFontSizePortrait = 16.0;
+    initFontSizeLandscape = 16.0;
     currentDuration = Duration();
     switchModeController = AnimationController(duration: Duration(milliseconds: 200), vsync: this)
       ..addListener(() {
@@ -235,11 +239,11 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     }
 
     if (MediaQuery.of(context).orientation == Orientation.portrait) {
-      initfontSizeProtrait = (MediaQuery.of(context).size.width - 30) / max + 8;
-      initfontSizeLandscape = (MediaQuery.of(context).size.height - 30) / max + 8;
+      initFontSizePortrait = (MediaQuery.of(context).size.width - 30) / max + 8;
+      initFontSizeLandscape = (MediaQuery.of(context).size.height - 30) / max + 8;
     } else {
-      initfontSizeProtrait = (MediaQuery.of(context).size.height - 30) / max + 8;
-      initfontSizeLandscape = (MediaQuery.of(context).size.width - 30) / max + 8;
+      initFontSizePortrait = (MediaQuery.of(context).size.height - 30) / max + 8;
+      initFontSizeLandscape = (MediaQuery.of(context).size.width - 30) / max + 8;
     }
 
     List<Map<String, dynamic>> favoritosQuery = await db.rawQuery('select * from favoritos where himno_id = ${widget.numero}');
@@ -383,7 +387,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     if (start) resumeVoces();
   }
 
-  void swithModes() async {
+  void switchModes() async {
     modoVoces = !modoVoces;
     if (switchModeController.value == 1.0) {
       await switchModeController.animateTo(0.0, curve: Curves.fastOutSlowIn);
@@ -483,8 +487,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget materialLayout() {
     bool smallDevice = MediaQuery.of(context).size.width < 400;
 
     List<Widget> controlesLayout = !smallDevice
@@ -690,14 +693,15 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           body: Stack(
             children: <Widget>[
               BodyHimno(
-                  alignment: prefs.getString('alignment'),
-                  estrofas: estrofas,
-                  initfontSizeProtrait: initfontSizeProtrait,
-                  initfontSizeLandscape: initfontSizeLandscape,
-                  switchValue: switchModeController.value,
-                  tema: tema,
-                  subTema: subTema,
-                  temaId: temaId),
+                alignment: prefs.getString('alignment'),
+                estrofas: estrofas,
+                initFontSizePortrait: initFontSizePortrait,
+                initFontSizeLandscape: initFontSizeLandscape,
+                switchValue: switchModeController.value,
+                tema: tema,
+                subTema: subTema,
+                temaId: temaId,
+              ),
 
               // Partitura de Himno
 
@@ -896,7 +900,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
                   child: FloatingActionButton(
                       key: UniqueKey(),
                       backgroundColor: modoVoces ? Colors.redAccent : Theme.of(context).accentColor,
-                      onPressed: swithModes,
+                      onPressed: switchModes,
                       child: Stack(
                         children: <Widget>[
                           Transform.scale(
@@ -914,5 +918,399 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
       return Scaffold(
         appBar: AppBar(),
       );
+  }
+
+  Widget cupertinoLayout() {
+    bool smallDevice = MediaQuery.of(context).orientation == Orientation.portrait;
+
+    List<Widget> controlesLayout = !smallDevice
+        ? [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                BotonVoz(
+                  voz: 'Soprano',
+                  activo: currentVoice == 0 || currentVoice == 4,
+                  onPressed: () => toggleVoice(0),
+                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
+                ),
+                BotonVoz(
+                  voz: 'Tenor',
+                  activo: currentVoice == 1 || currentVoice == 4,
+                  onPressed: () => toggleVoice(1),
+                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
+                ),
+                BotonVoz(
+                  voz: 'Contra Alto',
+                  activo: currentVoice == 2 || currentVoice == 4,
+                  onPressed: () => toggleVoice(2),
+                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
+                ),
+                BotonVoz(
+                  voz: 'Bajo',
+                  activo: currentVoice == 3 || currentVoice == 4,
+                  onPressed: () => toggleVoice(3),
+                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
+                ),
+              ],
+            )
+          ]
+        : [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                BotonVoz(
+                  voz: '   Soprano  ',
+                  activo: currentVoice == 0 || currentVoice == 4,
+                  onPressed: () => toggleVoice(0),
+                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
+                ),
+                BotonVoz(
+                  voz: '    Tenor    ',
+                  activo: currentVoice == 1 || currentVoice == 4,
+                  onPressed: () => toggleVoice(1),
+                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                BotonVoz(
+                  voz: 'Contra Alto',
+                  activo: currentVoice == 2 || currentVoice == 4,
+                  onPressed: () => toggleVoice(2),
+                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
+                ),
+                BotonVoz(
+                  voz: '     Bajo     ',
+                  activo: currentVoice == 3 || currentVoice == 4,
+                  onPressed: () => toggleVoice(3),
+                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
+                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
+                ),
+              ],
+            ),
+          ];
+
+    List<Widget> buttonLayout = [
+      VoicesProgressBar(
+        brightness: ScopedModel.of<TemaModel>(context).brightness,
+        currentProgress: currentProgress,
+        duration: totalDuration,
+        onDragStart: cancelSubscription,
+        smalldevice: smallDevice,
+        onSelected: (double progress) {
+          positionSubscription = audioVoces[currentVoice].onAudioPositionChanged.listen((Duration duration) {
+            setState(() {
+              currentProgress = duration.inMilliseconds / totalDuration;
+              currentDuration = duration;
+            });
+          });
+          completeSubscription = audioVoces[currentVoice].onPlayerCompletion.listen((_) {
+            setState(() {
+              start = false;
+              currentProgress = 0.0;
+            });
+          });
+          print(progress);
+          setState(() => currentProgress = progress);
+          vocesSeek(progress);
+        },
+      ),
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+        RawMaterialButton(
+          shape: CircleBorder(),
+          child: IconButton(
+            onPressed: () {
+              double newProgress = currentProgress - 0.1;
+              if (newProgress <= 0.0)
+                vocesSeek(0.0);
+              else
+                vocesSeek(currentProgress - 0.1);
+            },
+            icon: Icon(
+              Icons.fast_rewind,
+              color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+            ),
+          ),
+          onPressed: () {},
+        ),
+        start
+            ? RawMaterialButton(
+                shape: CircleBorder(),
+                child: IconButton(
+                  onPressed: pauseVoces,
+                  icon: Icon(
+                    Icons.pause,
+                    color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+                  ),
+                ),
+                onPressed: () {},
+              )
+            : RawMaterialButton(
+                shape: CircleBorder(),
+                child: IconButton(
+                  onPressed: !cargando
+                      ? () {
+                          resumeVoces();
+                        }
+                      : null,
+                  icon: Icon(
+                    Icons.play_arrow,
+                    color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+                  ),
+                ),
+                onPressed: () {},
+              ),
+        RawMaterialButton(
+          shape: CircleBorder(),
+          child: IconButton(
+              onPressed: () {
+                double newProgress = currentProgress + 0.1;
+                if (newProgress >= 1.0)
+                  vocesSeek(1.0);
+                else
+                  vocesSeek(currentProgress + 0.1);
+              },
+              icon: Icon(
+                Icons.fast_forward,
+                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+              )),
+          onPressed: () {},
+        ),
+      ])
+    ];
+
+    for (Widget widget in buttonLayout) controlesLayout.add(widget);
+
+    List<Widget> modalButtons = [
+      CupertinoActionSheetAction(
+        isDestructiveAction: descargado,
+        onPressed: () {
+          toggleDescargado();
+          Navigator.of(context).pop();
+        },
+        child: Text(descargado ? 'Eliminar' : 'Descargar',
+            style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black)),
+      ),
+    ];
+
+    if (vozDisponible) {
+      modalButtons.add(CupertinoActionSheetAction(
+        onPressed: () {
+          switchModes();
+          Navigator.of(context).pop();
+        },
+        child: Text(modoVoces ? 'Ocultar Voces' : 'Mostrar Voces',
+            style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black)),
+      ));
+    }
+
+    if (sheetAvailable) {
+      modalButtons.add(CupertinoActionSheetAction(
+        onPressed: () {
+          Future.delayed(Duration(milliseconds: 500)).then((_) => sheetController.reset());
+          setState(() => sheet = !sheet);
+          Navigator.of(context).pop();
+        },
+        child: Text(sheet ? 'Ocultar Partitura' : 'Mostrar Partitura',
+            style: TextStyle(color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark ? Colors.white : Colors.black)),
+      ));
+    }
+
+    return CupertinoPageScaffold(
+      backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
+      navigationBar: CupertinoNavigationBar(
+          transitionBetweenRoutes: true,
+          actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+          backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
+          middle: Text(
+            '${widget.numero} - ${widget.titulo}',
+            style: CupertinoTheme.of(context)
+                .textTheme
+                .textStyle
+                .copyWith(color: ScopedModel.of<TemaModel>(context).getTabTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
+          ),
+          trailing: prefs != null
+              ? Transform.translate(
+                  offset: Offset(20.0, 0.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      CupertinoButton(
+                        onPressed: toggleFavorito,
+                        padding: EdgeInsets.only(bottom: 2.0),
+                        child: favorito
+                            ? Icon(
+                                Icons.star,
+                                size: 30.0,
+                              )
+                            : Icon(
+                                Icons.star_border,
+                                size: 30.0,
+                              ),
+                      ),
+                      CupertinoButton(
+                        disabledColor: Colors.black.withOpacity(0.5),
+                        onPressed: vozDisponible || sheetAvailable
+                            ? () {
+                                showCupertinoModalPopup(
+                                    context: context,
+                                    builder: (BuildContext context) => CupertinoActionSheet(
+                                          cancelButton: CupertinoActionSheetAction(
+                                            isDestructiveAction: true,
+                                            onPressed: () => Navigator.of(context).pop(),
+                                            child: Text('Cancelar'),
+                                          ),
+                                          actions: modalButtons,
+                                        ));
+                              }
+                            : null,
+                        padding: EdgeInsets.only(bottom: 2.0),
+                        child: Icon(
+                          Icons.more_vert,
+                          size: 30.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : null),
+      child: prefs != null
+          ? Stack(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: switchModeController.value * (smallDevice ? 185.0 : 140.0)),
+                  child: BodyHimno(
+                      alignment: prefs.getString('alignment'),
+                      estrofas: estrofas,
+                      initFontSizePortrait: initFontSizePortrait,
+                      initFontSizeLandscape: initFontSizeLandscape,
+                      tema: tema,
+                      subTema: subTema,
+                      temaId: temaId),
+                ),
+                AnimatedContainer(
+                    curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
+                    duration: Duration(milliseconds: sheet ? 500 : 1500),
+                    transform: Matrix4.translationValues(sheet ? 0.0 : 5000, 0.0, 0.0),
+                    height: MediaQuery.of(context).size.height - (modoVoces ? 200 : 0),
+                    // transform: Matrix4.translationValues(
+                    //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
+                    //   sheetOutDragging ? sheetOffset :
+                    //   sheet ? 0.0 :MediaQuery.of(context).size.width,
+                    //   0.0,
+                    //   0.0
+                    // ),
+                    child: OrientationBuilder(
+                      builder: (BuildContext context, Orientation orientation) {
+                        if (currentOrientation == null) {
+                          currentOrientation = orientation;
+                        }
+                        if (currentOrientation != orientation) {
+                          currentOrientation = null;
+                          sheetController = PhotoViewController();
+                          sheet = false;
+                        }
+                        return currentOrientation == null
+                            ? Container()
+                            : !sheetReady
+                                ? Container(
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    color: Colors.white,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        CupertinoActivityIndicator(),
+                                        SizedBox(
+                                          height: 20.0,
+                                        ),
+                                        Text(
+                                          descargado ? 'Cargando partitura' : 'Descargando partitura',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                          textScaleFactor: 1.2,
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                : PhotoView(
+                                    controller: sheetController,
+                                    imageProvider: FileImage(sheetFile),
+                                    basePosition: Alignment.topCenter,
+                                    scaleStateController: scaleController,
+                                    initialScale:
+                                        orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
+                                    loadingChild: Container(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      color: Colors.white,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          CupertinoActivityIndicator(),
+                                          SizedBox(
+                                            height: 20.0,
+                                          ),
+                                          Text(
+                                            descargado ? 'Cargando partitura' : 'Descargando partitura',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                            textScaleFactor: 1.2,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    backgroundDecoration: BoxDecoration(color: Colors.white));
+                      },
+                    )),
+                Align(
+                    alignment: FractionalOffset.bottomCenter,
+                    child: FractionalTranslation(
+                      translation: Offset(0.0, 1.0 - switchModeController.value),
+                      child: Card(
+                          margin: EdgeInsets.all(0.0),
+                          color: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
+                          elevation: 10.0,
+                          child: !cargando
+                              ? Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 5.0),
+                                  child:
+                                      Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: controlesLayout))
+                              : Container(
+                                  height: smallDevice ? 185.0 : 140.0,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                                      child: CupertinoActivityIndicator(
+                                        animating: true,
+                                        radius: 20.0,
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                    ))
+              ],
+            )
+          : Container(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return isAndroid() ? materialLayout() : cupertinoLayout();
   }
 }

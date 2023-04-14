@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:Himnario/helpers/isAndroid.dart';
 import 'package:Himnario/models/tema.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ Route getPageRoute(
   Widget page, {
   TemaModel tema,
 }) {
-  if (Platform.isAndroid) {
+  if (isAndroid()) {
     return MaterialPageRoute(
       builder: (BuildContext context) => page,
     );

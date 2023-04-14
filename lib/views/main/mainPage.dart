@@ -6,11 +6,10 @@ import 'package:Himnario/components/pageRoute.dart';
 import 'package:Himnario/db/db.dart';
 import 'package:Himnario/helpers/isAndroid.dart';
 import 'package:Himnario/helpers/showSimpleDialog.dart';
+import 'package:Himnario/main.dart';
 import 'package:Himnario/models/categorias.dart';
 import 'package:Himnario/models/himnos.dart';
 import 'package:Himnario/models/layout.dart';
-import 'package:Himnario/views/main/corosTab.dart';
-import 'package:Himnario/views/main/himnosTab.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,14 +22,14 @@ import 'package:package_info/package_info.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:Himnario/material/components/corosScroller.dart';
-import 'package:Himnario/material/himnos/tema.dart';
-import 'package:Himnario/material/buscador/buscador.dart';
-import 'package:Himnario/material/ajustesPage/ajustes_page.dart';
-import 'package:Himnario/material/favoritosPage/favoritos_page.dart';
-import 'package:Himnario/material/descargadosPage/descargados_page.dart';
+import 'package:Himnario/views/ajustes/ajustes.dart';
+import 'package:Himnario/views/buscador/buscador.dart';
+import 'package:Himnario/views/descargados/descargados.dart';
+import 'package:Himnario/views/favoritos/favoritos.dart';
+import 'package:Himnario/views/main/corosTab.dart';
+import 'package:Himnario/views/main/himnosTab.dart';
 import 'package:Himnario/views/quickBuscador/quickBuscador.dart';
-import 'package:Himnario/material/vocesDisponibles/voces_disponibles.dart';
+import 'package:Himnario/views/vocesDisponibles/voces_disponibles.dart';
 
 import 'package:Himnario/api/api.dart';
 import 'package:Himnario/models/tema.dart';
@@ -46,7 +45,7 @@ class MainPage extends StatefulWidget {
   _MainPageState createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage> with RouteAware {
   List<Categoria> categorias;
   List<Himno> coros;
   List<bool> expanded;
@@ -264,6 +263,19 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     super.dispose();
+    routeObserver.unsubscribe(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context));
+  }
+
+  @override
+  void didPopNext() {
+    print('didPopNext');
+    fetchCategorias();
   }
 
   List<MainMenuTile> mainMenuTiles(BuildContext context) {
@@ -273,7 +285,7 @@ class _MainPageState extends State<MainPage> {
         title: "Favoritos",
         onTap: () async {
           Navigator.pop(context);
-          getPageRoute(FavoritosPage(), tema: tema);
+          Navigator.push(context, getPageRoute(FavoritosPage(), tema: tema));
         },
       ),
       MainMenuTile(
@@ -281,7 +293,7 @@ class _MainPageState extends State<MainPage> {
         title: "Himnos Descargados",
         onTap: () async {
           Navigator.pop(context);
-          getPageRoute(DescargadosPage(), tema: tema);
+          Navigator.push(context, getPageRoute(DescargadosPage(), tema: tema));
         },
       ),
       MainMenuTile(
@@ -289,7 +301,7 @@ class _MainPageState extends State<MainPage> {
         title: "Voces Disponibles",
         onTap: () async {
           Navigator.pop(context);
-          getPageRoute(DisponiblesPage(), tema: tema);
+          Navigator.push(context, getPageRoute(DisponiblesPage(), tema: tema));
         },
       ),
       MainMenuTile(
@@ -297,7 +309,7 @@ class _MainPageState extends State<MainPage> {
         title: "Ajustes",
         onTap: () {
           Navigator.pop(context);
-          getPageRoute(AjustesPage(), tema: tema);
+          Navigator.push(context, getPageRoute(AjustesPage(), tema: tema));
         },
       ),
       MainMenuTile(

@@ -1,10 +1,10 @@
 import 'package:Himnario/helpers/isAndroid.dart';
 import 'package:Himnario/models/tema.dart';
+import 'package:Himnario/views/coro/coro.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:Himnario/models/himnos.dart';
-import 'package:Himnario/material/coroPage/coro.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class CorosScroller extends StatefulWidget {
@@ -30,7 +30,7 @@ class CorosScroller extends StatefulWidget {
 
 class _CorosScrollerState extends State<CorosScroller> {
   ScrollController scrollController;
-  bool dragging;
+  bool dragging = false;
   double scrollPosition;
   double iPhoneXPadding;
 
@@ -58,7 +58,6 @@ class _CorosScrollerState extends State<CorosScroller> {
     });
 
     scrollPosition = isAndroid() ? (105.0 - 90.0) : (72.0 + iPhoneXPadding);
-    dragging = false;
   }
 
   @override

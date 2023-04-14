@@ -1,7 +1,7 @@
 class VoicesApi {
   static String _base = 'http://104.131.104.212:8085';
 
-  static String voicesAvaliable() => _base + '/disponibles';
+  static String voicesAvailable() => _base + '/disponibles';
   static String voiceAvailable(int number) => _base + '/himno/$number/Soprano/disponible';
   static String getVoice(int number, String voice) => _base + '/himno/$number/$voice';
   static String getVoiceDuration(int number, String voice) => _base + '/himno/$number/$voice/duracion';
