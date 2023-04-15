@@ -2,7 +2,7 @@ import 'package:Himnario/helpers/isAndroid.dart';
 import 'package:Himnario/models/himnos.dart';
 import 'package:flutter/material.dart';
 
-import './estructura_himno.dart';
+import 'estructuraHimno.dart';
 
 class BodyHimno extends StatefulWidget {
   final String alignment;

@@ -1,4 +1,5 @@
 import 'package:Himnario/helpers/isAndroid.dart';
+import 'package:Himnario/helpers/smallDevice.dart';
 import 'package:flutter/material.dart';
 
 class VoicesProgressBar extends StatefulWidget {
@@ -6,7 +7,6 @@ class VoicesProgressBar extends StatefulWidget {
   final int duration;
   final Function onSelected;
   final Function onDragStart;
-  final bool smalldevice;
   final Brightness brightness;
 
   VoicesProgressBar({
@@ -14,7 +14,6 @@ class VoicesProgressBar extends StatefulWidget {
     this.duration,
     this.onSelected,
     this.onDragStart,
-    this.smalldevice,
     this.brightness,
   });
 
@@ -85,7 +84,6 @@ class _VoicesProgressBarState extends State<VoicesProgressBar> {
           brightness: widget.brightness,
           progress: dragging ? draggingProgress : widget.currentProgress,
           dragging: dragging,
-          smalldevice: widget.smalldevice,
           duration: widget.duration,
           context: context,
         ),
@@ -107,7 +105,6 @@ class CustomSlider extends CustomPainter {
   Paint geryColorPaint;
   TextPainter text;
   BuildContext context;
-  bool smalldevice;
   Brightness brightness;
 
   CustomSlider({
@@ -115,7 +112,6 @@ class CustomSlider extends CustomPainter {
     this.context,
     this.dragging,
     this.duration,
-    this.smalldevice,
     this.brightness,
   }) {
     duration = duration == double.nan || duration == double.infinity ? 0.0 : duration;
@@ -147,7 +143,7 @@ class CustomSlider extends CustomPainter {
     canvas.drawLine(Offset(0.0, position), Offset(currentProgress, position), primaryColorPaint);
     canvas.drawLine(Offset(currentProgress, position), Offset(size.width, position), geryColorPaint);
     if (dragging) {
-      if (!isAndroid() || smalldevice)
+      if (!isAndroid() || smallDevice(context))
         currentProgress = currentProgress > size.width - 90.0 ? size.width - 90.0 : currentProgress;
       else
         currentProgress = currentProgress > size.width - 160.0 ? size.width - 160.0 : currentProgress;

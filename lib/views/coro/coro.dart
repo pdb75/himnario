@@ -1,5 +1,6 @@
 import 'package:Himnario/db/db.dart';
 import 'package:Himnario/helpers/isAndroid.dart';
+import 'package:Himnario/helpers/smallDevice.dart';
 import 'package:Himnario/models/himnos.dart';
 import 'package:Himnario/models/tema.dart';
 import 'package:flutter/cupertino.dart';
@@ -122,6 +123,84 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
 
   void stopScroll() => scrollController.animateTo(scrollController.offset, curve: Curves.linear, duration: Duration(milliseconds: 1));
 
+  void toggleAcordes() {
+    acordes = !acordes;
+    if (fontController.value == 1.0) {
+      fontController.animateTo(0.0, curve: Curves.fastOutSlowIn);
+      if (transposeMode) transposeMode = false;
+      if (scrollMode) {
+        stopScroll();
+        autoScroll = false;
+        scrollMode = false;
+      }
+      setState(() {});
+    } else {
+      fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
+    }
+
+    if (!isAndroid()) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void toggleTransponer() {
+    if (!transposeMode) if (fontController.value == 0.1) {
+      fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
+    }
+    ;
+
+    if (scrollMode) {
+      stopScroll();
+      autoScroll = false;
+      scrollMode = false;
+    }
+
+    setState(() => transposeMode = !transposeMode);
+
+    if (!isAndroid()) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void toggleOriginalKey() {
+    applyTranspose(-transpose);
+
+    if (!isAndroid()) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void toggleNotation() {
+    String currentNotation = prefs.getString('notation') ?? 'latina';
+    prefs.setString('notation', currentNotation == 'latina' ? 'americana' : 'latina');
+
+    if (!transposeMode && fontController.value == 0.1) {
+      fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
+    }
+    setState(() {});
+
+    if (!isAndroid()) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void toggleScrollMode() {
+    if (scrollController.position.maxScrollExtent > 0.0) {
+      if (!scrollMode && fontController.value == 0.1) {
+        fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
+      }
+
+      if (transposeMode) {
+        transposeMode = false;
+      }
+      setState(() => scrollMode = !scrollMode);
+
+      if (!isAndroid()) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
   Widget materialLayout(BuildContext context) {
     if (prefs != null) {
       return Scaffold(
@@ -141,43 +220,19 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                 onSelected: (int e) {
                   switch (e) {
                     case 0:
-                      acordes = !acordes;
-                      if (fontController.value == 1.0) {
-                        fontController.animateTo(0.0, curve: Curves.fastOutSlowIn);
-                        if (transposeMode) transposeMode = false;
-                        if (scrollMode) {
-                          stopScroll();
-                          autoScroll = false;
-                          scrollMode = false;
-                        }
-                        setState(() {});
-                      } else
-                        fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
+                      toggleAcordes();
                       break;
                     case 1:
-                      if (!transposeMode) if (fontController.value == 0.1) fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
-                      if (scrollMode) {
-                        stopScroll();
-                        autoScroll = false;
-                        scrollMode = false;
-                      }
-                      setState(() => transposeMode = !transposeMode);
+                      toggleTransponer();
                       break;
                     case 2:
-                      applyTranspose(-transpose);
+                      toggleOriginalKey();
                       break;
                     case 3:
-                      String currentNotation = prefs.getString('notation') ?? 'latina';
-                      prefs.setString('notation', currentNotation == 'latina' ? 'americana' : 'latina');
-                      if (!transposeMode) if (fontController.value == 0.1) fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
-                      setState(() {});
+                      toggleNotation();
                       break;
                     case 4:
-                      if (!scrollMode) if (fontController.value == 0.1) fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
-                      if (transposeMode) {
-                        transposeMode = false;
-                      }
-                      setState(() => scrollMode = !scrollMode);
+                      toggleScrollMode();
                       break;
                     default:
                   }
@@ -302,12 +357,12 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                   children: <Widget>[
                     FlatButton.icon(
                       icon: Icon(Icons.arrow_drop_down),
-                      label: Text('Bajar Tono'),
+                      label: Text(smallDevice(context) ? '-' : 'Bajar Tono'),
                       onPressed: () => applyTranspose(-1),
                     ),
                     FlatButton.icon(
                       icon: Icon(Icons.arrow_drop_up),
-                      label: Text('Subir Tono'),
+                      label: Text(smallDevice(context) ? '+' : 'Subir Tono'),
                       onPressed: () => applyTranspose(1),
                     ),
                     OutlineButton(
@@ -327,9 +382,9 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                 width: double.infinity,
                 decoration: BoxDecoration(boxShadow: <BoxShadow>[
                   BoxShadow(
-                      blurRadius: 20.0,
-                      // spreadRadius: 1.0,
-                      offset: Offset(0.0, 18.0))
+                    blurRadius: 20.0,
+                    offset: Offset(0.0, 18.0),
+                  ),
                 ], color: Theme.of(context).scaffoldBackgroundColor),
                 child: ButtonBar(
                   alignment: MainAxisAlignment.spaceEvenly,
@@ -438,65 +493,40 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                                             ),
                                             actions: <Widget>[
                                               CupertinoActionSheetAction(
-                                                onPressed: () {
-                                                  acordes = !acordes;
-                                                  if (fontController.value == 1.0) {
-                                                    fontController.animateTo(0.0, curve: Curves.fastOutSlowIn);
-                                                    if (transposeMode) transposeMode = false;
-                                                    if (scrollMode) {
-                                                      stopScroll();
-                                                      autoScroll = false;
-                                                      scrollMode = false;
-                                                    }
-                                                    setState(() {});
-                                                  } else
-                                                    fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text((fontController.value == 1 ? 'Ocultar' : 'Mostrar') + ' Acordes',
-                                                    style: TextStyle(
-                                                        color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
-                                                            ? Colors.white
-                                                            : Colors.black)),
+                                                onPressed: toggleAcordes,
+                                                child: Text(
+                                                  (fontController.value == 1 ? 'Ocultar' : 'Mostrar') + ' Acordes',
+                                                  style: TextStyle(
+                                                    color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                                  ),
+                                                ),
                                               ),
                                               CupertinoActionSheetAction(
-                                                onPressed: () {
-                                                  if (!transposeMode) if (fontController.value == 0.1)
-                                                    fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
-                                                  if (scrollMode) {
-                                                    stopScroll();
-                                                    autoScroll = false;
-                                                    scrollMode = false;
-                                                  }
-                                                  setState(() => transposeMode = !transposeMode);
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Transponer',
-                                                    style: TextStyle(
-                                                        color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
-                                                            ? Colors.white
-                                                            : Colors.black)),
+                                                onPressed: toggleTransponer,
+                                                child: Text(
+                                                  'Transponer',
+                                                  style: TextStyle(
+                                                    color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                                  ),
+                                                ),
                                               ),
                                               CupertinoActionSheetAction(
-                                                onPressed: () {
-                                                  applyTranspose(-transpose);
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Tono Original',
-                                                    style: TextStyle(
-                                                        color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
-                                                            ? Colors.white
-                                                            : Colors.black)),
+                                                onPressed: toggleOriginalKey,
+                                                child: Text(
+                                                  'Tono Original',
+                                                  style: TextStyle(
+                                                    color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                                  ),
+                                                ),
                                               ),
                                               CupertinoActionSheetAction(
-                                                onPressed: () {
-                                                  String currentNotation = prefs.getString('notation') ?? 'latina';
-                                                  prefs.setString('notation', currentNotation == 'latina' ? 'americana' : 'latina');
-                                                  if (!transposeMode) if (fontController.value == 0.1)
-                                                    fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
-                                                  setState(() {});
-                                                  Navigator.of(context).pop();
-                                                },
+                                                onPressed: toggleNotation,
                                                 child: Text(
                                                     'Notación ' +
                                                         (prefs.getString('notation') == null || prefs.getString('notation') == 'latina'
@@ -508,22 +538,15 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                                                             : Colors.black)),
                                               ),
                                               CupertinoActionSheetAction(
-                                                onPressed: scrollController.position.maxScrollExtent > 0.0
-                                                    ? () {
-                                                        if (!scrollMode) if (fontController.value == 0.1)
-                                                          fontController.animateTo(1.0, curve: Curves.linearToEaseOut);
-                                                        if (transposeMode) {
-                                                          transposeMode = false;
-                                                        }
-                                                        setState(() => scrollMode = !scrollMode);
-                                                        Navigator.of(context).pop();
-                                                      }
-                                                    : () {},
-                                                child: Text('Scroll Automático',
-                                                    style: TextStyle(
-                                                        color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
-                                                            ? Colors.white
-                                                            : Colors.black)),
+                                                onPressed: toggleScrollMode,
+                                                child: Text(
+                                                  'Scroll Automático',
+                                                  style: TextStyle(
+                                                    color: WidgetsBinding.instance.window.platformBrightness == Brightness.dark
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                                  ),
+                                                ),
                                               ),
                                             ],
                                           ));
@@ -581,10 +604,11 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                                   color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
                                 ),
                                 Text(
-                                  'Bajar Tono',
+                                  smallDevice(context) ? '-' : 'Bajar Tono',
                                   style: DefaultTextStyle.of(context).style.copyWith(
-                                      color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-                                      fontFamily: ScopedModel.of<TemaModel>(context).font),
+                                        color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                                        fontFamily: ScopedModel.of<TemaModel>(context).font,
+                                      ),
                                 )
                               ],
                             ),
@@ -598,10 +622,13 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
                                   Icons.arrow_drop_up,
                                   color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
                                 ),
-                                Text('Subir Tono',
-                                    style: DefaultTextStyle.of(context).style.copyWith(
+                                Text(
+                                  smallDevice(context) ? '+' : 'Subir Tono',
+                                  style: DefaultTextStyle.of(context).style.copyWith(
                                         color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-                                        fontFamily: ScopedModel.of<TemaModel>(context).font))
+                                        fontFamily: ScopedModel.of<TemaModel>(context).font,
+                                      ),
+                                )
                               ],
                             ),
                             onPressed: () => applyTranspose(1),

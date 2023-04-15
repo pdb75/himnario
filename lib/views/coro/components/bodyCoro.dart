@@ -1,7 +1,7 @@
 import 'package:Himnario/models/himnos.dart';
 import 'package:flutter/material.dart';
 
-import './estructura_Coro.dart';
+import 'estructuraCoro.dart';
 
 class BodyCoro extends StatefulWidget {
   final String alignment;

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:Himnario/helpers/isAndroid.dart';
+import 'package:Himnario/helpers/smallDevice.dart';
 import 'package:Himnario/models/himnos.dart';
 import 'package:Himnario/models/tema.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,7 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:photo_view/photo_view.dart';
 
 import './components/bodyHimno.dart';
-import './components/boton_voz.dart';
+import 'components/botonVoz.dart';
 import './components/slider.dart';
 
 import 'package:Himnario/api/api.dart';
@@ -488,9 +489,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
   }
 
   Widget materialLayout() {
-    bool smallDevice = MediaQuery.of(context).size.width < 400;
-
-    List<Widget> controlesLayout = !smallDevice
+    List<Widget> controlesLayout = !smallDevice(context)
         ? [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -556,7 +555,6 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
         currentProgress: currentProgress,
         duration: totalDuration,
         onDragStart: cancelSubscription,
-        smalldevice: smallDevice,
         onSelected: (double progress) {
           positionSubscription = audioVoces[currentVoice].onAudioPositionChanged.listen((Duration duration) {
             setState(() {
@@ -878,7 +876,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
                                 padding: EdgeInsets.symmetric(vertical: 5.0),
                                 child: Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: controlesLayout))
                             : Container(
-                                height: smallDevice ? 185.0 : 140.0,
+                                height: smallDevice(context) ? 185.0 : 140.0,
                                 child: Center(
                                   child: Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 20.0),
@@ -896,7 +894,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           ),
           floatingActionButton: vozDisponible
               ? Padding(
-                  padding: EdgeInsets.only(bottom: smallDevice ? switchModeController.value * 175 : switchModeController.value * 130),
+                  padding: EdgeInsets.only(bottom: smallDevice(context) ? switchModeController.value * 175 : switchModeController.value * 130),
                   child: FloatingActionButton(
                       key: UniqueKey(),
                       backgroundColor: modoVoces ? Colors.redAccent : Theme.of(context).accentColor,
@@ -921,9 +919,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
   }
 
   Widget cupertinoLayout() {
-    bool smallDevice = MediaQuery.of(context).orientation == Orientation.portrait;
-
-    List<Widget> controlesLayout = !smallDevice
+    List<Widget> controlesLayout = !smallDevice(context)
         ? [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1006,7 +1002,6 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
         currentProgress: currentProgress,
         duration: totalDuration,
         onDragStart: cancelSubscription,
-        smalldevice: smallDevice,
         onSelected: (double progress) {
           positionSubscription = audioVoces[currentVoice].onAudioPositionChanged.listen((Duration duration) {
             setState(() {
@@ -1188,7 +1183,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           ? Stack(
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.only(bottom: switchModeController.value * (smallDevice ? 185.0 : 140.0)),
+                  padding: EdgeInsets.only(bottom: switchModeController.value * (smallDevice(context) ? 185.0 : 140.0)),
                   child: BodyHimno(
                       alignment: prefs.getString('alignment'),
                       estrofas: estrofas,
@@ -1291,7 +1286,7 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
                                   child:
                                       Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: controlesLayout))
                               : Container(
-                                  height: smallDevice ? 185.0 : 140.0,
+                                  height: smallDevice(context) ? 185.0 : 140.0,
                                   child: Center(
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 20.0),
