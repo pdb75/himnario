@@ -28,6 +28,7 @@ class _FavoritosPageState extends State<FavoritosPage> with RouteAware {
 
   void fetchData() async {
     setState(() => cargando = true);
+    himnos = [];
 
     List<Map<String, dynamic>> data =
         await DB.rawQuery('select * from himnos join favoritos on favoritos.himno_id = himnos.id order by himnos.id ASC');

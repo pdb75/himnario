@@ -90,56 +90,62 @@ class _ScrollerState extends State<Scroller> {
                 key: PageStorageKey('Scroller Tema'),
                 controller: scrollController,
                 itemCount: widget.himnos.length,
-                itemBuilder: (BuildContext context, int index) => Container(
-                      color: (scrollPosition - 15) ~/ ((MediaQuery.of(context).size.height - 129) / length) == index && dragging
-                          ? (Theme.of(context).brightness == Brightness.light ? Theme.of(context).primaryColor : Theme.of(context).accentColor)
-                          : Theme.of(context).scaffoldBackgroundColor,
-                      child: ListTile(
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) => widget.himnos[index].numero <= 517
-                                  ? HimnoPage(
-                                      numero: widget.himnos[index].numero,
-                                      titulo: widget.himnos[index].titulo,
-                                    )
-                                  : CoroPage(
-                                      numero: widget.himnos[index].numero,
-                                      titulo: widget.himnos[index].titulo,
-                                      transpose: widget.himnos[index].transpose,
-                                    ),
-                            ),
-                          );
-                          // scrollPosition = 105.0 - 90.0;
-                        },
-                        leading: widget.himnos[index].favorito
-                            ? Icon(
-                                Icons.star,
-                                color: Theme.of(context).accentColor,
-                              )
-                            : null,
-                        title: Container(
-                          width: widget.himnos[index].favorito ? MediaQuery.of(context).size.width - 90 : MediaQuery.of(context).size.width - 50,
-                          child: Text(
-                            ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
-                            softWrap: true,
-                            style: Theme.of(context).textTheme.subhead.copyWith(
-                                color: (scrollPosition - 15) ~/ ((MediaQuery.of(context).size.height - 129) / length) == index && dragging
-                                    ? (Theme.of(context).brightness == Brightness.light
-                                        ? Theme.of(context).primaryIconTheme.color
-                                        : Theme.of(context).accentTextTheme.body1.color)
-                                    : Theme.of(context).textTheme.subhead.color),
+                itemBuilder: (BuildContext context, int index) {
+                  bool selected = (scrollPosition - 15) ~/ ((MediaQuery.of(context).size.height - 129) / length) == index;
+                  Color color = selected && dragging
+                      ? (Theme.of(context).brightness == Brightness.light
+                          ? Theme.of(context).primaryIconTheme.color
+                          : Theme.of(context).accentTextTheme.body1.color)
+                      : Theme.of(context).textTheme.subhead.color;
+
+                  return Container(
+                    color: selected && dragging
+                        ? (Theme.of(context).brightness == Brightness.light ? Theme.of(context).primaryColor : Theme.of(context).accentColor)
+                        : Theme.of(context).scaffoldBackgroundColor,
+                    child: ListTile(
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => widget.himnos[index].numero <= 517
+                                ? HimnoPage(
+                                    numero: widget.himnos[index].numero,
+                                    titulo: widget.himnos[index].titulo,
+                                  )
+                                : CoroPage(
+                                    numero: widget.himnos[index].numero,
+                                    titulo: widget.himnos[index].titulo,
+                                    transpose: widget.himnos[index].transpose,
+                                  ),
                           ),
+                        );
+                        // scrollPosition = 105.0 - 90.0;
+                      },
+                      leading: widget.himnos[index].favorito
+                          ? Icon(
+                              Icons.star,
+                              color: color,
+                            )
+                          : null,
+                      title: Container(
+                        width: widget.himnos[index].favorito ? MediaQuery.of(context).size.width - 90 : MediaQuery.of(context).size.width - 50,
+                        child: Text(
+                          ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
+                          softWrap: true,
+                          style: Theme.of(context).textTheme.subhead.copyWith(color: color),
                         ),
-                        trailing: widget.himnos[index].descargado
-                            ? Icon(
-                                Icons.get_app,
-                                color: Theme.of(context).accentColor,
-                              )
-                            : null,
                       ),
-                    )),
+                      trailing: widget.himnos[index].descargado
+                          ? Icon(
+                              Icons.get_app,
+                              color: color,
+                            )
+                          : null,
+                    ),
+                  );
+                },
+              ),
+        // We only render the side scrollbar if the list overflows the screen
         widget.himnos.length * 60.0 > MediaQuery.of(context).size.height
             ? Align(
                 alignment: FractionalOffset.centerRight,
@@ -229,89 +235,80 @@ class _ScrollerState extends State<Scroller> {
                 key: PageStorageKey('Scroller Tema'),
                 controller: scrollController,
                 itemCount: widget.himnos.length,
-                itemBuilder: (BuildContext context, int index) => Container(
-                      color: (scrollPosition - 72.0 - iPhoneXPadding) ~/
-                                      ((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5) /
-                                          length) ==
-                                  index &&
-                              dragging
-                          ? tema.mainColor
-                          : tema.getScaffoldBackgroundColor(),
-                      height: 55.0,
-                      child: CupertinoButton(
-                        onPressed: () async {
-                          print(widget.himnos[index].numero > 517);
-                          await Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (BuildContext context) => widget.himnos[index].numero <= 517
-                                  ? ScopedModel<TemaModel>(
-                                      model: tema,
-                                      child: HimnoPage(
-                                        numero: widget.himnos[index].numero,
-                                        titulo: widget.himnos[index].titulo,
-                                      ),
-                                    )
-                                  : ScopedModel<TemaModel>(
-                                      model: tema,
-                                      child: CoroPage(
-                                        numero: widget.himnos[index].numero,
-                                        titulo: widget.himnos[index].titulo,
-                                        transpose: widget.himnos[index].transpose,
-                                      ),
+                itemBuilder: (BuildContext context, int index) {
+                  bool selected = (scrollPosition - 72.0 - iPhoneXPadding) ~/
+                          ((MediaQuery.of(context).size.height - 85.0 - widget.iPhoneXBottomPadding - 72.0 - iPhoneXPadding + 0.5) / length) ==
+                      index;
+
+                  return Container(
+                    color: selected && dragging ? tema.mainColor : tema.getScaffoldBackgroundColor(),
+                    height: 55.0,
+                    child: CupertinoButton(
+                      onPressed: () async {
+                        print(widget.himnos[index].numero > 517);
+                        await Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (BuildContext context) => widget.himnos[index].numero <= 517
+                                ? ScopedModel<TemaModel>(
+                                    model: tema,
+                                    child: HimnoPage(
+                                      numero: widget.himnos[index].numero,
+                                      titulo: widget.himnos[index].titulo,
                                     ),
-                            ),
-                          );
-                          // scrollPosition = 105.0 - 90.0;
-                        },
-                        child: Stack(
-                          children: <Widget>[
-                            Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
-                                  softWrap: true,
-                                  textAlign: TextAlign.start,
-                                  style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                                        color: (scrollPosition - 72.0 - iPhoneXPadding) ~/
-                                                        ((MediaQuery.of(context).size.height -
-                                                                85.0 -
-                                                                widget.iPhoneXBottomPadding -
-                                                                72.0 -
-                                                                iPhoneXPadding +
-                                                                0.5) /
-                                                            length) ==
-                                                    index &&
-                                                dragging
-                                            ? tema.mainColorContrast
-                                            : tema.getScaffoldTextColor(),
-                                        fontFamily: ScopedModel.of<TemaModel>(context).font,
-                                      ),
-                                )),
-                            Align(
+                                  )
+                                : ScopedModel<TemaModel>(
+                                    model: tema,
+                                    child: CoroPage(
+                                      numero: widget.himnos[index].numero,
+                                      titulo: widget.himnos[index].titulo,
+                                      transpose: widget.himnos[index].transpose,
+                                    ),
+                                  ),
+                          ),
+                        );
+                        // scrollPosition = 105.0 - 90.0;
+                      },
+                      child: Stack(
+                        children: <Widget>[
+                          Align(
                               alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  widget.himnos[index].favorito
-                                      ? Icon(
-                                          Icons.star,
-                                          color: CupertinoTheme.of(context).textTheme.textStyle.color,
-                                        )
-                                      : Container(),
-                                  widget.himnos[index].descargado
-                                      ? Icon(
-                                          Icons.get_app,
-                                          color: CupertinoTheme.of(context).textTheme.textStyle.color,
-                                        )
-                                      : Container()
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
+                              child: Text(
+                                ((widget.himnos[index].numero > 517 ? '' : '${widget.himnos[index].numero} - ') + '${widget.himnos[index].titulo}'),
+                                softWrap: true,
+                                textAlign: TextAlign.start,
+                                style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                                      color: selected && dragging ? tema.mainColorContrast : tema.getScaffoldTextColor(),
+                                      fontFamily: ScopedModel.of<TemaModel>(context).font,
+                                    ),
+                              )),
+                          Align(
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                widget.himnos[index].favorito
+                                    ? Icon(
+                                        Icons.star,
+                                        color: selected && dragging ? tema.mainColorContrast : tema.getScaffoldTextColor(),
+                                      )
+                                    : Container(),
+                                widget.himnos[index].descargado
+                                    ? Icon(
+                                        Icons.get_app,
+                                        color: selected && dragging ? tema.mainColorContrast : tema.getScaffoldTextColor(),
+                                      )
+                                    : Container()
+                              ],
+                            ),
+                          )
+                        ],
                       ),
-                    )),
+                    ),
+                  );
+                },
+              ),
+        // We only render the side scrollbar if the list overflows the screen
         widget.himnos.length * 60.0 > MediaQuery.of(context).size.height
             ? Align(
                 alignment: FractionalOffset.centerRight,

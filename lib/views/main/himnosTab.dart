@@ -30,7 +30,7 @@ class _HimnosTabState extends State<HimnosTab> {
   void didUpdateWidget(HimnosTab oldWidget) {
     final tema = isAndroid() ? null : ScopedModel.of<TemaModel>(context);
 
-    if (widget.categorias.isNotEmpty && oldWidget.categorias.length != widget.categorias.length) {
+    if (widget.categorias.isNotEmpty && listTiles.isEmpty) {
       listTiles = [];
 
       // Todos

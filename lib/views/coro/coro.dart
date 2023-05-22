@@ -201,6 +201,209 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
     }
   }
 
+  Widget renderBody() {
+    return Padding(
+      padding: EdgeInsets.only(bottom: transposeMode || scrollMode ? 40.0 : 0.0),
+      child: BodyCoro(
+        scrollController: scrollController,
+        stopScroll: () {
+          stopScroll();
+          setState(() => autoScroll = false);
+        },
+        alignment: prefs.getString('alignment'),
+        estrofas: estrofas,
+        initFontSizePortrait: initFontSizePortrait,
+        initFontSizeLandscape: initFontSizeLandscape,
+        acordes: acordes,
+        animation: fontController.value,
+        notation: prefs.getString('notation') ?? 'latino',
+      ),
+    );
+  }
+
+  Widget renderTransposingBar() {
+    Widget _materialBar() => ButtonBar(
+          alignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            FlatButton.icon(
+              icon: Icon(Icons.arrow_drop_down),
+              label: Text(smallDevice(context) ? '-' : 'Bajar Tono'),
+              onPressed: () => applyTranspose(-1),
+            ),
+            FlatButton.icon(
+              icon: Icon(Icons.arrow_drop_up),
+              label: Text(smallDevice(context) ? '+' : 'Subir Tono'),
+              onPressed: () => applyTranspose(1),
+            ),
+            OutlineButton(
+              child: Text('Ok'),
+              onPressed: () => setState(() => transposeMode = !transposeMode),
+            )
+          ],
+        );
+
+    Widget _cupertinoBar() => ButtonBar(
+          alignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            CupertinoButton(
+              padding: EdgeInsets.only(bottom: 4.0),
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.arrow_drop_down,
+                    color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                  ),
+                  Text(
+                    smallDevice(context) ? '-' : 'Bajar Tono',
+                    style: DefaultTextStyle.of(context).style.copyWith(
+                          color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                          fontFamily: ScopedModel.of<TemaModel>(context).font,
+                        ),
+                  )
+                ],
+              ),
+              onPressed: () => applyTranspose(-1),
+            ),
+            CupertinoButton(
+              padding: EdgeInsets.only(bottom: 4.0),
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.arrow_drop_up,
+                    color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+                  ),
+                  Text(
+                    smallDevice(context) ? '+' : 'Subir Tono',
+                    style: DefaultTextStyle.of(context).style.copyWith(
+                          color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+                          fontFamily: ScopedModel.of<TemaModel>(context).font,
+                        ),
+                  )
+                ],
+              ),
+              onPressed: () => applyTranspose(1),
+            ),
+            CupertinoButton(
+              padding: EdgeInsets.only(bottom: 4.0),
+              child: Text(
+                'Ok',
+                style: DefaultTextStyle.of(context)
+                    .style
+                    .copyWith(color: ScopedModel.of<TemaModel>(context).getTabTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
+              ),
+              onPressed: () => setState(() => transposeMode = !transposeMode),
+            )
+          ],
+        );
+
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        curve: Curves.fastOutSlowIn,
+        height: transposeMode ? 60 : 0.0,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              blurRadius: 20.0,
+              // spreadRadius: 1.0,
+              offset: Offset(0.0, 18.0),
+            )
+          ],
+          color: isAndroid() ? Theme.of(context).scaffoldBackgroundColor : ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
+        ),
+        child: isAndroid() ? _materialBar() : _cupertinoBar(),
+      ),
+    );
+  }
+
+  // Auto Scroll Logic
+
+  void autoScrollSpeedDown() {
+    autoScrollRate = autoScrollRate > 0 ? autoScrollRate - 1 : 0;
+    scrollController.animateTo(scrollController.position.maxScrollExtent,
+        curve: Curves.linear,
+        duration: Duration(seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5 * autoScrollRate)).floor()));
+    setState(() => autoScroll = true);
+  }
+
+  void autoScrollPausePlay() {
+    if (autoScroll) {
+      stopScroll();
+    } else {
+      scrollController.animateTo(scrollController.position.maxScrollExtent,
+          curve: Curves.linear,
+          duration: Duration(seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5 * autoScrollRate)).floor()));
+    }
+    setState(() => autoScroll = !autoScroll);
+  }
+
+  void autoScrollSpeedUp() {
+    ++autoScrollRate;
+    scrollController.animateTo(scrollController.position.maxScrollExtent,
+        curve: Curves.linear,
+        duration: Duration(seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5 * autoScrollRate)).floor()));
+    setState(() => autoScroll = true);
+  }
+
+  Widget renderAutoScroll() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        curve: Curves.fastOutSlowIn,
+        height: scrollMode ? 60 : 0.0,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              blurRadius: 20.0,
+              offset: Offset(0.0, 18.0),
+            ),
+          ],
+          color: isAndroid() ? Theme.of(context).scaffoldBackgroundColor : ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
+        ),
+        child: ButtonBar(
+          alignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            FlatButton(
+              child: Icon(
+                Icons.fast_rewind,
+                color: !isAndroid() ? ScopedModel.of<TemaModel>(context).getTabTextColor() : null,
+              ),
+              onPressed: autoScrollSpeedUp,
+            ),
+            FlatButton(
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    autoScroll ? Icons.pause : Icons.play_arrow,
+                    color: !isAndroid() ? ScopedModel.of<TemaModel>(context).getTabTextColor() : null,
+                  ),
+                  Text(
+                    '${autoScrollRate + 1}x',
+                    style: !isAndroid()
+                        ? CupertinoTheme.of(context).textTheme.textStyle.copyWith(color: ScopedModel.of<TemaModel>(context).getTabTextColor())
+                        : null,
+                  ),
+                ],
+              ),
+              onPressed: autoScrollPausePlay,
+            ),
+            FlatButton(
+              child: Icon(
+                Icons.fast_forward,
+                color: !isAndroid() ? ScopedModel.of<TemaModel>(context).getTabTextColor() : null,
+              ),
+              onPressed: autoScrollSpeedUp,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget materialLayout(BuildContext context) {
     if (prefs != null) {
       return Scaffold(
@@ -322,119 +525,9 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
             )),
         body: Stack(
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(bottom: transposeMode || scrollMode ? 40.0 : 0.0),
-              child: BodyCoro(
-                scrollController: scrollController,
-                stopScroll: () {
-                  stopScroll();
-                  setState(() => autoScroll = false);
-                },
-                alignment: prefs.getString('alignment'),
-                estrofas: estrofas,
-                initFontSizePortrait: initFontSizePortrait,
-                initFontSizeLandscape: initFontSizeLandscape,
-                acordes: acordes,
-                animation: fontController.value,
-                notation: prefs.getString('notation') ?? 'latino',
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 200),
-                curve: Curves.fastOutSlowIn,
-                height: transposeMode ? 60 : 0.0,
-                width: double.infinity,
-                decoration: BoxDecoration(boxShadow: <BoxShadow>[
-                  BoxShadow(
-                      blurRadius: 20.0,
-                      // spreadRadius: 1.0,
-                      offset: Offset(0.0, 18.0))
-                ], color: Theme.of(context).scaffoldBackgroundColor),
-                child: ButtonBar(
-                  alignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    FlatButton.icon(
-                      icon: Icon(Icons.arrow_drop_down),
-                      label: Text(smallDevice(context) ? '-' : 'Bajar Tono'),
-                      onPressed: () => applyTranspose(-1),
-                    ),
-                    FlatButton.icon(
-                      icon: Icon(Icons.arrow_drop_up),
-                      label: Text(smallDevice(context) ? '+' : 'Subir Tono'),
-                      onPressed: () => applyTranspose(1),
-                    ),
-                    OutlineButton(
-                      child: Text('Ok'),
-                      onPressed: () => setState(() => transposeMode = !transposeMode),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 200),
-                curve: Curves.fastOutSlowIn,
-                height: scrollMode ? 60 : 0.0,
-                width: double.infinity,
-                decoration: BoxDecoration(boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    blurRadius: 20.0,
-                    offset: Offset(0.0, 18.0),
-                  ),
-                ], color: Theme.of(context).scaffoldBackgroundColor),
-                child: ButtonBar(
-                  alignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    FlatButton(
-                      child: Icon(Icons.fast_rewind),
-                      onPressed: () {
-                        autoScrollRate = autoScrollRate > 0 ? autoScrollRate - 1 : 0;
-                        scrollController.animateTo(scrollController.position.maxScrollExtent,
-                            curve: Curves.linear,
-                            duration: Duration(
-                                seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5 * autoScrollRate)).floor()));
-                        setState(() => autoScroll = true);
-                      },
-                    ),
-                    FlatButton(
-                      child: Row(
-                        children: <Widget>[
-                          Icon(autoScroll ? Icons.pause : Icons.play_arrow),
-                          Text('${autoScrollRate + 1}x'),
-                        ],
-                      ),
-                      onPressed: () {
-                        if (autoScroll) {
-                          stopScroll();
-                        } else {
-                          scrollController.animateTo(scrollController.position.maxScrollExtent,
-                              curve: Curves.linear,
-                              duration: Duration(
-                                  seconds:
-                                      ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5 * autoScrollRate)).floor()));
-                        }
-                        setState(() => autoScroll = !autoScroll);
-                      },
-                    ),
-                    FlatButton(
-                      child: Icon(Icons.fast_forward),
-                      onPressed: () {
-                        ++autoScrollRate;
-                        scrollController.animateTo(scrollController.position.maxScrollExtent,
-                            curve: Curves.linear,
-                            duration: Duration(
-                                seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5 * autoScrollRate)).floor()));
-                        setState(() => autoScroll = true);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            renderBody(),
+            renderTransposingBar(),
+            renderAutoScroll(),
           ],
         ),
       );
@@ -565,160 +658,9 @@ class _CoroPageState extends State<CoroPage> with SingleTickerProviderStateMixin
         child: prefs != null
             ? Stack(
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(bottom: transposeMode ? 40.0 : 0.0),
-                    child: BodyCoro(
-                      scrollController: scrollController,
-                      stopScroll: () {
-                        stopScroll();
-                        setState(() => autoScroll = false);
-                      },
-                      alignment: prefs.getString('alignment'),
-                      estrofas: estrofas,
-                      initFontSizePortrait: initFontSizePortrait,
-                      initFontSizeLandscape: initFontSizeLandscape,
-                      acordes: acordes,
-                      animation: fontController.value,
-                      notation: prefs.getString('notation') ?? 'latino',
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 200),
-                      curve: Curves.fastOutSlowIn,
-                      height: transposeMode ? 60 : 0.0,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          boxShadow: <BoxShadow>[BoxShadow(blurRadius: 20.0, offset: Offset(0.0, 18.0))],
-                          color: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor()),
-                      child: ButtonBar(
-                        alignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          CupertinoButton(
-                            padding: EdgeInsets.only(bottom: 4.0),
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.arrow_drop_down,
-                                  color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-                                ),
-                                Text(
-                                  smallDevice(context) ? '-' : 'Bajar Tono',
-                                  style: DefaultTextStyle.of(context).style.copyWith(
-                                        color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-                                        fontFamily: ScopedModel.of<TemaModel>(context).font,
-                                      ),
-                                )
-                              ],
-                            ),
-                            onPressed: () => applyTranspose(-1),
-                          ),
-                          CupertinoButton(
-                            padding: EdgeInsets.only(bottom: 4.0),
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.arrow_drop_up,
-                                  color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-                                ),
-                                Text(
-                                  smallDevice(context) ? '+' : 'Subir Tono',
-                                  style: DefaultTextStyle.of(context).style.copyWith(
-                                        color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-                                        fontFamily: ScopedModel.of<TemaModel>(context).font,
-                                      ),
-                                )
-                              ],
-                            ),
-                            onPressed: () => applyTranspose(1),
-                          ),
-                          CupertinoButton(
-                            padding: EdgeInsets.only(bottom: 4.0),
-                            child: Text(
-                              'Ok',
-                              style: DefaultTextStyle.of(context).style.copyWith(
-                                  color: ScopedModel.of<TemaModel>(context).getTabTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
-                            ),
-                            onPressed: () => setState(() => transposeMode = !transposeMode),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 200),
-                      curve: Curves.fastOutSlowIn,
-                      height: scrollMode ? 60 : 0.0,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          boxShadow: <BoxShadow>[BoxShadow(blurRadius: 20.0, offset: Offset(0.0, 18.0))],
-                          color: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor()),
-                      child: ButtonBar(
-                        alignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          FlatButton(
-                            child: Icon(Icons.fast_rewind, color: ScopedModel.of<TemaModel>(context).getTabTextColor()),
-                            onPressed: () {
-                              autoScrollRate = autoScrollRate > 0 ? autoScrollRate - 1 : 0;
-                              scrollController.animateTo(scrollController.position.maxScrollExtent,
-                                  curve: Curves.linear,
-                                  duration: Duration(
-                                      seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5 * autoScrollRate))
-                                          .floor()));
-                              setState(() => autoScroll = true);
-                            },
-                          ),
-                          FlatButton(
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  autoScroll ? Icons.pause : Icons.play_arrow,
-                                  color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-                                ),
-                                Text(
-                                  '${autoScrollRate + 1}x',
-                                  style: CupertinoTheme.of(context)
-                                      .textTheme
-                                      .textStyle
-                                      .copyWith(color: ScopedModel.of<TemaModel>(context).getTabTextColor()),
-                                ),
-                              ],
-                            ),
-                            onPressed: () {
-                              if (autoScroll) {
-                                stopScroll();
-                              } else {
-                                scrollController.animateTo(scrollController.position.maxScrollExtent,
-                                    curve: Curves.linear,
-                                    duration: Duration(
-                                        seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5 * autoScrollRate))
-                                            .floor()));
-                              }
-                              setState(() => autoScroll = !autoScroll);
-                            },
-                          ),
-                          FlatButton(
-                            child: Icon(
-                              Icons.fast_forward,
-                              color: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-                            ),
-                            onPressed: () {
-                              ++autoScrollRate;
-                              scrollController.animateTo(scrollController.position.maxScrollExtent,
-                                  curve: Curves.linear,
-                                  duration: Duration(
-                                      seconds: ((scrollController.position.maxScrollExtent - scrollController.offset) / (5 + 5 * autoScrollRate))
-                                          .floor()));
-                              setState(() => autoScroll = true);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  renderBody(),
+                  renderTransposingBar(),
+                  renderAutoScroll(),
                 ],
               )
             : Container(),

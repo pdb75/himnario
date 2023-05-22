@@ -28,7 +28,7 @@ class _DescargadosPageState extends State<DescargadosPage> with RouteAware {
 
   void fetchData() async {
     setState(() => cargando = true);
-    himnos = List<Himno>();
+    himnos = [];
 
     List<Map<String, dynamic>> data =
         await DB.rawQuery('select * from himnos join descargados on descargados.himno_id = himnos.id order by himnos.id ASC');

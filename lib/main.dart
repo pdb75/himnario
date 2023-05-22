@@ -9,9 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'cupertino/himnos/himnos.dart';
-import 'material/himnos/himnos.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

@@ -31,8 +31,8 @@ class _DisponiblesPageState extends State<DisponiblesPage> {
 
   void fetchData() async {
     setState(() => cargando = true);
+    himnos = [];
 
-    himnos = List<Himno>();
     http.Response res = await http.get(VoicesApi.voicesAvailable());
 
     List<Map<String, dynamic>> data = await DB.rawQuery(

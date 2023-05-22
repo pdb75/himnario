@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'isAndroid.dart';
+
 Future<void> showSimpleDialog(
   BuildContext context, {
   String title = "",
@@ -20,7 +22,7 @@ Future<void> showSimpleDialog(
     onCancel = () {};
   }
 
-  if (Platform.isAndroid) {
+  if (isAndroid()) {
     await showDialog(
       context: context,
       child: AlertDialog(

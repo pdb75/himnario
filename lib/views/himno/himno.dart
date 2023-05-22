@@ -488,67 +488,73 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     });
   }
 
-  Widget materialLayout() {
-    List<Widget> controlesLayout = !smallDevice(context)
-        ? [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  Widget musicSheetLayout() {
+    return AnimatedContainer(
+      curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
+      duration: Duration(milliseconds: sheet ? 500 : 1500),
+      transform: Matrix4.translationValues(sheet ? 0.0 : 5000, 0.0, 0.0),
+      height: MediaQuery.of(context).size.height - (modoVoces ? 200 : 0),
+      child: OrientationBuilder(
+        builder: (BuildContext context, Orientation orientation) {
+          if (currentOrientation == null) {
+            currentOrientation = orientation;
+          }
+          if (currentOrientation != orientation) {
+            currentOrientation = null;
+            sheetController = PhotoViewController();
+            sheet = false;
+            Future.delayed(Duration(milliseconds: 0)).then((value) {
+              setState(() => sheet = true);
+            });
+          }
+
+          Widget loadingChild = Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                BotonVoz(
-                  voz: 'Soprano',
-                  activo: currentVoice == 0 || currentVoice == 4,
-                  onPressed: () => toggleVoice(0),
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                 ),
-                BotonVoz(
-                  voz: 'Tenor',
-                  activo: currentVoice == 1 || currentVoice == 4,
-                  onPressed: () => toggleVoice(1),
+                SizedBox(
+                  height: 20.0,
                 ),
-                BotonVoz(
-                  voz: 'Contra Alto',
-                  activo: currentVoice == 2 || currentVoice == 4,
-                  onPressed: () => toggleVoice(2),
-                ),
-                BotonVoz(
-                  voz: 'Bajo',
-                  activo: currentVoice == 3 || currentVoice == 4,
-                  onPressed: () => toggleVoice(3),
-                ),
-              ],
-            )
-          ]
-        : [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                BotonVoz(
-                  voz: '   Soprano  ',
-                  activo: currentVoice == 0 || currentVoice == 4,
-                  onPressed: () => toggleVoice(0),
-                ),
-                BotonVoz(
-                  voz: '    Tenor    ',
-                  activo: currentVoice == 1 || currentVoice == 4,
-                  onPressed: () => toggleVoice(1),
-                ),
+                Text(
+                  descargado ? 'Cargando partitura' : 'Descargando partitura',
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                  textScaleFactor: 1.2,
+                )
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                BotonVoz(
-                  voz: 'Contra Alto',
-                  activo: currentVoice == 2 || currentVoice == 4,
-                  onPressed: () => toggleVoice(2),
-                ),
-                BotonVoz(
-                  voz: '     Bajo     ',
-                  activo: currentVoice == 3 || currentVoice == 4,
-                  onPressed: () => toggleVoice(3),
-                ),
-              ],
-            ),
-          ];
+          );
+
+          return currentOrientation == null
+              ? Container()
+              : !sheetReady
+                  ? loadingChild
+                  : PhotoView(
+                      controller: sheetController,
+                      imageProvider: FileImage(sheetFile),
+                      basePosition: Alignment.topCenter,
+                      scaleStateController: scaleController,
+                      initialScale: orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
+                      loadingChild: loadingChild,
+                      backgroundDecoration: BoxDecoration(
+                        color: Colors.white,
+                      ),
+                    );
+        },
+      ),
+    );
+  }
+
+  Widget voicesControlsLayout() {
+    List<Widget> controlesLayout = generateControlesLayout();
 
     List<Widget> buttonLayout = [
       VoicesProgressBar(
@@ -573,45 +579,56 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
           vocesSeek(progress);
         },
       ),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-        RawMaterialButton(
-          shape: CircleBorder(),
-          child: IconButton(
-            onPressed: () {
-              double newProgress = currentProgress - 0.1;
-              if (newProgress <= 0.0)
-                vocesSeek(0.0);
-              else
-                vocesSeek(currentProgress - 0.1);
-            },
-            icon: Icon(Icons.fast_rewind),
-          ),
-          onPressed: () {},
-        ),
-        start
-            ? RawMaterialButton(
-                shape: CircleBorder(),
-                child: IconButton(
-                  onPressed: pauseVoces,
-                  icon: Icon(Icons.pause),
-                ),
-                onPressed: () {},
-              )
-            : RawMaterialButton(
-                shape: CircleBorder(),
-                child: IconButton(
-                  onPressed: !cargando
-                      ? () {
-                          resumeVoces();
-                        }
-                      : null,
-                  icon: Icon(Icons.play_arrow),
-                ),
-                onPressed: () {},
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          RawMaterialButton(
+            shape: CircleBorder(),
+            child: IconButton(
+              onPressed: () {
+                double newProgress = currentProgress - 0.1;
+                if (newProgress <= 0.0)
+                  vocesSeek(0.0);
+                else
+                  vocesSeek(currentProgress - 0.1);
+              },
+              icon: Icon(
+                Icons.fast_rewind,
+                color: isAndroid() ? null : ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
               ),
-        RawMaterialButton(
-          shape: CircleBorder(),
-          child: IconButton(
+            ),
+            onPressed: () {},
+          ),
+          start
+              ? RawMaterialButton(
+                  shape: CircleBorder(),
+                  child: IconButton(
+                    onPressed: pauseVoces,
+                    icon: Icon(
+                      Icons.pause,
+                      color: isAndroid() ? null : ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+                    ),
+                  ),
+                  onPressed: () {},
+                )
+              : RawMaterialButton(
+                  shape: CircleBorder(),
+                  child: IconButton(
+                    onPressed: !cargando
+                        ? () {
+                            resumeVoces();
+                          }
+                        : null,
+                    icon: Icon(
+                      Icons.play_arrow,
+                      color: isAndroid() ? null : ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+                    ),
+                  ),
+                  onPressed: () {},
+                ),
+          RawMaterialButton(
+            shape: CircleBorder(),
+            child: IconButton(
               onPressed: () {
                 double newProgress = currentProgress + 0.1;
                 if (newProgress >= 1.0)
@@ -619,15 +636,102 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
                 else
                   vocesSeek(currentProgress + 0.1);
               },
-              icon: Icon(Icons.fast_forward)),
-          onPressed: () {},
-        ),
-      ])
+              icon: Icon(
+                Icons.fast_forward,
+                color: isAndroid() ? null : ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
+              ),
+            ),
+            onPressed: () {},
+          ),
+        ],
+      )
     ];
 
     for (Widget widget in buttonLayout) controlesLayout.add(widget);
 
-    if (prefs != null)
+    return Align(
+      alignment: FractionalOffset.bottomCenter,
+      child: FractionalTranslation(
+        translation: Offset(0.0, 1.0 - switchModeController.value),
+        child: Card(
+          margin: EdgeInsets.all(0.0),
+          color: !isAndroid() ? ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor() : null,
+          elevation: 10.0,
+          child: !cargando
+              ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: controlesLayout,
+                  ),
+                )
+              : Container(
+                  height: smallDevice(context) ? 185.0 : 140.0,
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      child: isAndroid()
+                          ? LinearProgressIndicator(
+                              value: 0.25 * doneCount,
+                              backgroundColor: Colors.grey[400],
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Theme.of(context).primaryIconTheme.color == Colors.black ? Colors.black : Theme.of(context).primaryColor,
+                              ),
+                            )
+                          : CupertinoActivityIndicator(
+                              animating: true,
+                              radius: 20.0,
+                            ),
+                    ),
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> generateControlesLayout() {
+    List<String> labels =
+        smallDevice(context) ? ['   Soprano  ', '    Tenor    ', 'Contra Alto', '     Bajo     '] : ['Soprano', 'Tenor', 'Contra Alto', 'Bajo'];
+
+    List<Widget> buttons = [];
+
+    for (int i = 0; i < labels.length; ++i) {
+      buttons.add(
+        BotonVoz(
+          voz: labels[i],
+          activo: currentVoice == i || currentVoice == 4,
+          onPressed: () => toggleVoice(i),
+          mainColor: isAndroid() ? null : ScopedModel.of<TemaModel>(context).getAccentColor(),
+          mainColorContrast: isAndroid() ? null : ScopedModel.of<TemaModel>(context).getAccentColorText(),
+        ),
+      );
+    }
+
+    if (smallDevice(context)) {
+      return [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [buttons[0], buttons[1]],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [buttons[2], buttons[3]],
+        )
+      ];
+    }
+
+    return [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: buttons,
+      )
+    ];
+  }
+
+  Widget materialLayout() {
+    if (prefs != null) {
       return Scaffold(
           appBar: AppBar(
             actions: <Widget>[
@@ -700,50 +804,6 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
                 subTema: subTema,
                 temaId: temaId,
               ),
-
-              // Partitura de Himno
-
-              // IgnorePointer(
-              //   child: AnimatedOpacity(
-              //     duration: Duration(milliseconds: sheetDragging || sheetOutDragging ? 1 : 500),
-              //     curve: Curves.easeInOutSine,
-              //     opacity: sheet && sheetOutDragging ? draggingOut(0.8) : draggingIn(0.8),
-              //     child: Container(
-              //       color: Colors.black,
-              //     ),
-              //   ),
-              // ),
-
-              // GestureDetector(
-              //   onHorizontalDragStart: (DragStartDetails details) {
-              //     setState(() {
-              //        sheetDragging = true;
-              //        initSheetOffset = details.globalPosition.dx;
-              //     });
-              //   },
-              //   onHorizontalDragUpdate: (DragUpdateDetails details) {
-              //     setState(() {
-              //       sheetOffset = (initSheetOffset - details.globalPosition.dx);
-              //       sheet = details.delta.dx < -4;
-              //     });
-              //   },
-              //   onHorizontalDragEnd: (DragEndDetails details) {
-              //     setState(() {
-              //        sheetDragging = false;
-              //        sheet = sheet ? true : sheetOffset > MediaQuery.of(context).size.width/4;
-              //        sheetOffset = 0.0;
-              //        initSheetOffset = 0.0;
-              //     });
-              //   },
-              //   child: Align(
-              //     alignment: Alignment.centerRight,
-              //     child: Container(
-              //       height: double.infinity,
-              //       width: MediaQuery.of(context).orientation == Orientation.portrait ? 40.0 : 50,
-              //       color: Colors.transparent,
-              //     ),
-              //   ),
-              // ),
               WillPopScope(
                 onWillPop: () async {
                   bool goBack = true;
@@ -753,339 +813,41 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
                   }
                   return goBack;
                 },
-                child: AnimatedContainer(
-                    curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
-                    duration: Duration(milliseconds: sheet ? 500 : 1500),
-                    transform: Matrix4.translationValues(sheet ? 0.0 : 5000, 0.0, 0.0),
-                    height: MediaQuery.of(context).size.height - (modoVoces ? 200 : 0),
-                    child: OrientationBuilder(
-                      builder: (BuildContext context, Orientation orientation) {
-                        if (currentOrientation == null) {
-                          currentOrientation = orientation;
-                        }
-                        if (currentOrientation != orientation) {
-                          currentOrientation = null;
-                          sheetController = PhotoViewController();
-                          sheet = false;
-                        }
-                        return currentOrientation == null
-                            ? Container()
-                            : !sheetReady
-                                ? Container(
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    color: Colors.white,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        CircularProgressIndicator(
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                                        ),
-                                        SizedBox(
-                                          height: 20.0,
-                                        ),
-                                        Text(
-                                          descargado ? 'Cargando partitura' : 'Descargando partitura',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                          ),
-                                          textScaleFactor: 1.2,
-                                        )
-                                      ],
-                                    ),
-                                  )
-                                : PhotoView(
-                                    controller: sheetController,
-                                    imageProvider: FileImage(sheetFile),
-                                    basePosition: Alignment.topCenter,
-                                    scaleStateController: scaleController,
-                                    initialScale:
-                                        orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
-                                    loadingChild: Container(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      color: Colors.white,
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          CircularProgressIndicator(
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                                          ),
-                                          SizedBox(
-                                            height: 20.0,
-                                          ),
-                                          Text(
-                                            descargado ? 'Cargando partitura' : 'Descargando partitura',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                            textScaleFactor: 1.2,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    backgroundDecoration: BoxDecoration(color: Colors.white));
-                      },
-                    )),
+                child: musicSheetLayout(),
               ),
-              // GestureDetector(
-              //   onHorizontalDragStart: !sheet ? null : (DragStartDetails details) {
-              //     setState(() {
-              //        sheetOutDragging = true;
-              //        initSheetOffset = details.globalPosition.dx;
-              //     });
-              //   },
-              //   onHorizontalDragUpdate: (DragUpdateDetails details) {
-              //     setState(() {
-              //       sheetOffset = (details.globalPosition.dx - initSheetOffset);
-              //       sheet = sheetOutDragging && details.delta.dx < 4;
-              //     });
-              //   },
-              //   onHorizontalDragEnd: (DragEndDetails details) {
-              //     setState(() {
-              //        sheetOutDragging = false;
-              //        sheet = !sheet ? false : sheetOffset < MediaQuery.of(context).size.width/4;
-              //        sheetOffset = 0.0;
-              //        initSheetOffset = 0.0;
-              //        if (!sheet) {
-              //          sheetController.reset();
-              //        }
-              //     });
-              //   },
-              //   child: Align(
-              //     alignment: Alignment.centerLeft,
-              //     child: Container(
-              //       height: double.infinity,
-              //       width: MediaQuery.of(context).orientation == Orientation.portrait ? 40.0 : 50,
-              //       color: Colors.transparent,
-              //     ),
-              //   ),
-              // ),
-
-              Align(
-                  alignment: FractionalOffset.bottomCenter,
-                  child: FractionalTranslation(
-                    translation: Offset(0.0, 1.0 - switchModeController.value),
-                    child: Card(
-                        margin: EdgeInsets.all(0.0),
-                        elevation: 10.0,
-                        child: !cargando
-                            ? Padding(
-                                padding: EdgeInsets.symmetric(vertical: 5.0),
-                                child: Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: controlesLayout))
-                            : Container(
-                                height: smallDevice(context) ? 185.0 : 140.0,
-                                child: Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 20.0),
-                                    child: LinearProgressIndicator(
-                                        value: 0.25 * doneCount,
-                                        backgroundColor: Colors.grey[400],
-                                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryIconTheme.color == Colors.black
-                                            ? Colors.black
-                                            : Theme.of(context).primaryColor)),
-                                  ),
-                                ),
-                              )),
-                  ))
+              voicesControlsLayout(),
             ],
           ),
           floatingActionButton: vozDisponible
               ? Padding(
                   padding: EdgeInsets.only(bottom: smallDevice(context) ? switchModeController.value * 175 : switchModeController.value * 130),
                   child: FloatingActionButton(
-                      key: UniqueKey(),
-                      backgroundColor: modoVoces ? Colors.redAccent : Theme.of(context).accentColor,
-                      onPressed: switchModes,
-                      child: Stack(
-                        children: <Widget>[
-                          Transform.scale(
-                            scale: 1.0 - switchModeController.value,
-                            child: Icon(Icons.play_arrow, size: 40.0),
-                          ),
-                          Transform.scale(
-                            scale: 0.0 + switchModeController.value,
-                            child: Icon(Icons.redo, color: Colors.white, size: 40.0),
-                          ),
-                        ],
-                      )))
+                    key: UniqueKey(),
+                    backgroundColor: modoVoces ? Colors.redAccent : Theme.of(context).accentColor,
+                    onPressed: switchModes,
+                    child: Stack(
+                      children: <Widget>[
+                        Transform.scale(
+                          scale: 1.0 - switchModeController.value,
+                          child: Icon(Icons.play_arrow, size: 40.0),
+                        ),
+                        Transform.scale(
+                          scale: 0.0 + switchModeController.value,
+                          child: Icon(Icons.redo, color: Colors.white, size: 40.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : null);
-    else
-      return Scaffold(
-        appBar: AppBar(),
-      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(),
+    );
   }
 
   Widget cupertinoLayout() {
-    List<Widget> controlesLayout = !smallDevice(context)
-        ? [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                BotonVoz(
-                  voz: 'Soprano',
-                  activo: currentVoice == 0 || currentVoice == 4,
-                  onPressed: () => toggleVoice(0),
-                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
-                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
-                ),
-                BotonVoz(
-                  voz: 'Tenor',
-                  activo: currentVoice == 1 || currentVoice == 4,
-                  onPressed: () => toggleVoice(1),
-                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
-                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
-                ),
-                BotonVoz(
-                  voz: 'Contra Alto',
-                  activo: currentVoice == 2 || currentVoice == 4,
-                  onPressed: () => toggleVoice(2),
-                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
-                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
-                ),
-                BotonVoz(
-                  voz: 'Bajo',
-                  activo: currentVoice == 3 || currentVoice == 4,
-                  onPressed: () => toggleVoice(3),
-                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
-                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
-                ),
-              ],
-            )
-          ]
-        : [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                BotonVoz(
-                  voz: '   Soprano  ',
-                  activo: currentVoice == 0 || currentVoice == 4,
-                  onPressed: () => toggleVoice(0),
-                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
-                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
-                ),
-                BotonVoz(
-                  voz: '    Tenor    ',
-                  activo: currentVoice == 1 || currentVoice == 4,
-                  onPressed: () => toggleVoice(1),
-                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
-                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                BotonVoz(
-                  voz: 'Contra Alto',
-                  activo: currentVoice == 2 || currentVoice == 4,
-                  onPressed: () => toggleVoice(2),
-                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
-                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
-                ),
-                BotonVoz(
-                  voz: '     Bajo     ',
-                  activo: currentVoice == 3 || currentVoice == 4,
-                  onPressed: () => toggleVoice(3),
-                  mainColor: ScopedModel.of<TemaModel>(context).getAccentColor(),
-                  mainColorContrast: ScopedModel.of<TemaModel>(context).getAccentColorText(),
-                ),
-              ],
-            ),
-          ];
-
-    List<Widget> buttonLayout = [
-      VoicesProgressBar(
-        brightness: ScopedModel.of<TemaModel>(context).brightness,
-        currentProgress: currentProgress,
-        duration: totalDuration,
-        onDragStart: cancelSubscription,
-        onSelected: (double progress) {
-          positionSubscription = audioVoces[currentVoice].onAudioPositionChanged.listen((Duration duration) {
-            setState(() {
-              currentProgress = duration.inMilliseconds / totalDuration;
-              currentDuration = duration;
-            });
-          });
-          completeSubscription = audioVoces[currentVoice].onPlayerCompletion.listen((_) {
-            setState(() {
-              start = false;
-              currentProgress = 0.0;
-            });
-          });
-          print(progress);
-          setState(() => currentProgress = progress);
-          vocesSeek(progress);
-        },
-      ),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-        RawMaterialButton(
-          shape: CircleBorder(),
-          child: IconButton(
-            onPressed: () {
-              double newProgress = currentProgress - 0.1;
-              if (newProgress <= 0.0)
-                vocesSeek(0.0);
-              else
-                vocesSeek(currentProgress - 0.1);
-            },
-            icon: Icon(
-              Icons.fast_rewind,
-              color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-            ),
-          ),
-          onPressed: () {},
-        ),
-        start
-            ? RawMaterialButton(
-                shape: CircleBorder(),
-                child: IconButton(
-                  onPressed: pauseVoces,
-                  icon: Icon(
-                    Icons.pause,
-                    color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-                  ),
-                ),
-                onPressed: () {},
-              )
-            : RawMaterialButton(
-                shape: CircleBorder(),
-                child: IconButton(
-                  onPressed: !cargando
-                      ? () {
-                          resumeVoces();
-                        }
-                      : null,
-                  icon: Icon(
-                    Icons.play_arrow,
-                    color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-                  ),
-                ),
-                onPressed: () {},
-              ),
-        RawMaterialButton(
-          shape: CircleBorder(),
-          child: IconButton(
-              onPressed: () {
-                double newProgress = currentProgress + 0.1;
-                if (newProgress >= 1.0)
-                  vocesSeek(1.0);
-                else
-                  vocesSeek(currentProgress + 0.1);
-              },
-              icon: Icon(
-                Icons.fast_forward,
-                color: ScopedModel.of<TemaModel>(context).getScaffoldTextColor(),
-              )),
-          onPressed: () {},
-        ),
-      ])
-    ];
-
-    for (Widget widget in buttonLayout) controlesLayout.add(widget);
-
     List<Widget> modalButtons = [
       CupertinoActionSheetAction(
         isDestructiveAction: descargado,
@@ -1124,61 +886,63 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
     return CupertinoPageScaffold(
       backgroundColor: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
       navigationBar: CupertinoNavigationBar(
-          transitionBetweenRoutes: true,
-          actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
-          backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
-          middle: Text(
-            '${widget.numero} - ${widget.titulo}',
-            style: CupertinoTheme.of(context)
-                .textTheme
-                .textStyle
-                .copyWith(color: ScopedModel.of<TemaModel>(context).getTabTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
-          ),
-          trailing: prefs != null
-              ? Transform.translate(
-                  offset: Offset(20.0, 0.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      CupertinoButton(
-                        onPressed: toggleFavorito,
-                        padding: EdgeInsets.only(bottom: 2.0),
-                        child: favorito
-                            ? Icon(
-                                Icons.star,
-                                size: 30.0,
-                              )
-                            : Icon(
-                                Icons.star_border,
-                                size: 30.0,
-                              ),
+        transitionBetweenRoutes: true,
+        actionsForegroundColor: ScopedModel.of<TemaModel>(context).getTabTextColor(),
+        backgroundColor: ScopedModel.of<TemaModel>(context).getTabBackgroundColor(),
+        middle: Text(
+          '${widget.numero} - ${widget.titulo}',
+          style: CupertinoTheme.of(context)
+              .textTheme
+              .textStyle
+              .copyWith(color: ScopedModel.of<TemaModel>(context).getTabTextColor(), fontFamily: ScopedModel.of<TemaModel>(context).font),
+        ),
+        trailing: prefs != null
+            ? Transform.translate(
+                offset: Offset(20.0, 0.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    CupertinoButton(
+                      onPressed: toggleFavorito,
+                      padding: EdgeInsets.only(bottom: 2.0),
+                      child: favorito
+                          ? Icon(
+                              Icons.star,
+                              size: 30.0,
+                            )
+                          : Icon(
+                              Icons.star_border,
+                              size: 30.0,
+                            ),
+                    ),
+                    CupertinoButton(
+                      disabledColor: Colors.black.withOpacity(0.5),
+                      onPressed: vozDisponible || sheetAvailable
+                          ? () {
+                              showCupertinoModalPopup(
+                                context: context,
+                                builder: (BuildContext context) => CupertinoActionSheet(
+                                  cancelButton: CupertinoActionSheetAction(
+                                    isDestructiveAction: true,
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: Text('Cancelar'),
+                                  ),
+                                  actions: modalButtons,
+                                ),
+                              );
+                            }
+                          : null,
+                      padding: EdgeInsets.only(bottom: 2.0),
+                      child: Icon(
+                        Icons.more_vert,
+                        size: 30.0,
                       ),
-                      CupertinoButton(
-                        disabledColor: Colors.black.withOpacity(0.5),
-                        onPressed: vozDisponible || sheetAvailable
-                            ? () {
-                                showCupertinoModalPopup(
-                                    context: context,
-                                    builder: (BuildContext context) => CupertinoActionSheet(
-                                          cancelButton: CupertinoActionSheetAction(
-                                            isDestructiveAction: true,
-                                            onPressed: () => Navigator.of(context).pop(),
-                                            child: Text('Cancelar'),
-                                          ),
-                                          actions: modalButtons,
-                                        ));
-                              }
-                            : null,
-                        padding: EdgeInsets.only(bottom: 2.0),
-                        child: Icon(
-                          Icons.more_vert,
-                          size: 30.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : null),
+                    ),
+                  ],
+                ),
+              )
+            : null,
+      ),
       child: prefs != null
           ? Stack(
               children: <Widget>[
@@ -1193,111 +957,8 @@ class _HimnoPageState extends State<HimnoPage> with SingleTickerProviderStateMix
                       subTema: subTema,
                       temaId: temaId),
                 ),
-                AnimatedContainer(
-                    curve: sheet ? Curves.fastLinearToSlowEaseIn : Curves.fastOutSlowIn,
-                    duration: Duration(milliseconds: sheet ? 500 : 1500),
-                    transform: Matrix4.translationValues(sheet ? 0.0 : 5000, 0.0, 0.0),
-                    height: MediaQuery.of(context).size.height - (modoVoces ? 200 : 0),
-                    // transform: Matrix4.translationValues(
-                    //   sheetDragging ? MediaQuery.of(context).size.width - sheetOffset :
-                    //   sheetOutDragging ? sheetOffset :
-                    //   sheet ? 0.0 :MediaQuery.of(context).size.width,
-                    //   0.0,
-                    //   0.0
-                    // ),
-                    child: OrientationBuilder(
-                      builder: (BuildContext context, Orientation orientation) {
-                        if (currentOrientation == null) {
-                          currentOrientation = orientation;
-                        }
-                        if (currentOrientation != orientation) {
-                          currentOrientation = null;
-                          sheetController = PhotoViewController();
-                          sheet = false;
-                        }
-                        return currentOrientation == null
-                            ? Container()
-                            : !sheetReady
-                                ? Container(
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    color: Colors.white,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        CupertinoActivityIndicator(),
-                                        SizedBox(
-                                          height: 20.0,
-                                        ),
-                                        Text(
-                                          descargado ? 'Cargando partitura' : 'Descargando partitura',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                          ),
-                                          textScaleFactor: 1.2,
-                                        )
-                                      ],
-                                    ),
-                                  )
-                                : PhotoView(
-                                    controller: sheetController,
-                                    imageProvider: FileImage(sheetFile),
-                                    basePosition: Alignment.topCenter,
-                                    scaleStateController: scaleController,
-                                    initialScale:
-                                        orientation == Orientation.portrait ? PhotoViewComputedScale.contained : PhotoViewComputedScale.covered,
-                                    loadingChild: Container(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      color: Colors.white,
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          CupertinoActivityIndicator(),
-                                          SizedBox(
-                                            height: 20.0,
-                                          ),
-                                          Text(
-                                            descargado ? 'Cargando partitura' : 'Descargando partitura',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                            textScaleFactor: 1.2,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    backgroundDecoration: BoxDecoration(color: Colors.white));
-                      },
-                    )),
-                Align(
-                    alignment: FractionalOffset.bottomCenter,
-                    child: FractionalTranslation(
-                      translation: Offset(0.0, 1.0 - switchModeController.value),
-                      child: Card(
-                          margin: EdgeInsets.all(0.0),
-                          color: ScopedModel.of<TemaModel>(context).getScaffoldBackgroundColor(),
-                          elevation: 10.0,
-                          child: !cargando
-                              ? Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 5.0),
-                                  child:
-                                      Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: controlesLayout))
-                              : Container(
-                                  height: smallDevice(context) ? 185.0 : 140.0,
-                                  child: Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 20.0),
-                                      child: CupertinoActivityIndicator(
-                                        animating: true,
-                                        radius: 20.0,
-                                      ),
-                                    ),
-                                  ),
-                                )),
-                    ))
+                musicSheetLayout(),
+                voicesControlsLayout(),
               ],
             )
           : Container(),
